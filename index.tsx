@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import App from './App';
 import LoginPage from './pages/LoginPage';
 import { SessionContextProvider } from './components/SessionContextProvider';
+import ToastProvider from './components/ToastProvider'; // Importar ToastProvider
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -14,6 +15,7 @@ const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
     <SessionContextProvider>
+      <ToastProvider /> {/* Adicionar ToastProvider aqui */}
       <Router>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
