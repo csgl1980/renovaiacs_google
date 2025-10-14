@@ -4,7 +4,6 @@ import 'pdfjs-dist/build/pdf.worker.mjs';
 import { useNavigate, Routes, Route } from 'react-router-dom'; // Importar Routes e Route
 import { supabase } from './integrations/supabase/client';
 import { useSession } from './components/SessionContextProvider';
-import toast from 'react-hot-toast'; // Importar toast
 
 import Header from './components/Header';
 import ImageUploader from './components/ImageUploader';
@@ -146,7 +145,6 @@ function App() {
 
         if (error) {
           console.error('Erro ao buscar projetos:', error);
-          toast.error('Erro ao carregar seus projetos.');
         } else {
           setProjects(data as Project[]);
         }
@@ -209,7 +207,6 @@ function App() {
         setPdfFile(null);
         setOriginalImageFile(null);
         setPdfPreview(null);
-        toast.error((err as Error).message || "Não foi possível processar o PDF.");
       } finally {
         setIsProcessingPdf(false);
       }
@@ -230,14 +227,12 @@ function App() {
     if (user.credits < generationCost) {
         setError("Créditos insuficientes para realizar esta operação.");
         setBuyCreditsModalOpen(true);
-        toast.error("Créditos insuficientes para realizar esta operação.");
         return;
     }
     
     const fullPrompt = selectedStyle ? `${prompt} ${selectedStyle}`.trim() : prompt;
     if (!fullPrompt) {
         setError("Por favor, descreva a mudança ou escolha um estilo.");
-        toast.error("Por favor, descreva a mudança ou escolha um estilo.");
         return;
     }
     
@@ -250,7 +245,6 @@ function App() {
     
     try {
       let resultImage: string;
-      const generationToastId = toast.loading("Gerando sua transformação...");
       if (mode === 'image') {
         resultImage = await redesignImage(originalImageFile, fullPrompt);
       } else { // floorplan
@@ -269,15 +263,12 @@ function App() {
       if (updateError) {
         console.error('Erro ao deduzir créditos:', updateError);
         setError('Erro ao deduzir créditos. Tente novamente.');
-        toast.error('Erro ao deduzir créditos. Tente novamente.', { id: generationToastId });
       } else if (updatedProfile) {
         refreshUser(); // Refresh user context to show updated credits
-        toast.success("Transformação gerada com sucesso!", { id: generationToastId });
       }
 
     } catch (err) {
       setError((err as Error).message || "Ocorreu um erro desconhecido ao gerar a imagem.");
-      toast.error((err as Error).message || "Ocorreu um erro desconhecido ao gerar a imagem.");
     } finally {
       setIsLoading(false);
       setIsVariationLoading(false);
@@ -289,7 +280,6 @@ function App() {
       const fullPrompt = selectedStyle ? `${prompt} ${selectedStyle}`.trim() : prompt;
       if (!fullPrompt) {
         setCostError("É necessário um prompt para estimar o custo.");
-        toast.error("É necessário um prompt para estimar o custo.");
         return;
       }
 
@@ -298,15 +288,12 @@ function App() {
       setCostEstimate(null);
       
       const estimationPrompt = `Com base na seguinte descrição de uma reforma: "${fullPrompt}", e considerando a imagem gerada, crie uma estimativa de custo detalhada em BRL para uma cidade de médio porte no Brasil. Separe os custos de material e mão de obra para cada item. Forneça o resultado em JSON.`;
-      const costToastId = toast.loading("Estimando custos...");
 
       try {
         const estimate = await estimateCost(estimationPrompt);
         setCostEstimate(estimate);
-        toast.success("Estimativa de custo gerada!", { id: costToastId });
       } catch (err) {
         setCostError((err as Error).message || "Falha ao estimar o custo.");
-        toast.error((err as Error).message || "Falha ao estimar o custo.", { id: costToastId });
       } finally {
         setIsEstimatingCost(false);
       }
@@ -319,21 +306,18 @@ function App() {
     if (user.credits < internalViewsCost) {
         setInternalViewsError("Créditos insuficientes para gerar as vistas internas.");
         setBuyCreditsModalOpen(true);
-        toast.error("Créditos insuficientes para gerar as vistas internas.");
         return;
     }
 
     const fullPrompt = selectedStyle ? `${prompt} ${selectedStyle}`.trim() : prompt;
     if (!fullPrompt) {
         setInternalViewsError("Por favor, descreva o estilo de design para as vistas internas.");
-        toast.error("Por favor, descreva o estilo de design para as vistas internas.");
         return;
     }
     
     setIsInternalViewsLoading(true);
     setInternalViewsError(null);
     setInternalViews(null);
-    const internalViewsToastId = toast.loading("Gerando vistas internas...");
     try {
         const conceptImageFile = await dataUrlToFile(generatedImage, 'concept-3d.png');
         const views = await generateInternalViews(conceptImageFile, fullPrompt);
@@ -350,15 +334,12 @@ function App() {
         if (updateError) {
           console.error('Erro ao deduzir créditos:', updateError);
           setInternalViewsError('Erro ao deduzir créditos. Tente novamente.');
-          toast.error('Erro ao deduzir créditos. Tente novamente.', { id: internalViewsToastId });
         } else if (updatedProfile) {
           refreshUser(); // Refresh user context to show updated credits
-          toast.success("Vistas internas geradas com sucesso!", { id: internalViewsToastId });
         }
 
     } catch (err) {
         setInternalViewsError((err as Error).message || "Ocorreu um erro ao gerar as vistas internas.");
-        toast.error((err as Error).message || "Ocorreu um erro ao gerar as vistas internas.", { id: internalViewsToastId });
     } finally {
         setIsInternalViewsLoading(false);
     }
@@ -372,12 +353,10 @@ function App() {
     if (error) {
       console.error('Erro ao fazer logout:', error);
       setError('Erro ao fazer logout. Tente novamente.');
-      toast.error('Erro ao fazer logout. Tente novamente.');
     } else {
       navigate('/login');
       clearInputs();
       clearResults();
-      toast.success('Você foi desconectado.');
     }
   };
 
@@ -390,10 +369,7 @@ function App() {
   const handleSaveToProject = async (projectId: string | null, newProjectName: string) => {
     const originalPreviewForProject = mode === 'image' ? originalImagePreview : pdfPreview;
     
-    if (!originalPreviewForProject || !generatedImage || !user) {
-      toast.error("Não há imagem para salvar ou usuário não autenticado.");
-      return;
-    }
+    if (!originalPreviewForProject || !generatedImage || !user) return;
 
     const newGeneration: Omit<Generation, 'id'> = {
       generatedImage,
@@ -402,90 +378,74 @@ function App() {
     };
 
     let currentProjectId = projectId;
-    let saveToastId = toast.loading("Salvando imagem...");
 
-    try {
-      if (!currentProjectId) { // Create new project
-        const newProject: Omit<Project, 'id' | 'generations'> = {
-          name: newProjectName,
-          originalImage: originalPreviewForProject,
-          createdAt: new Date().toISOString(),
-          user_id: user.id,
-        };
-        const { data, error } = await supabase.from('projects').insert(newProject).select().single();
-        if (error) {
-          console.error('Erro ao criar novo projeto:', error);
-          setError('Erro ao criar novo projeto. Tente novamente.');
-          toast.error('Erro ao criar novo projeto. Tente novamente.', { id: saveToastId });
-          return;
-        }
-        currentProjectId = data.id;
-      }
-
-      // Add generation to project
-      const { error: genError } = await supabase.from('generations').insert({
-        ...newGeneration,
-        project_id: currentProjectId,
-      });
-
-      if (genError) {
-        console.error('Erro ao salvar geração:', genError);
-        setError('Erro ao salvar imagem gerada. Tente novamente.');
-        toast.error('Erro ao salvar imagem gerada. Tente novamente.', { id: saveToastId });
+    if (!currentProjectId) { // Create new project
+      const newProject: Omit<Project, 'id' | 'generations'> = {
+        name: newProjectName,
+        originalImage: originalPreviewForProject,
+        createdAt: new Date().toISOString(),
+        user_id: user.id,
+      };
+      const { data, error } = await supabase.from('projects').insert(newProject).select().single();
+      if (error) {
+        console.error('Erro ao criar novo projeto:', error);
+        setError('Erro ao criar novo projeto. Tente novamente.');
         return;
       }
-      
-      // Refresh projects after saving
-      const { data: updatedProjects, error: fetchError } = await supabase
-        .from('projects')
-        .select('*, generations(*)') // Fetch generations along with projects
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (fetchError) {
-        console.error('Erro ao recarregar projetos:', fetchError);
-        toast.error('Imagem salva, mas houve um erro ao recarregar seus projetos.', { id: saveToastId });
-      } else {
-        setProjects(updatedProjects as Project[]);
-        toast.success('Imagem salva com sucesso!', { id: saveToastId });
-      }
-
-      setSaveModalOpen(false);
-    } catch (err) {
-      console.error('Erro inesperado ao salvar projeto/geração:', err);
-      toast.error('Ocorreu um erro inesperado ao salvar.', { id: saveToastId });
+      currentProjectId = data.id;
     }
+
+    // Add generation to project
+    const { error: genError } = await supabase.from('generations').insert({
+      ...newGeneration,
+      project_id: currentProjectId,
+    });
+
+    if (genError) {
+      console.error('Erro ao salvar geração:', genError);
+      setError('Erro ao salvar imagem gerada. Tente novamente.');
+      return;
+    }
+    
+    // Refresh projects after saving
+    const { data: updatedProjects, error: fetchError } = await supabase
+      .from('projects')
+      .select('*, generations(*)') // Fetch generations along with projects
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+
+    if (fetchError) {
+      console.error('Erro ao recarregar projetos:', fetchError);
+    } else {
+      setProjects(updatedProjects as Project[]);
+    }
+
+    setSaveModalOpen(false);
   };
 
   const handleDeleteProject = async (projectId: string) => {
     if (!user) return;
-    const deleteToastId = toast.loading("Excluindo projeto...");
     const { error } = await supabase.from('projects').delete().eq('id', projectId).eq('user_id', user.id);
     if (error) {
       console.error('Erro ao deletar projeto:', error);
       setError('Erro ao deletar projeto. Tente novamente.');
-      toast.error('Erro ao deletar projeto. Tente novamente.', { id: deleteToastId });
     } else {
       setProjects(projects.filter(p => p.id !== projectId));
-      toast.success('Projeto excluído com sucesso!', { id: deleteToastId });
     }
   };
   
   const handleDeleteGeneration = async (projectId: string, generationId: string) => {
     if (!user) return;
-    const deleteToastId = toast.loading("Excluindo imagem...");
     const { error } = await supabase.from('generations').delete().eq('id', generationId).eq('project_id', projectId);
     if (error) {
       console.error('Erro ao deletar geração:', error);
       setError('Erro ao deletar imagem gerada. Tente novamente.');
-      toast.error('Erro ao deletar imagem gerada. Tente novamente.', { id: deleteToastId });
     } else {
       setProjects(prevProjects => prevProjects.map(p =>
         p.id === projectId
           ? { ...p, generations: p.generations.filter(g => g.id !== generationId) }
           : p
       ));
-      toast.success('Imagem excluída com sucesso!', { id: deleteToastId });
     }
   };
 
