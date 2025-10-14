@@ -4,6 +4,8 @@ import 'pdfjs-dist/build/pdf.worker.mjs';
 import { useNavigate } from 'react-router-dom'; // Removed Routes, Route
 import { supabase } from './src/integrations/supabase/client';
 import { useSession } from './src/components/SessionContextProvider';
+import { Auth } from '@supabase/auth-ui-react'; // Import Auth
+import { ThemeSupa } from '@supabase/auth-ui-shared'; // Import ThemeSupa
 
 import Header from './components/Header';
 import ImageUploader from './components/ImageUploader';
@@ -124,6 +126,15 @@ function App() {
   const [isBuyCreditsModalOpen, setBuyCreditsModalOpen] = useState(false);
   const [isHotmartRedirectModalOpen, setHotmartRedirectModalOpen] = useState(false);
   const [redirectUrl, setRedirectUrl] = useState('');
+
+  // Redirect unauthenticated users to login page if they somehow land on /app directly
+  useEffect(() => {
+    console.log('App (useEffect): isSessionLoading:', isSessionLoading, 'session:', session);
+    if (!isSessionLoading && !session) {
+      console.log('App (useEffect): Nenhuma sessão, redirecionando para /login');
+      navigate('/login', { replace: true });
+    }
+  }, [session, isSessionLoading, navigate]);
 
   // Fetch projects when user is available
   useEffect(() => {
@@ -452,13 +463,13 @@ function App() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+        <p className="text-lg font-semibold text-gray-700 ml-4">Carregando sessão...</p>
       </div>
     );
   }
 
   // If no session or user, this component should not be rendered.
-  // The AuthRedirector will handle redirection to /login.
-  // This check is a safeguard, but ideally, AuthRedirector ensures this state is not reached.
+  // The useEffect above will handle redirection to /login.
   if (!session || !user) {
     console.log('App: Sessão ou usuário não disponível. Retornando null.');
     return null; 
@@ -466,6 +477,17 @@ function App() {
 
   return (
     <div className="bg-gray-50 min-h-screen font-sans">
+      {/* Este componente Auth é crucial para processar o hash da URL ao chegar em /app */}
+      {/* Ele será oculto visualmente, mas ativo no DOM */}
+      <div className="hidden">
+        <Auth
+          supabaseClient={supabase}
+          appearance={{ theme: ThemeSupa }}
+          providers={[]}
+          redirectTo={window.location.origin + '/app'}
+        />
+      </div>
+
       <Header 
         user={user} // Passa o objeto user diretamente
         onLogin={openLoginModal}
