@@ -18,9 +18,10 @@ export interface CostEstimate {
 }
 
 export interface User {
-  name: string;
+  id: string; // Adicionado para o ID do Supabase
+  first_name: string; // Adicionado para o primeiro nome
+  last_name: string; // Adicionado para o sobrenome
   email: string;
-  token: string;
   credits: number;
 }
 
@@ -37,4 +38,5 @@ export interface Project {
   originalImage: string;
   createdAt: string;
   generations: Generation[];
+  user_id: string; // Adicionado para vincular projetos a usuários
 }
