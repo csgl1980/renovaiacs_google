@@ -4,9 +4,9 @@ import UserIcon from './icons/UserIcon';
 import LogOutIcon from './icons/LogOutIcon';
 import FolderIcon from './icons/FolderIcon';
 import CoinIcon from './icons/CoinIcon';
-import SettingsIcon from './icons/SettingsIcon'; // Importar o novo ícone
-import type { User } from '../types';
-import { Link } from 'react-router-dom'; // Importar Link
+import SettingsIcon from './icons/SettingsIcon';
+import type { User } from '../src/types'; // Ajustado o caminho do import
+import { Link } from 'react-router-dom';
 
 interface HeaderProps {
   user: User | null;
@@ -18,7 +18,7 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ user, onLogin, onSignup, onLogout, onOpenProjects, onBuyCredits }) => {
-  const displayName = user ? `${user.first_name} ${user.last_name}`.trim() : '';
+  const displayName = user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() : '';
 
   return (
     <header className="text-center p-4 md:p-6 relative">

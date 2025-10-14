@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/build/pdf.worker.mjs';
-import { useNavigate, Routes, Route } from 'react-router-dom'; // Importar Routes e Route
+import { useNavigate, Routes, Route } from 'react-router-dom';
 import { supabase } from './integrations/supabase/client';
 import { useSession } from './components/SessionContextProvider';
 
@@ -15,10 +15,10 @@ import BuyCreditsModal from './components/BuyCreditsModal';
 import HotmartRedirectModal from './components/HotmartRedirectModal';
 import PdfUploader from './components/PdfUploader';
 import DualiteView from './components/DualiteView';
-import AdminPage from './pages/AdminPage'; // Importar AdminPage
+import AdminPage from './pages/AdminPage';
 
 import { redesignImage, generateConceptFromPlan, generateInternalViews, estimateCost } from './services/geminiService';
-import type { User, CostEstimate, Project, Generation } from './types';
+import type { User, CostEstimate, Project, Generation } from './src/types'; // Ajustado o caminho do import
 
 // PDF.js Worker setup
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://aistudiocdn.com/pdfjs-dist@^5.4.149/build/pdf.worker.mjs`;
@@ -346,8 +346,8 @@ function App() {
   };
 
   // Auth Handlers (using Supabase)
-  const handleLogin = async () => { /* No longer needed, AuthModal handles it */ };
-  const handleSignup = async () => { /* No longer needed, AuthModal handles it */ };
+  // const handleLogin = async () => { /* No longer needed, AuthModal handles it */ };
+  // const handleSignup = async () => { /* No longer needed, AuthModal handles it */ };
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
@@ -467,7 +467,7 @@ function App() {
   return (
     <div className="bg-gray-50 min-h-screen font-sans">
       <Header 
-        user={{ ...user, name: `${user.first_name} ${user.last_name}`.trim() }}
+        user={user} // Passa o objeto user diretamente
         onLogin={openLoginModal}
         onSignup={openSignupModal}
         onLogout={handleLogout}
