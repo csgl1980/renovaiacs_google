@@ -7,11 +7,12 @@ const corsHeaders = {
 };
 
 // Mapeamento dos IDs de produto da Hotmart para a quantidade de créditos
-// ATENÇÃO: Você precisará substituir estes IDs de exemplo pelos IDs reais dos seus produtos na Hotmart.
+// IMPORTANTE: Substitua os IDs de exemplo abaixo pelos IDs REAIS dos seus produtos na Hotmart.
+// Você pode encontrar esses IDs no painel da Hotmart ou nos logs do webhook.
 const creditProductMapping: { [hotmartProductId: string]: number } = {
-  "K101885102O": 20,  // Exemplo: Pacote Básico (ID do produto Hotmart -> Créditos)
-  "F101885804K": 50,  // Exemplo: Pacote Padrão
-  "D101885891B": 150, // Exemplo: Pacote Profissional
+  "SEU_ID_PRODUTO_PACOTE_BASICO": 20,  // Exemplo: Pacote Básico (ID do produto Hotmart -> Créditos)
+  "SEU_ID_PRODUTO_PACOTE_PADRAO": 50,  // Exemplo: Pacote Padrão
+  "SEU_ID_PRODUTO_PACOTE_PROFISSIONAL": 150, // Exemplo: Pacote Profissional
   // Adicione mais mapeamentos conforme seus produtos na Hotmart
 };
 
@@ -22,8 +23,6 @@ serve(async (req) => {
   }
 
   try {
-    // A Hotmart geralmente envia o payload como application/x-www-form-urlencoded
-    // ou application/json. Vamos tentar parsear como JSON primeiro.
     const requestBody = await req.json();
     console.log('Webhook Hotmart recebido:', JSON.stringify(requestBody, null, 2));
 
@@ -36,12 +35,10 @@ serve(async (req) => {
     //   return new Response('Unauthorized: Invalid signature', { status: 401, headers: corsHeaders });
     // }
 
-    // Verifica se o evento é de compra aprovada
-    // A estrutura do payload da Hotmart pode variar. Ajuste conforme necessário.
-    const eventType = requestBody.event; // Ex: "PURCHASE_APPROVED"
-    const purchaseStatus = requestBody.data?.purchase?.status; // Ex: "APPROVED"
+    const eventType = requestBody.event;
+    const purchaseStatus = requestBody.data?.purchase?.status;
     const buyerEmail = requestBody.data?.buyer?.email;
-    const hotmartProductCode = requestBody.data?.product?.id; // Ou outro campo que identifique o produto
+    const hotmartProductCode = requestBody.data?.product?.id;
 
     if (eventType !== 'PURCHASE_APPROVED' || purchaseStatus !== 'APPROVED') {
       console.log('Evento não é de compra aprovada ou status não é APPROVED. Ignorando.');
@@ -60,13 +57,11 @@ serve(async (req) => {
       return new Response('Product not mapped', { status: 200, headers: corsHeaders });
     }
 
-    // Inicializa o cliente Supabase com a chave de serviço para acesso privilegiado
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Busca o perfil do usuário pelo email
     const { data: profile, error: fetchError } = await supabaseClient
       .from('profiles')
       .select('id, credits')
@@ -78,7 +73,6 @@ serve(async (req) => {
       return new Response(`Error: User profile not found for ${buyerEmail}`, { status: 404, headers: corsHeaders });
     }
 
-    // Atualiza os créditos do usuário
     const newCredits = profile.credits + creditsToAdd;
     const { error: updateError } = await supabaseClient
       .from('profiles')
