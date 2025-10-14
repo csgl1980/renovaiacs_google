@@ -20,6 +20,9 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
-      }
+      },
+      optimizeDeps: {
+        include: ['react', 'react-dom'], // Garante que React e ReactDOM sejam pré-empacotados
+      },
     };
 });
