@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { redesignImage, generateConceptFromPlan } from '../services/geminiService';
+import { redesignImage, generateConceptFromPlan } from '../../services/geminiService'; // Caminho corrigido
 import { supabase } from '../integrations/supabase/client';
 import { useSession } from '../components/SessionContextProvider';
 import type { User } from '../types';
