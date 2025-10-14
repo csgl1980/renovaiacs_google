@@ -4,8 +4,6 @@ import 'pdfjs-dist/build/pdf.worker.mjs';
 import { useNavigate } from 'react-router-dom'; // Removed Routes, Route
 import { supabase } from './src/integrations/supabase/client';
 import { useSession } from './src/components/SessionContextProvider';
-import { Auth } from '@supabase/auth-ui-react'; // Import Auth
-import { ThemeSupa } from '@supabase/auth-ui-shared'; // Import ThemeSupa
 
 import Header from './components/Header';
 import ImageUploader from './components/ImageUploader';
@@ -477,17 +475,6 @@ function App() {
 
   return (
     <div className="bg-gray-50 min-h-screen font-sans">
-      {/* Este componente Auth é crucial para processar o hash da URL ao chegar em /app */}
-      {/* Ele será oculto visualmente, mas ativo no DOM */}
-      <div className="hidden">
-        <Auth
-          supabaseClient={supabase}
-          appearance={{ theme: ThemeSupa }}
-          providers={[]}
-          redirectTo={window.location.origin + '/app'}
-        />
-      </div>
-
       <Header 
         user={user} // Passa o objeto user diretamente
         onLogin={openLoginModal}
