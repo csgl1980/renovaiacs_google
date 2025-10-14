@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/build/pdf.worker.mjs';
 import { useNavigate, Routes, Route } from 'react-router-dom';
-import { supabase } from './src/integrations/supabase/client'; // Caminho corrigido
+import { supabase } from './src/integrations/supabase/client';
 import { useSession } from './src/components/SessionContextProvider';
 
 import Header from './components/Header';
@@ -18,10 +18,11 @@ import DualiteView from './components/DualiteView';
 import AdminPage from './src/pages/AdminPage';
 
 import { redesignImage, generateConceptFromPlan, generateInternalViews, estimateCost } from './services/geminiService';
-import type { User, CostEstimate, Project, Generation } from './src/types'; // Ajustado o caminho do import
+import type { User, CostEstimate, Project, Generation } from './src/types';
 
 // PDF.js Worker setup
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://aistudiocdn.com/pdfjs-dist@^5.4.149/build/pdf.worker.mjs`;
+// Alterado para usar uma versão específica no CDN para evitar problemas de resolução
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://aistudiocdn.com/pdfjs-dist@5.4.149/build/pdf.worker.mjs`;
 
 // Helper to convert PDF to an image-like file for preview and processing
 const processPdfToImageFile = async (pdfFile: File): Promise<{ previewUrl: string, imageFile: File }> => {
@@ -126,9 +127,12 @@ function App() {
 
   // Redirect unauthenticated users to login page
   useEffect(() => {
+    console.log('App: Session loading:', isSessionLoading, 'Session:', session);
     if (!isSessionLoading && !session) {
+      console.log('App: Redirecting to /login (unauthenticated)');
       navigate('/login');
     } else if (!isSessionLoading && session && window.location.pathname === '/login') {
+      console.log('App: Redirecting to / (authenticated on login page)');
       navigate('/'); // Redirect to home if already logged in and on login page
     }
   }, [session, isSessionLoading, navigate]);
