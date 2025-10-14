@@ -13,20 +13,18 @@ const RootRedirector: React.FC = () => {
 
   useEffect(() => {
     console.log('RootRedirector: isLoading:', isLoading, 'session:', session, 'user:', user);
-    if (!isLoading) {
-      if (session && user) { // Redirecionar para /app somente se a sessão E o usuário estiverem carregados
+    if (!isLoading) { // Uma vez que o SessionContextProvider terminou de carregar
+      if (session && user) { // Se a sessão e o perfil do usuário estiverem carregados
         console.log('RootRedirector: Sessão e usuário encontrados, redirecionando para /app');
         navigate('/app', { replace: true });
-      } else if (!session) { // Se não houver sessão, redirecionar para /login
-        console.log('RootRedirector: Nenhuma sessão, redirecionando para /login');
+      } else { // Se não houver sessão ou o perfil do usuário não foi carregado
+        console.log('RootRedirector: Nenhuma sessão ou perfil de usuário, redirecionando para /login');
         navigate('/login', { replace: true });
       }
-      // Se a sessão existe mas o usuário ainda não foi carregado (session && !user),
-      // o componente continuará mostrando o spinner de carregamento.
     }
   }, [session, user, isLoading, navigate]); // Adicionar 'user' às dependências
 
-  if (isLoading || (session && !user)) { // Mostrar carregando se a sessão está carregando OU se a sessão existe mas o perfil do usuário ainda não
+  if (isLoading) { // Mostrar carregando APENAS se o SessionContextProvider ainda estiver processando
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
