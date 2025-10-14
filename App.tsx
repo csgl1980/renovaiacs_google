@@ -127,6 +127,7 @@ function App() {
 
   // Fetch projects when user is available
   useEffect(() => {
+    console.log('App: useEffect para buscar projetos. User:', user);
     const fetchProjects = async () => {
       if (user) {
         const { data, error } = await supabase
@@ -136,11 +137,13 @@ function App() {
           .order('created_at', { ascending: false });
 
         if (error) {
-          console.error('Erro ao buscar projetos:', error);
+          console.error('App: Erro ao buscar projetos:', error);
         } else {
+          console.log('App: Projetos carregados:', data);
           setProjects(data as Project[]);
         }
       } else {
+        console.log('App: Usuário não disponível, limpando projetos.');
         setProjects([]);
       }
     };
@@ -442,6 +445,8 @@ function App() {
   const isImageUploaded = originalImagePreview !== null || pdfPreview !== null;
   const generationCost = mode === 'image' ? 2 : 3;
 
+  console.log('App: Renderizando. isLoading:', isSessionLoading, 'Session:', session, 'User:', user);
+
   // If session is loading, show a spinner
   if (isSessionLoading) {
     return (
@@ -453,10 +458,9 @@ function App() {
 
   // If no session or user, this component should not be rendered.
   // The AuthRedirector will handle redirection to /login.
+  // This check is a safeguard, but ideally, AuthRedirector ensures this state is not reached.
   if (!session || !user) {
-    // This case should ideally not be reached if AuthRedirector works correctly,
-    // but as a fallback, we can redirect here too.
-    navigate('/login', { replace: true });
+    console.log('App: Sessão ou usuário não disponível. Retornando null.');
     return null; 
   }
 

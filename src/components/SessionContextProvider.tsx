@@ -18,15 +18,19 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchUserAndSession = async () => {
+    console.log('SessionContext: Iniciando fetchUserAndSession...');
     setIsLoading(true);
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
     if (sessionError) {
-      console.error('Erro ao obter sessão:', sessionError);
+      console.error('SessionContext: Erro ao obter sessão:', sessionError);
       setSession(null);
       setUser(null);
     } else {
+      console.log('SessionContext: Sessão obtida:', session);
       setSession(session);
       if (session) {
+        console.log('SessionContext: Tentando buscar perfil para user ID:', session.user.id);
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('id, first_name, last_name, email, credits, is_admin') // Adicionado 'is_admin'
@@ -34,11 +38,13 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
           .single();
 
         if (profileError && profileError.code !== 'PGRST116') { // PGRST116 means no rows found (new user)
-          console.error('Erro ao obter perfil do usuário:', profileError);
+          console.error('SessionContext: Erro ao obter perfil do usuário:', profileError);
           setUser(null);
         } else if (profileData) {
+          console.log('SessionContext: Perfil do usuário encontrado:', profileData);
           setUser(profileData as User);
         } else {
+          console.log('SessionContext: Nenhum perfil encontrado, criando objeto de usuário básico.');
           // If no profile found, create a basic user object from auth.user
           setUser({
             id: session.user.id,
@@ -50,9 +56,11 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
           });
         }
       } else {
+        console.log('SessionContext: Nenhuma sessão ativa.');
         setUser(null);
       }
     }
+    console.log('SessionContext: fetchUserAndSession concluído. isLoading = false');
     setIsLoading(false);
   };
 
@@ -60,6 +68,7 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
     fetchUserAndSession();
 
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log('SessionContext: onAuthStateChange event:', _event, 'Session:', session);
       setSession(session);
       if (session) {
         fetchUserAndSession(); // Re-fetch user profile on auth state change
@@ -74,6 +83,7 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
   }, []);
 
   const refreshUser = async () => {
+    console.log('SessionContext: refreshUser chamado.');
     await fetchUserAndSession();
   };
 
