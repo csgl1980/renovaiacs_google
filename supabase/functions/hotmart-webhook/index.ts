@@ -10,9 +10,9 @@ const corsHeaders = {
 // IMPORTANTE: Substitua os IDs abaixo pelos IDs REAIS dos seus produtos na Hotmart.
 // Você pode encontrar esses IDs no painel da Hotmart ou nos logs do webhook do Supabase.
 const creditProductMapping: { [hotmartProductId: string]: number } = {
-  "K101885102O": 20,  // ID do produto Hotmart para o Pacote Básico (20 créditos)
-  "F101885804K": 50,  // ID do produto Hotmart para o Pacote Padrão (50 créditos)
-  "D101885891B": 150, // ID do produto Hotmart para o Pacote Profissional (150 créditos)
+  "6243393": 20,  // ID do produto Hotmart para o Pacote Básico (20 créditos)
+  "6243679": 50,  // ID do produto Hotmart para o Pacote Padrão (50 créditos)
+  "SEU_ID_PRODUTO_PACOTE_PROFISSIONAL": 150, // Exemplo: Pacote Profissional (150 créditos) - Substitua pelo ID real se tiver
   // Adicione mais mapeamentos aqui se tiver outros pacotes de créditos
 };
 
