@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../integrations/supabase/client';
-import { useSession } from '../components/SessionContextProvider';
-import type { Project, Generation } from '../types';
+import { useSession } from '../components/SessionContextProvider'; // Caminho corrigido
+import type { Project, Generation } from '../types'; // Caminho corrigido
 
 interface UseProjectManagementProps {
   originalImagePreview: string | null;

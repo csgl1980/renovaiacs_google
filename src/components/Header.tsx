@@ -1,11 +1,11 @@
 import React from 'react';
 import SparklesIcon from './icons/SparklesIcon';
-import UserIcon from '@/src/components/icons/UserIcon'; // Caminho corrigido
-import LogOutIcon from '@/src/components/icons/LogOutIcon'; // Caminho corrigido
-import FolderIcon from '@/src/components/icons/FolderIcon'; // Caminho corrigido
-import CoinIcon from '@/src/components/icons/CoinIcon'; // Caminho corrigido
-import SettingsIcon from '@/src/components/icons/SettingsIcon'; // Caminho corrigido
-import type { User } from '../types';
+import UserIcon from './icons/UserIcon'; // Caminho corrigido
+import LogOutIcon from './icons/LogOutIcon'; // Caminho corrigido
+import FolderIcon from './icons/FolderIcon'; // Caminho corrigido
+import CoinIcon from './icons/CoinIcon'; // Caminho corrigido
+import SettingsIcon from './icons/SettingsIcon'; // Caminho corrigido
+import type { User } from '../types'; // Caminho corrigido
 import { Link } from 'react-router-dom';
 
 interface HeaderProps {

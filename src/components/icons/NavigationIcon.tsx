@@ -1,6 +1,6 @@
 import React from 'react';
 
-const MaximizeIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+const NavigationIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"
@@ -13,8 +13,8 @@ const MaximizeIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     strokeLinejoin="round"
     {...props}
   >
-    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+    <polygon points="3 11 22 2 13 21 11 13 3 11" />
   </svg>
 );
 
-export default MaximizeIcon;
+export default NavigationIcon;

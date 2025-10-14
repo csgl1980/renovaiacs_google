@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { STYLE_OPTIONS } from '../constants';
-import type { StyleOption } from '../types';
+import { STYLE_OPTIONS } from '../constants'; // Caminho corrigido
+import type { StyleOption } from '../types'; // Caminho corrigido
 import SparklesIcon from './icons/SparklesIcon';
 import ArrowLeftIcon from './icons/ArrowLeftIcon';
 import ArrowRightIcon from './icons/ArrowRightIcon';

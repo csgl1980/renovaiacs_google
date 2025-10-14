@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../integrations/supabase/client';
-import { useSession } from '../components/SessionContextProvider';
-import type { User } from '../types';
-import CoinIcon from '@/src/components/icons/CoinIcon'; // Caminho corrigido
-import UserIcon from '@/src/components/icons/UserIcon'; // Caminho corrigido
-import XCircleIcon from '@/src/components/icons/XCircleIcon'; // Caminho corrigido
+import { useSession } from '../components/SessionContextProvider'; // Caminho corrigido
+import type { User } from '../types'; // Caminho corrigido
+import CoinIcon from '../components/icons/CoinIcon'; // Caminho corrigido
+import UserIcon from '../components/icons/UserIcon'; // Caminho corrigido
+import XCircleIcon from '../components/icons/XCircleIcon'; // Caminho corrigido
 
 const AdminPage: React.FC = () => {
   const navigate = useNavigate();

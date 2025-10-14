@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
-import App from './App';
+import App from './src/App'; // Caminho corrigido
 import LoginPage from "./src/pages/LoginPage";
 import { SessionContextProvider, useSession } from './src/components/SessionContextProvider';
 import AdminPage from './src/pages/AdminPage';

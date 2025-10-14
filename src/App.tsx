@@ -1,25 +1,25 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSession } from './src/components/SessionContextProvider';
+import { useSession } from './components/SessionContextProvider'; // Caminho corrigido
 
-import Header from './components/Header';
-import ImageUploader from './components/ImageUploader';
-import PromptControls from './components/PromptControls';
-import ResultDisplay from './components/ResultDisplay';
-import SaveToProjectModal from './components/SaveToProjectModal';
-import ProjectsView from './components/ProjectsView';
-import BuyCreditsModal from './components/BuyCreditsModal';
-import HotmartRedirectModal from './components/HotmartRedirectModal';
-import PdfUploader from './components/PdfUploader';
-import DualiteView from './components/DualiteView';
+import Header from './components/Header'; // Caminho corrigido
+import ImageUploader from './components/ImageUploader'; // Caminho corrigido
+import PromptControls from './components/PromptControls'; // Caminho corrigido
+import ResultDisplay from './components/ResultDisplay'; // Caminho corrigido
+import SaveToProjectModal from './components/SaveToProjectModal'; // Caminho corrigido
+import ProjectsView from './components/ProjectsView'; // Caminho corrigido
+import BuyCreditsModal from './components/BuyCreditsModal'; // Caminho corrigido
+import HotmartRedirectModal from './components/HotmartRedirectModal'; // Caminho corrigido
+import PdfUploader from './components/PdfUploader'; // Caminho corrigido
+import DualiteView from './components/DualiteView'; // Caminho corrigido
 
 // Importar os novos hooks
-import { useImageUpload } from './src/hooks/useImageUpload';
-import { useGeneration } from './src/hooks/useGeneration';
-import { useCostEstimation } from './src/hooks/useCostEstimation';
-import { useInternalViews } from './src/hooks/useInternalViews';
-import { useProjectManagement } from './src/hooks/useProjectManagement';
-import { useModals } from './src/hooks/useModals';
+import { useImageUpload } from './hooks/useImageUpload'; // Caminho corrigido
+import { useGeneration } from './hooks/useGeneration'; // Caminho corrigido
+import { useCostEstimation } from './hooks/useCostEstimation'; // Caminho corrigido
+import { useInternalViews } from './hooks/useInternalViews'; // Caminho corrigido
+import { useProjectManagement } from './hooks/useProjectManagement'; // Caminho corrigido
+import { useModals } from './hooks/useModals'; // Caminho corrigido
 
 function App() {
   type Mode = 'image' | 'floorplan' | 'dualite';

@@ -1,7 +1,7 @@
 import React from 'react';
 import DollarSignIcon from './icons/DollarSignIcon';
 import ShareIcon from './icons/ShareIcon';
-import type { CostEstimate } from '../types';
+import type { CostEstimate } from '../types'; // Caminho corrigido
 
 interface CostEstimatorProps {
   isLoading: boolean;

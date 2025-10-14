@@ -6,7 +6,7 @@ import DollarSignIcon from './icons/DollarSignIcon';
 import CameraIcon from './icons/CameraIcon';
 import SaveIcon from './icons/SaveIcon';
 import CostEstimator from './CostEstimator';
-import type { CostEstimate } from '../types';
+import type { CostEstimate } from '../types'; // Caminho corrigido
 
 interface ResultDisplayProps {
   mode: 'image' | 'floorplan';

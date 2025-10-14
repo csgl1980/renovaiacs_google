@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { Project } from '../types';
+import type { Project } from '../types'; // Caminho corrigido
 import XCircleIcon from './icons/XCircleIcon';
 import FolderIcon from './icons/FolderIcon';
 

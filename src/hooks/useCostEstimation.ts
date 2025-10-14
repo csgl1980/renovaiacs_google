@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import { estimateCost } from '../../services/geminiService'; // Caminho corrigido
-import type { CostEstimate } from '../types';
+import { estimateCost } from '../services/geminiService'; // Caminho corrigido
+import type { CostEstimate } from '../types'; // Caminho corrigido
 
 interface UseCostEstimationProps {
   generatedImage: string | null;
