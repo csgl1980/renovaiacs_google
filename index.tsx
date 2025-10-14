@@ -2,8 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import App from './App';
-import LoginPage from "./pages/LoginPage.tsx";
-import { SessionContextProvider } from './components/SessionContextProvider';
+import LoginPage from "./src/pages/LoginPage"; // Caminho corrigido
+import { SessionContextProvider } from './src/components/SessionContextProvider'; // Caminho corrigido
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
