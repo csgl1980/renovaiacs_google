@@ -30,7 +30,7 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchUserProfile = useCallback(async (currentSession: Session) => {
-    console.log('SessionContext: Tentando buscar perfil para user ID:', currentSession.user.id);
+    console.log('SessionContext: [fetchUserProfile] Tentando buscar perfil para user ID:', currentSession.user.id);
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('id, first_name, last_name, email, credits, is_admin')
@@ -38,13 +38,13 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
       .single();
 
     if (profileError && profileError.code !== 'PGRST116') { // PGRST116 means no rows found (new user)
-      console.error('SessionContext: Erro ao obter perfil do usuário:', profileError);
+      console.error('SessionContext: [fetchUserProfile] Erro ao obter perfil do usuário:', profileError);
       setUser(null);
     } else if (profileData) {
-      console.log('SessionContext: Perfil do usuário encontrado:', profileData);
+      console.log('SessionContext: [fetchUserProfile] Perfil do usuário encontrado:', profileData);
       setUser(profileData as User);
     } else {
-      console.log('SessionContext: Nenhum perfil encontrado, criando objeto de usuário básico.');
+      console.log('SessionContext: [fetchUserProfile] Nenhum perfil encontrado, criando objeto de usuário básico.');
       setUser({
         id: currentSession.user.id,
         first_name: currentSession.user.user_metadata?.first_name || '',
@@ -54,10 +54,11 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
         is_admin: false, // Default for new users without a profile yet
       });
     }
+    console.log('SessionContext: [fetchUserProfile] Finalizado.');
   }, []);
 
   const handleAuthChange = useCallback(async (event: string, currentSession: Session | null) => {
-    console.log('SessionContext: handleAuthChange - event:', event, 'Session:', currentSession);
+    console.log('SessionContext: [handleAuthChange] Evento:', event, 'Sessão:', currentSession);
     setIsLoading(true); // Always set loading true at the start of an auth change
 
     if (currentSession) {
@@ -68,30 +69,36 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
       setUser(null);
     }
     setIsLoading(false); // Always set loading false at the end
+    console.log('SessionContext: [handleAuthChange] Finalizado. isLoading:', false);
   }, [fetchUserProfile]);
 
   useEffect(() => {
     let isMounted = true; // Flag to prevent state updates on unmounted component
 
     const setupAuth = async () => {
+      console.log('SessionContext: [setupAuth] Iniciando...');
       setIsLoading(true); // Start loading immediately
 
       // 1. Handle hash parameters first
       const hash = window.location.hash;
       if (hash) {
-        console.log('SessionContext: Hash encontrado na URL:', hash);
+        console.log('SessionContext: [setupAuth] Hash encontrado na URL:', hash);
         const hashParams = parseHashParams(hash);
         if (hashParams.access_token && hashParams.refresh_token) {
-          console.log('SessionContext: Encontrado access_token e refresh_token no hash. Tentando definir a sessão.');
+          console.log('SessionContext: [setupAuth] Encontrado access_token e refresh_token no hash. Tentando definir a sessão.');
           const { error } = await supabase.auth.setSession({
             access_token: hashParams.access_token,
             refresh_token: hashParams.refresh_token,
           });
           if (error) {
-            console.error('SessionContext: Erro ao definir a sessão a partir do hash:', error);
+            console.error('SessionContext: [setupAuth] Erro ao definir a sessão a partir do hash:', error);
           } else {
-            console.log('SessionContext: Sessão definida com sucesso a partir do hash.');
+            console.log('SessionContext: [setupAuth] Sessão definida com sucesso a partir do hash.');
+            // Clear hash from URL to prevent re-processing on refresh
             window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+            // Explicitly refresh session to ensure internal state is fully synchronized
+            await supabase.auth.refreshSession();
+            console.log('SessionContext: [setupAuth] Sessão atualizada após definir do hash.');
           }
         }
       }
@@ -100,17 +107,20 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
       const { data: { session: initialSession }, error: sessionError } = await supabase.auth.getSession();
       if (isMounted) { // Only update state if component is still mounted
         if (sessionError) {
-          console.error('SessionContext: Erro ao obter sessão inicial:', sessionError);
+          console.error('SessionContext: [setupAuth] Erro ao obter sessão inicial:', sessionError);
           setSession(null);
           setUser(null);
         } else if (initialSession) {
+          console.log('SessionContext: [setupAuth] Sessão inicial encontrada:', initialSession);
           setSession(initialSession);
           await fetchUserProfile(initialSession);
         } else {
+          console.log('SessionContext: [setupAuth] Nenhuma sessão inicial encontrada.');
           setSession(null);
           setUser(null);
         }
         setIsLoading(false);
+        console.log('SessionContext: [setupAuth] Finalizado. isLoading:', false);
       }
     };
 
@@ -130,11 +140,11 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
   }, [handleAuthChange, fetchUserProfile]); // Dependencies for useEffect
 
   const refreshUser = useCallback(async () => {
-    console.log('SessionContext: refreshUser chamado.');
+    console.log('SessionContext: [refreshUser] chamado.');
     setIsLoading(true);
     const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
     if (sessionError) {
-      console.error('SessionContext: Erro ao obter sessão para refresh:', sessionError);
+      console.error('SessionContext: [refreshUser] Erro ao obter sessão para refresh:', sessionError);
       setSession(null);
       setUser(null);
     } else if (currentSession) {
@@ -145,6 +155,7 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
       setUser(null);
     }
     setIsLoading(false);
+    console.log('SessionContext: [refreshUser] Finalizado. isLoading:', false);
   }, [fetchUserProfile]);
 
   return (

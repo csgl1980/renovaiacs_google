@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSession } from './components/SessionContextProvider'; // Caminho corrigido
+import { supabase } from './integrations/supabase/client'; // Importar supabase aqui
 
 import Header from './components/Header'; // Caminho corrigido
 import ImageUploader from './components/ImageUploader'; // Caminho corrigido
@@ -25,6 +26,9 @@ function App() {
   type Mode = 'image' | 'floorplan' | 'dualite';
   const navigate = useNavigate();
   const { session, user, isLoading: isSessionLoading, refreshUser } = useSession();
+
+  // Adicionando log para depuração
+  console.log('App.tsx: Render - isSessionLoading:', isSessionLoading, 'session:', session, 'user:', user);
 
   // Estado global de erro para a aplicação principal
   const [appError, setAppError] = useState<string | null>(null);
