@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/build/pdf.worker.mjs';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Routes, Route } from 'react-router-dom'; // Importar Routes e Route
 import { supabase } from './integrations/supabase/client';
 import { useSession } from './components/SessionContextProvider';
 
@@ -9,14 +9,13 @@ import Header from './components/Header';
 import ImageUploader from './components/ImageUploader';
 import PromptControls from './components/PromptControls';
 import ResultDisplay from './components/ResultDisplay';
-import AuthModal from './components/AuthModal'; // Este modal será removido ou adaptado
-import AuthPlaceholder from './components/AuthPlaceholder'; // Este placeholder será removido
 import SaveToProjectModal from './components/SaveToProjectModal';
 import ProjectsView from './components/ProjectsView';
 import BuyCreditsModal from './components/BuyCreditsModal';
 import HotmartRedirectModal from './components/HotmartRedirectModal';
 import PdfUploader from './components/PdfUploader';
-import DualiteView from './components/DualiteView'; // Importar o DualiteView
+import DualiteView from './components/DualiteView';
+import AdminPage from './pages/AdminPage'; // Importar AdminPage
 
 import { redesignImage, generateConceptFromPlan, generateInternalViews, estimateCost } from './services/geminiService';
 import type { User, CostEstimate, Project, Generation } from './types';
@@ -82,7 +81,7 @@ const dataUrlToFile = async (dataUrl: string, filename: string): Promise<File> =
 };
 
 function App() {
-  type Mode = 'image' | 'floorplan' | 'dualite'; // Adicionado 'dualite'
+  type Mode = 'image' | 'floorplan' | 'dualite';
   const navigate = useNavigate();
   const { session, user, isLoading: isSessionLoading, refreshUser } = useSession();
 
@@ -140,7 +139,7 @@ function App() {
       if (user) {
         const { data, error } = await supabase
           .from('projects')
-          .select('*')
+          .select('*, generations(*)') // Fetch generations along with projects
           .eq('user_id', user.id)
           .order('created_at', { ascending: false });
 
@@ -468,103 +467,107 @@ function App() {
   return (
     <div className="bg-gray-50 min-h-screen font-sans">
       <Header 
-        user={{ ...user, name: `${user.first_name} ${user.last_name}`.trim() }} // Pass user with full name
+        user={{ ...user, name: `${user.first_name} ${user.last_name}`.trim() }}
         onLogin={openLoginModal}
         onSignup={openSignupModal}
         onLogout={handleLogout}
         onOpenProjects={() => setProjectsViewOpen(true)}
         onBuyCredits={() => setBuyCreditsModalOpen(true)}
       />
-      <main className="max-w-7xl mx-auto p-4 md:p-6 mt-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-            {/* Left Column: Controls */}
-            <div className="bg-white p-6 rounded-xl shadow-lg flex flex-col gap-6">
-               <div className="flex bg-gray-100 rounded-lg p-1">
-                  <button 
-                    onClick={() => handleModeChange('image')} 
-                    className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'image' ? 'bg-white text-indigo-600 shadow' : 'text-gray-600 hover:bg-gray-200'}`}
-                  >
-                    Redesenhar Imagem
-                  </button>
-                  <button 
-                    onClick={() => handleModeChange('floorplan')} 
-                    className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'floorplan' ? 'bg-white text-indigo-600 shadow' : 'text-gray-600 hover:bg-gray-200'}`}
-                  >
-                    Gerar de Planta Baixa
-                  </button>
-                  <button 
-                    onClick={() => handleModeChange('dualite')} 
-                    className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'dualite' ? 'bg-white text-indigo-600 shadow' : 'text-gray-600 hover:bg-gray-200'}`}
-                  >
-                    Dualite AI
-                  </button>
+      <Routes>
+        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/*" element={
+          <main className="max-w-7xl mx-auto p-4 md:p-6 mt-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                {/* Left Column: Controls */}
+                <div className="bg-white p-6 rounded-xl shadow-lg flex flex-col gap-6">
+                   <div className="flex bg-gray-100 rounded-lg p-1">
+                      <button 
+                        onClick={() => handleModeChange('image')} 
+                        className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'image' ? 'bg-white text-indigo-600 shadow' : 'text-gray-600 hover:bg-gray-200'}`}
+                      >
+                        Redesenhar Imagem
+                      </button>
+                      <button 
+                        onClick={() => handleModeChange('floorplan')} 
+                        className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'floorplan' ? 'bg-white text-indigo-600 shadow' : 'text-gray-600 hover:bg-gray-200'}`}
+                      >
+                        Gerar de Planta Baixa
+                      </button>
+                      <button 
+                        onClick={() => handleModeChange('dualite')} 
+                        className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'dualite' ? 'bg-white text-indigo-600 shadow' : 'text-gray-600 hover:bg-gray-200'}`}
+                      >
+                        Dualite AI
+                      </button>
+                  </div>
+
+                  {mode === 'image' && (
+                    <ImageUploader 
+                      originalImagePreview={originalImagePreview}
+                      onImageChange={handleImageChange}
+                      onClearImage={handleClearImage}
+                      fileInputKey={fileInputKey}
+                    />
+                  )}
+                  {mode === 'floorplan' && (
+                    <PdfUploader 
+                      onPdfChange={handlePdfChange}
+                      pdfPreview={pdfPreview}
+                      isProcessingPdf={isProcessingPdf}
+                    />
+                  )}
+                  {mode === 'dualite' && (
+                    <DualiteView />
+                  )}
+
+                  {(mode === 'image' || mode === 'floorplan') && (
+                    <PromptControls
+                      prompt={prompt}
+                      setPrompt={setPrompt}
+                      selectedStyle={selectedStyle}
+                      setSelectedStyle={setSelectedStyle}
+                      handleGenerate={() => handleGenerate(false)}
+                      isLoading={isLoading}
+                      isImageUploaded={isImageUploaded}
+                      cost={generationCost}
+                      credits={user.credits}
+                    />
+                  )}
+                </div>
+
+                {/* Right Column: Results */}
+                {(mode === 'image' || mode === 'floorplan') && (
+                  <div className="bg-white p-6 rounded-xl shadow-lg">
+                    <ResultDisplay
+                      mode={mode}
+                      originalPreview={originalImagePreview || pdfPreview}
+                      generatedImage={generatedImage}
+                      isLoading={isLoading}
+                      isVariationLoading={isVariationLoading}
+                      error={error}
+                      onGenerateVariation={() => handleGenerate(true)}
+                      onEstimateCost={handleEstimateCost}
+                      isEstimatingCost={isEstimatingCost}
+                      costEstimate={costEstimate}
+                      costError={costError}
+                      onGenerateInternalViews={handleGenerateInternalViews}
+                      isInternalViewsLoading={isInternalViewsLoading}
+                      internalViews={internalViews}
+                      internalViewsError={internalViewsError}
+                      onSaveToProject={() => setSaveModalOpen(true)}
+                      credits={user.credits}
+                      variationCost={1}
+                      internalViewsCost={5}
+                    />
+                  </div>
+                )}
               </div>
-
-              {mode === 'image' && (
-                <ImageUploader 
-                  originalImagePreview={originalImagePreview}
-                  onImageChange={handleImageChange}
-                  onClearImage={handleClearImage}
-                  fileInputKey={fileInputKey}
-                />
-              )}
-              {mode === 'floorplan' && (
-                <PdfUploader 
-                  onPdfChange={handlePdfChange}
-                  pdfPreview={pdfPreview}
-                  isProcessingPdf={isProcessingPdf}
-                />
-              )}
-              {mode === 'dualite' && (
-                <DualiteView />
-              )}
-
-              {(mode === 'image' || mode === 'floorplan') && (
-                <PromptControls
-                  prompt={prompt}
-                  setPrompt={setPrompt}
-                  selectedStyle={selectedStyle}
-                  setSelectedStyle={setSelectedStyle}
-                  handleGenerate={() => handleGenerate(false)}
-                  isLoading={isLoading}
-                  isImageUploaded={isImageUploaded}
-                  cost={generationCost}
-                  credits={user.credits}
-                />
-              )}
-            </div>
-
-            {/* Right Column: Results */}
-            {(mode === 'image' || mode === 'floorplan') && (
-              <div className="bg-white p-6 rounded-xl shadow-lg">
-                <ResultDisplay
-                  mode={mode}
-                  originalPreview={originalImagePreview || pdfPreview}
-                  generatedImage={generatedImage}
-                  isLoading={isLoading}
-                  isVariationLoading={isVariationLoading}
-                  error={error}
-                  onGenerateVariation={() => handleGenerate(true)}
-                  onEstimateCost={handleEstimateCost}
-                  isEstimatingCost={isEstimatingCost}
-                  costEstimate={costEstimate}
-                  costError={costError}
-                  onGenerateInternalViews={handleGenerateInternalViews}
-                  isInternalViewsLoading={isInternalViewsLoading}
-                  internalViews={internalViews}
-                  internalViewsError={internalViewsError}
-                  onSaveToProject={() => setSaveModalOpen(true)}
-                  credits={user.credits}
-                  variationCost={1}
-                  internalViewsCost={5}
-                />
-              </div>
-            )}
-          </div>
-      </main>
+          </main>
+        } />
+      </Routes>
 
       {/* Modals */}
-      {/* AuthModal e AuthPlaceholder não são mais necessários, pois o LoginPage e o SessionContextProvider gerenciam a autenticação */}
       {isProjectsViewOpen && user && (
         <ProjectsView 
           projects={projects}

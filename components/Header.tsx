@@ -4,7 +4,9 @@ import UserIcon from './icons/UserIcon';
 import LogOutIcon from './icons/LogOutIcon';
 import FolderIcon from './icons/FolderIcon';
 import CoinIcon from './icons/CoinIcon';
+import SettingsIcon from './icons/SettingsIcon'; // Importar o novo ícone
 import type { User } from '../types';
+import { Link } from 'react-router-dom'; // Importar Link
 
 interface HeaderProps {
   user: User | null;
@@ -37,6 +39,16 @@ const Header: React.FC<HeaderProps> = ({ user, onLogin, onSignup, onLogout, onOp
                     {/* Container for action buttons */}
                     <div>
                       <div className="flex items-center gap-2">
+                          {user.is_admin && (
+                            <Link
+                              to="/admin"
+                              className="flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors"
+                              aria-label="Painel de Administração"
+                            >
+                              <SettingsIcon className="w-5 h-5" />
+                              <span>Admin</span>
+                            </Link>
+                          )}
                           <button
                               onClick={onOpenProjects}
                               className="flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors"
