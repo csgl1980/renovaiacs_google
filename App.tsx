@@ -238,8 +238,7 @@ function App() {
                 generatedImage={generatedImage}
                 isLoading={isLoading}
                 isVariationLoading={isVariationLoading}
-                {/* Combine errors */}
-                error={generationError || appError}
+                error={generationError || appError} {/* Combine errors */}
                 onGenerateVariation={() => handleGenerate(true)}
                 onEstimateCost={handleEstimateCost}
                 isEstimatingCost={isEstimatingCost}
