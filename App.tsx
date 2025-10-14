@@ -1,18 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/build/pdf.worker.mjs';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from './integrations/supabase/client';
+import { useSession } from './components/SessionContextProvider';
 
 import Header from './components/Header';
 import ImageUploader from './components/ImageUploader';
 import PromptControls from './components/PromptControls';
 import ResultDisplay from './components/ResultDisplay';
-import AuthModal from './components/AuthModal';
-import AuthPlaceholder from './components/AuthPlaceholder';
+import AuthModal from './components/AuthModal'; // Este modal será removido ou adaptado
+import AuthPlaceholder from './components/AuthPlaceholder'; // Este placeholder será removido
 import SaveToProjectModal from './components/SaveToProjectModal';
 import ProjectsView from './components/ProjectsView';
 import BuyCreditsModal from './components/BuyCreditsModal';
 import HotmartRedirectModal from './components/HotmartRedirectModal';
 import PdfUploader from './components/PdfUploader';
+import DualiteView from './components/DualiteView'; // Importar o DualiteView
 
 import { redesignImage, generateConceptFromPlan, generateInternalViews, estimateCost } from './services/geminiService';
 import type { User, CostEstimate, Project, Generation } from './types';
@@ -46,7 +50,6 @@ const processPdfToImageFile = async (pdfFile: File): Promise<{ previewUrl: strin
         canvas.height = viewport.height;
         canvas.width = viewport.width;
 
-        // FIX: The RenderParameters type for this version of pdfjs-dist seems to require the 'canvas' property.
         await page.render({ canvasContext: context, viewport: viewport, canvas }).promise;
 
         canvas.toBlob((blob) => {
@@ -79,16 +82,12 @@ const dataUrlToFile = async (dataUrl: string, filename: string): Promise<File> =
 };
 
 function App() {
-  type Mode = 'image' | 'floorplan';
+  type Mode = 'image' | 'floorplan' | 'dualite'; // Adicionado 'dualite'
+  const navigate = useNavigate();
+  const { session, user, isLoading: isSessionLoading, refreshUser } = useSession();
 
   // App State
   const [mode, setMode] = useState<Mode>('image');
-
-  // Auth State
-  const [user, setUser] = useState<User | null>(null);
-  const [authError, setAuthError] = useState<string | null>(null);
-  const [isAuthModalOpen, setAuthModalOpen] = useState(false);
-  const [authModalView, setAuthModalView] = useState<'login' | 'signup'>('login');
 
   // Image & File State
   const [originalImageFile, setOriginalImageFile] = useState<File | null>(null);
@@ -126,28 +125,36 @@ function App() {
   const [isHotmartRedirectModalOpen, setHotmartRedirectModalOpen] = useState(false);
   const [redirectUrl, setRedirectUrl] = useState('');
 
-  // Mocked Auth & Data persistence using localStorage
+  // Redirect unauthenticated users to login page
   useEffect(() => {
-    const loggedInUser = localStorage.getItem('renova-ia-user');
-    if (loggedInUser) {
-      const parsedUser = JSON.parse(loggedInUser);
-      setUser(parsedUser);
-      
-      const userProjects = localStorage.getItem(`renova-ia-projects-${parsedUser.email}`);
-      if (userProjects) {
-        setProjects(JSON.parse(userProjects));
-      }
+    if (!isSessionLoading && !session) {
+      navigate('/login');
+    } else if (!isSessionLoading && session && window.location.pathname === '/login') {
+      navigate('/'); // Redirect to home if already logged in and on login page
     }
-  }, []);
+  }, [session, isSessionLoading, navigate]);
 
-  const saveUserAndProjects = (updatedUser: User | null, updatedProjects: Project[]) => {
-    if (updatedUser) {
-      localStorage.setItem('renova-ia-user', JSON.stringify(updatedUser));
-      localStorage.setItem(`renova-ia-projects-${updatedUser.email}`, JSON.stringify(updatedProjects));
-    } else {
-      localStorage.removeItem('renova-ia-user');
-    }
-  };
+  // Fetch projects when user is available
+  useEffect(() => {
+    const fetchProjects = async () => {
+      if (user) {
+        const { data, error } = await supabase
+          .from('projects')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Erro ao buscar projetos:', error);
+        } else {
+          setProjects(data as Project[]);
+        }
+      } else {
+        setProjects([]);
+      }
+    };
+    fetchProjects();
+  }, [user]);
 
 
   const clearInputs = () => {
@@ -245,9 +252,22 @@ function App() {
         resultImage = await generateConceptFromPlan(originalImageFile, fullPrompt);
       }
       setGeneratedImage(resultImage);
-      const updatedUser = { ...user, credits: user.credits - generationCost };
-      setUser(updatedUser);
-      saveUserAndProjects(updatedUser, projects);
+      
+      // Deduct credits from Supabase
+      const { data: updatedProfile, error: updateError } = await supabase
+        .from('profiles')
+        .update({ credits: user.credits - generationCost })
+        .eq('id', user.id)
+        .select()
+        .single();
+
+      if (updateError) {
+        console.error('Erro ao deduzir créditos:', updateError);
+        setError('Erro ao deduzir créditos. Tente novamente.');
+      } else if (updatedProfile) {
+        refreshUser(); // Refresh user context to show updated credits
+      }
+
     } catch (err) {
       setError((err as Error).message || "Ocorreu um erro desconhecido ao gerar a imagem.");
     } finally {
@@ -303,9 +323,22 @@ function App() {
         const conceptImageFile = await dataUrlToFile(generatedImage, 'concept-3d.png');
         const views = await generateInternalViews(conceptImageFile, fullPrompt);
         setInternalViews(views);
-        const updatedUser = { ...user, credits: user.credits - internalViewsCost };
-        setUser(updatedUser);
-        saveUserAndProjects(updatedUser, projects);
+        
+        // Deduct credits from Supabase
+        const { data: updatedProfile, error: updateError } = await supabase
+          .from('profiles')
+          .update({ credits: user.credits - internalViewsCost })
+          .eq('id', user.id)
+          .select()
+          .single();
+
+        if (updateError) {
+          console.error('Erro ao deduzir créditos:', updateError);
+          setInternalViewsError('Erro ao deduzir créditos. Tente novamente.');
+        } else if (updatedProfile) {
+          refreshUser(); // Refresh user context to show updated credits
+        }
+
     } catch (err) {
         setInternalViewsError((err as Error).message || "Ocorreu um erro ao gerar as vistas internas.");
     } finally {
@@ -313,109 +346,129 @@ function App() {
     }
   };
 
-  // Auth Handlers (Simulated Backend)
-  const handleLogin = async (email: string, password: string): Promise<void> => {
-    setAuthError(null);
-    const storedUsers = JSON.parse(localStorage.getItem('renova-ia-users') || '{}');
-    if (storedUsers[email] && storedUsers[email].password === password) {
-      setUser(storedUsers[email]);
-      const userProjects = localStorage.getItem(`renova-ia-projects-${email}`);
-      setProjects(userProjects ? JSON.parse(userProjects) : []);
-      setAuthModalOpen(false);
+  // Auth Handlers (using Supabase)
+  const handleLogin = async () => { /* No longer needed, AuthModal handles it */ };
+  const handleSignup = async () => { /* No longer needed, AuthModal handles it */ };
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Erro ao fazer logout:', error);
+      setError('Erro ao fazer logout. Tente novamente.');
     } else {
-      setAuthError("E-mail ou senha inválidos.");
-      throw new Error("Login failed");
+      navigate('/login');
+      clearInputs();
+      clearResults();
     }
-  };
-  const handleSignup = async (name: string, email: string, password: string): Promise<void> => {
-    setAuthError(null);
-    const storedUsers = JSON.parse(localStorage.getItem('renova-ia-users') || '{}');
-    if (storedUsers[email]) {
-      setAuthError("Este e-mail já está em uso.");
-      throw new Error("Signup failed");
-    } else {
-      const newUser: User = { name, email, credits: 20, token: `fake-token-${email}` };
-      const newUsers = { ...storedUsers, [email]: { ...newUser, password } }; // Store password only in this "db"
-      localStorage.setItem('renova-ia-users', JSON.stringify(newUsers));
-      setUser(newUser);
-      setProjects([]);
-      setAuthModalOpen(false);
-    }
-  };
-  const handleLogout = () => {
-    saveUserAndProjects(user, projects); // Save before logging out
-    localStorage.removeItem('renova-ia-user');
-    setUser(null);
-    setProjects([]);
-    clearInputs();
-    clearResults();
   };
 
 
   // Modal Triggers
-  const openLoginModal = () => { setAuthModalView('login'); setAuthModalOpen(true); };
-  const openSignupModal = () => { setAuthModalView('signup'); setAuthModalOpen(true); };
+  const openLoginModal = () => navigate('/login');
+  const openSignupModal = () => navigate('/login');
 
   // Project Handlers
-  const handleSaveToProject = (projectId: string | null, newProjectName: string) => {
+  const handleSaveToProject = async (projectId: string | null, newProjectName: string) => {
     const originalPreviewForProject = mode === 'image' ? originalImagePreview : pdfPreview;
     
     if (!originalPreviewForProject || !generatedImage || !user) return;
 
-    const newGeneration: Generation = {
-      id: `gen_${Date.now()}`,
+    const newGeneration: Omit<Generation, 'id'> = {
       generatedImage,
       prompt: selectedStyle ? `${prompt} ${selectedStyle}`.trim() : prompt,
       createdAt: new Date().toISOString(),
     };
 
-    let updatedProjects: Project[];
-    if (projectId) { // Add to existing project
-      updatedProjects = projects.map(p =>
-        p.id === projectId
-          ? { ...p, generations: [...p.generations, newGeneration] }
-          : p
-      );
-    } else { // Create new project
-      const newProject: Project = {
-        id: `proj_${Date.now()}`,
+    let currentProjectId = projectId;
+
+    if (!currentProjectId) { // Create new project
+      const newProject: Omit<Project, 'id' | 'generations'> = {
         name: newProjectName,
         originalImage: originalPreviewForProject,
         createdAt: new Date().toISOString(),
-        generations: [newGeneration],
+        user_id: user.id,
       };
-      updatedProjects = [newProject, ...projects];
+      const { data, error } = await supabase.from('projects').insert(newProject).select().single();
+      if (error) {
+        console.error('Erro ao criar novo projeto:', error);
+        setError('Erro ao criar novo projeto. Tente novamente.');
+        return;
+      }
+      currentProjectId = data.id;
     }
-    setProjects(updatedProjects);
-    saveUserAndProjects(user, updatedProjects);
+
+    // Add generation to project
+    const { error: genError } = await supabase.from('generations').insert({
+      ...newGeneration,
+      project_id: currentProjectId,
+    });
+
+    if (genError) {
+      console.error('Erro ao salvar geração:', genError);
+      setError('Erro ao salvar imagem gerada. Tente novamente.');
+      return;
+    }
+    
+    // Refresh projects after saving
+    const { data: updatedProjects, error: fetchError } = await supabase
+      .from('projects')
+      .select('*, generations(*)') // Fetch generations along with projects
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+
+    if (fetchError) {
+      console.error('Erro ao recarregar projetos:', fetchError);
+    } else {
+      setProjects(updatedProjects as Project[]);
+    }
+
     setSaveModalOpen(false);
   };
 
-  const handleDeleteProject = (projectId: string) => {
+  const handleDeleteProject = async (projectId: string) => {
     if (!user) return;
-    const updatedProjects = projects.filter(p => p.id !== projectId);
-    setProjects(updatedProjects);
-    saveUserAndProjects(user, updatedProjects);
+    const { error } = await supabase.from('projects').delete().eq('id', projectId).eq('user_id', user.id);
+    if (error) {
+      console.error('Erro ao deletar projeto:', error);
+      setError('Erro ao deletar projeto. Tente novamente.');
+    } else {
+      setProjects(projects.filter(p => p.id !== projectId));
+    }
   };
   
-  const handleDeleteGeneration = (projectId: string, generationId: string) => {
+  const handleDeleteGeneration = async (projectId: string, generationId: string) => {
     if (!user) return;
-    const updatedProjects = projects.map(p =>
-      p.id === projectId
-        ? { ...p, generations: p.generations.filter(g => g.id !== generationId) }
-        : p
-    );
-    setProjects(updatedProjects);
-    saveUserAndProjects(user, updatedProjects);
+    const { error } = await supabase.from('generations').delete().eq('id', generationId).eq('project_id', projectId);
+    if (error) {
+      console.error('Erro ao deletar geração:', error);
+      setError('Erro ao deletar imagem gerada. Tente novamente.');
+    } else {
+      setProjects(prevProjects => prevProjects.map(p =>
+        p.id === projectId
+          ? { ...p, generations: p.generations.filter(g => g.id !== generationId) }
+          : p
+      ));
+    }
   };
 
   const isImageUploaded = originalImagePreview !== null || pdfPreview !== null;
   const generationCost = mode === 'image' ? 2 : 3;
 
+  if (isSessionLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!session || !user) {
+    return null; // Redirect handled by useEffect
+  }
+
   return (
     <div className="bg-gray-50 min-h-screen font-sans">
       <Header 
-        user={user}
+        user={{ ...user, name: `${user.first_name} ${user.last_name}`.trim() }} // Pass user with full name
         onLogin={openLoginModal}
         onSignup={openSignupModal}
         onLogout={handleLogout}
@@ -423,93 +476,95 @@ function App() {
         onBuyCredits={() => setBuyCreditsModalOpen(true)}
       />
       <main className="max-w-7xl mx-auto p-4 md:p-6 mt-4">
-        {!user ? (
-          <AuthPlaceholder onLogin={openLoginModal} onSignup={openSignupModal} />
-        ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
             {/* Left Column: Controls */}
             <div className="bg-white p-6 rounded-xl shadow-lg flex flex-col gap-6">
                <div className="flex bg-gray-100 rounded-lg p-1">
                   <button 
                     onClick={() => handleModeChange('image')} 
-                    className={`w-1/2 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'image' ? 'bg-white text-indigo-600 shadow' : 'text-gray-600 hover:bg-gray-200'}`}
+                    className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'image' ? 'bg-white text-indigo-600 shadow' : 'text-gray-600 hover:bg-gray-200'}`}
                   >
                     Redesenhar Imagem
                   </button>
                   <button 
                     onClick={() => handleModeChange('floorplan')} 
-                    className={`w-1/2 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'floorplan' ? 'bg-white text-indigo-600 shadow' : 'text-gray-600 hover:bg-gray-200'}`}
+                    className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'floorplan' ? 'bg-white text-indigo-600 shadow' : 'text-gray-600 hover:bg-gray-200'}`}
                   >
                     Gerar de Planta Baixa
                   </button>
+                  <button 
+                    onClick={() => handleModeChange('dualite')} 
+                    className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'dualite' ? 'bg-white text-indigo-600 shadow' : 'text-gray-600 hover:bg-gray-200'}`}
+                  >
+                    Dualite AI
+                  </button>
               </div>
 
-              {mode === 'image' ? (
+              {mode === 'image' && (
                 <ImageUploader 
                   originalImagePreview={originalImagePreview}
                   onImageChange={handleImageChange}
                   onClearImage={handleClearImage}
                   fileInputKey={fileInputKey}
                 />
-              ) : (
+              )}
+              {mode === 'floorplan' && (
                 <PdfUploader 
                   onPdfChange={handlePdfChange}
                   pdfPreview={pdfPreview}
                   isProcessingPdf={isProcessingPdf}
                 />
               )}
+              {mode === 'dualite' && (
+                <DualiteView />
+              )}
 
-              <PromptControls
-                prompt={prompt}
-                setPrompt={setPrompt}
-                selectedStyle={selectedStyle}
-                setSelectedStyle={setSelectedStyle}
-                handleGenerate={() => handleGenerate(false)}
-                isLoading={isLoading}
-                isImageUploaded={isImageUploaded}
-                cost={generationCost}
-                credits={user.credits}
-              />
+              {(mode === 'image' || mode === 'floorplan') && (
+                <PromptControls
+                  prompt={prompt}
+                  setPrompt={setPrompt}
+                  selectedStyle={selectedStyle}
+                  setSelectedStyle={setSelectedStyle}
+                  handleGenerate={() => handleGenerate(false)}
+                  isLoading={isLoading}
+                  isImageUploaded={isImageUploaded}
+                  cost={generationCost}
+                  credits={user.credits}
+                />
+              )}
             </div>
 
             {/* Right Column: Results */}
-            <div className="bg-white p-6 rounded-xl shadow-lg">
-              <ResultDisplay
-                mode={mode}
-                originalPreview={originalImagePreview || pdfPreview}
-                generatedImage={generatedImage}
-                isLoading={isLoading}
-                isVariationLoading={isVariationLoading}
-                error={error}
-                onGenerateVariation={() => handleGenerate(true)}
-                onEstimateCost={handleEstimateCost}
-                isEstimatingCost={isEstimatingCost}
-                costEstimate={costEstimate}
-                costError={costError}
-                onGenerateInternalViews={handleGenerateInternalViews}
-                isInternalViewsLoading={isInternalViewsLoading}
-                internalViews={internalViews}
-                internalViewsError={internalViewsError}
-                onSaveToProject={() => setSaveModalOpen(true)}
-                credits={user.credits}
-                variationCost={1}
-                internalViewsCost={5}
-              />
-            </div>
+            {(mode === 'image' || mode === 'floorplan') && (
+              <div className="bg-white p-6 rounded-xl shadow-lg">
+                <ResultDisplay
+                  mode={mode}
+                  originalPreview={originalImagePreview || pdfPreview}
+                  generatedImage={generatedImage}
+                  isLoading={isLoading}
+                  isVariationLoading={isVariationLoading}
+                  error={error}
+                  onGenerateVariation={() => handleGenerate(true)}
+                  onEstimateCost={handleEstimateCost}
+                  isEstimatingCost={isEstimatingCost}
+                  costEstimate={costEstimate}
+                  costError={costError}
+                  onGenerateInternalViews={handleGenerateInternalViews}
+                  isInternalViewsLoading={isInternalViewsLoading}
+                  internalViews={internalViews}
+                  internalViewsError={internalViewsError}
+                  onSaveToProject={() => setSaveModalOpen(true)}
+                  credits={user.credits}
+                  variationCost={1}
+                  internalViewsCost={5}
+                />
+              </div>
+            )}
           </div>
-        )}
       </main>
 
       {/* Modals */}
-      {isAuthModalOpen && (
-        <AuthModal 
-          initialView={authModalView}
-          onClose={() => { setAuthModalOpen(false); setAuthError(null); }}
-          onLogin={handleLogin}
-          onSignup={handleSignup}
-          authError={authError}
-        />
-      )}
+      {/* AuthModal e AuthPlaceholder não são mais necessários, pois o LoginPage e o SessionContextProvider gerenciam a autenticação */}
       {isProjectsViewOpen && user && (
         <ProjectsView 
           projects={projects}

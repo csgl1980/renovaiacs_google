@@ -30,6 +30,7 @@ export interface Generation {
   generatedImage: string;
   prompt: string;
   createdAt: string;
+  project_id: string; // Adicionado para vincular gerações a projetos
 }
 
 export interface Project {

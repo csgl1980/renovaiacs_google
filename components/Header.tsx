@@ -16,6 +16,8 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ user, onLogin, onSignup, onLogout, onOpenProjects, onBuyCredits }) => {
+  const displayName = user ? `${user.first_name} ${user.last_name}`.trim() : '';
+
   return (
     <header className="text-center p-4 md:p-6 relative">
         <div className="absolute top-4 right-4 md:top-6 md:right-6">
@@ -29,7 +31,7 @@ const Header: React.FC<HeaderProps> = ({ user, onLogin, onSignup, onLogout, onOp
                       </div>
                       <div className="flex items-center gap-2">
                         <UserIcon className="w-5 h-5" />
-                        <span className="font-medium">Olá, {user.name}</span>
+                        <span className="font-medium">Olá, {displayName || user.email}</span>
                       </div>
                     </div>
                     {/* Container for action buttons */}
