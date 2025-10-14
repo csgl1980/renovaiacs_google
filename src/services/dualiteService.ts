@@ -2,9 +2,9 @@ import { GoogleGenAI } from '@google/genai';
 
 // ATENÇÃO: Em um aplicativo de produção, a chave de API NUNCA deve ser exposta no frontend.
 // Ela é mantida aqui para fins de prototipagem e demonstração neste ambiente.
-const API_KEY = process.env.API_KEY;
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY; // Alterado para usar import.meta.env
 if (!API_KEY) {
-  throw new Error("API_KEY do Google não encontrada. Verifique as variáveis de ambiente.");
+  throw new Error("VITE_GEMINI_API_KEY do Google não encontrada. Verifique as variáveis de ambiente.");
 }
 const ai = new GoogleGenAI({ apiKey: API_KEY });
 

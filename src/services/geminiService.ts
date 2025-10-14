@@ -3,9 +3,9 @@ import type { CostEstimate, CostEstimateItem } from '../types';
 
 // ATENÇÃO: Em um aplicativo de produção, a chave de API NUNCA deve ser exposta no frontend.
 // Ela é mantida aqui para fins de prototipagem e demonstração neste ambiente.
-const API_KEY = process.env.API_KEY;
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY; // Alterado para usar import.meta.env
 if (!API_KEY) {
-  throw new Error("API_KEY do Google não encontrada. Verifique as variáveis de ambiente.");
+  throw new Error("VITE_GEMINI_API_KEY do Google não encontrada. Verifique as variáveis de ambiente.");
 }
 const ai = new GoogleGenAI({ apiKey: API_KEY });
 
@@ -40,7 +40,7 @@ export const redesignImage = async (imageFile: File, prompt: string): Promise<st
 
 export const generateConceptFromPlan = async (imageFile: File, prompt: string): Promise<string> => {
     const fullPrompt = `A partir desta planta baixa, crie uma renderização 3D fotorrealista de alta definição com vista isométrica. A renderização deve ter um aspecto de maquete profissional. Incorpore as seguintes instruções de design. Gere apenas a imagem resultante, sem nenhum texto ou explicação: "${prompt}"`;
-    const imagePart = await fileToGenerativePart(imageFile);
+    const imagePart = await fileToGener generativePart(imageFile);
 
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash-image',
