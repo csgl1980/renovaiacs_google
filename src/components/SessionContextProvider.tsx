@@ -37,29 +37,29 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
       .eq('id', currentSession.user.id)
       .single();
 
-    if (profileError && profileError.code !== 'PGRST116') { // PGRST116 means no rows found (new user)
-      console.error('SessionContext: [fetchUserProfile] Erro ao obter perfil do usuário:', profileError);
-      setUser(null);
-    } else if (profileData) {
+    if (profileData) {
       console.log('SessionContext: [fetchUserProfile] Perfil do usuário encontrado:', profileData);
       setUser(profileData as User);
     } else {
-      console.log('SessionContext: [fetchUserProfile] Nenhum perfil encontrado, criando objeto de usuário básico.');
+      // Se nenhum perfil for encontrado (PGRST116) ou qualquer outro erro,
+      // crie um objeto de usuário básico. Isso garante que 'user' nunca seja null
+      // se uma sessão válida existir, prevenindo problemas de redirecionamento.
+      console.warn('SessionContext: [fetchUserProfile] Nenhum perfil encontrado ou erro ao buscar perfil. Criando objeto de usuário básico. Erro:', profileError);
       setUser({
         id: currentSession.user.id,
         first_name: currentSession.user.user_metadata?.first_name || '',
         last_name: currentSession.user.user_metadata?.last_name || '',
         email: currentSession.user.email || '',
-        credits: 20, // Default credits for new users
-        is_admin: false, // Default for new users without a profile yet
+        credits: 20, // Créditos padrão para novos usuários
+        is_admin: false, // Padrão para novos usuários sem perfil ainda
       });
     }
-    console.log('SessionContext: [fetchUserProfile] Finalizado.');
+    console.log('SessionContext: [fetchUserProfile] Finalizado. User state after fetch/create:', user);
   }, []);
 
   const handleAuthChange = useCallback(async (event: string, currentSession: Session | null) => {
     console.log('SessionContext: [handleAuthChange] Evento:', event, 'Sessão:', currentSession);
-    setIsLoading(true); // Always set loading true at the start of an auth change
+    setIsLoading(true); // Sempre defina loading como true no início de uma mudança de autenticação
 
     if (currentSession) {
       setSession(currentSession);
@@ -68,18 +68,18 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
       setSession(null);
       setUser(null);
     }
-    setIsLoading(false); // Always set loading false at the end
-    console.log('SessionContext: [handleAuthChange] Finalizado. isLoading:', false);
+    setIsLoading(false); // Sempre defina loading como false no final
+    console.log('SessionContext: [handleAuthChange] Finalizado. isLoading:', false, 'Current user state:', user);
   }, [fetchUserProfile]);
 
   useEffect(() => {
-    let isMounted = true; // Flag to prevent state updates on unmounted component
+    let isMounted = true; // Flag para evitar atualizações de estado em componente desmontado
 
     const setupAuth = async () => {
       console.log('SessionContext: [setupAuth] Iniciando...');
-      setIsLoading(true); // Start loading immediately
+      setIsLoading(true); // Iniciar carregamento imediatamente
 
-      // 1. Handle hash parameters first
+      // 1. Lidar com parâmetros de hash primeiro
       const hash = window.location.hash;
       if (hash) {
         console.log('SessionContext: [setupAuth] Hash encontrado na URL:', hash);
@@ -94,18 +94,18 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
             console.error('SessionContext: [setupAuth] Erro ao definir a sessão a partir do hash:', error);
           } else {
             console.log('SessionContext: [setupAuth] Sessão definida com sucesso a partir do hash.');
-            // Clear hash from URL to prevent re-processing on refresh
+            // Limpar hash da URL para evitar reprocessamento no refresh
             window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
-            // Explicitly refresh session to ensure internal state is fully synchronized
+            // Atualizar explicitamente a sessão para garantir que o estado interno esteja totalmente sincronizado
             await supabase.auth.refreshSession();
             console.log('SessionContext: [setupAuth] Sessão atualizada após definir do hash.');
           }
         }
       }
 
-      // 2. Get the current session (this will also reflect any session set by hash)
+      // 2. Obter a sessão atual (isso também refletirá qualquer sessão definida por hash)
       const { data: { session: initialSession }, error: sessionError } = await supabase.auth.getSession();
-      if (isMounted) { // Only update state if component is still mounted
+      if (isMounted) { // Apenas atualize o estado se o componente ainda estiver montado
         if (sessionError) {
           console.error('SessionContext: [setupAuth] Erro ao obter sessão inicial:', sessionError);
           setSession(null);
@@ -126,7 +126,7 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
 
     setupAuth();
 
-    // 3. Set up the auth state listener
+    // 3. Configurar o listener de estado de autenticação
     const { data: authListener } = supabase.auth.onAuthStateChange((event, currentSession) => {
       if (isMounted) {
         handleAuthChange(event, currentSession);
@@ -134,10 +134,10 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
     });
 
     return () => {
-      isMounted = false; // Cleanup flag
+      isMounted = false; // Flag de limpeza
       authListener.subscription.unsubscribe();
     };
-  }, [handleAuthChange, fetchUserProfile]); // Dependencies for useEffect
+  }, [handleAuthChange, fetchUserProfile]); // Dependências para useEffect
 
   const refreshUser = useCallback(async () => {
     console.log('SessionContext: [refreshUser] chamado.');
@@ -155,7 +155,7 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
       setUser(null);
     }
     setIsLoading(false);
-    console.log('SessionContext: [refreshUser] Finalizado. isLoading:', false);
+    console.log('SessionContext: [refreshUser] Finalizado. isLoading:', false, 'Current user state:', user);
   }, [fetchUserProfile]);
 
   return (
