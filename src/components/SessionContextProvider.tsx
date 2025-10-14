@@ -29,7 +29,7 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
       if (session) {
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
-          .select('id, first_name, last_name, email, credits')
+          .select('id, first_name, last_name, email, credits, is_admin') // Adicionado 'is_admin'
           .eq('id', session.user.id)
           .single();
 
@@ -46,6 +46,7 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
             last_name: session.user.user_metadata?.last_name || '',
             email: session.user.email || '',
             credits: 20, // Default credits for new users
+            is_admin: false, // Default for new users without a profile yet
           });
         }
       } else {

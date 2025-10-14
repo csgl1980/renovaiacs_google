@@ -1,1 +1,0 @@
-// Este arquivo não é mais necessário e será removido.
