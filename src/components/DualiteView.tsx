@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { explainCode, generateCode } from '../../services/dualiteService'; // Caminho corrigido
+import { explainCode, generateCode } from '../services/dualiteService'; // Caminho corrigido
 import SparklesIcon from './icons/SparklesIcon';
 import ClipboardIcon from './icons/ClipboardIcon';
 import CodeIcon from './icons/CodeIcon';

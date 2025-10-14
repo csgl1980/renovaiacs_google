@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react';
 import { generateInternalViews } from '../services/geminiService'; // Caminho corrigido
 import { supabase } from '../integrations/supabase/client';
-import { useSession } from '../components/SessionContextProvider'; // Caminho corrigido
-import type { User } from '../types'; // Caminho corrigido
+import { useSession } from '../components/SessionContextProvider';
+import type { User } from '../types';
 
 // Helper to convert a data URL string to a File object
 const dataUrlToFile = async (dataUrl: string, filename: string): Promise<File> => {
