@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/build/pdf.worker.mjs';
 import { useNavigate, Routes, Route } from 'react-router-dom';
-import { supabase } from './integrations/supabase/client';
-import { useSession } from './components/SessionContextProvider';
+import { supabase } from './src/integrations/supabase/client'; // Caminho corrigido
+import { useSession } from './src/components/SessionContextProvider';
 
 import Header from './components/Header';
 import ImageUploader from './components/ImageUploader';
@@ -15,7 +15,7 @@ import BuyCreditsModal from './components/BuyCreditsModal';
 import HotmartRedirectModal from './components/HotmartRedirectModal';
 import PdfUploader from './components/PdfUploader';
 import DualiteView from './components/DualiteView';
-import AdminPage from './pages/AdminPage';
+import AdminPage from './src/pages/AdminPage';
 
 import { redesignImage, generateConceptFromPlan, generateInternalViews, estimateCost } from './services/geminiService';
 import type { User, CostEstimate, Project, Generation } from './src/types'; // Ajustado o caminho do import
