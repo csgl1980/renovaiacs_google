@@ -2,7 +2,7 @@ import React from 'react';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from '../integrations/supabase/client';
-import SparklesIcon from '../../components/icons/SparklesIcon'; // Caminho corrigido
+import SparklesIcon from '../../components/icons/SparklesIcon';
 
 const LoginPage: React.FC = () => {
   return (
@@ -17,7 +17,7 @@ const LoginPage: React.FC = () => {
           supabaseClient={supabase}
           appearance={{ theme: ThemeSupa }}
           providers={[]} // Removendo provedores de terceiros para simplificar
-          redirectTo={window.location.origin} // Redireciona para a raiz após login/cadastro
+          redirectTo={window.location.origin + '/app'} // Redireciona para /app após login/cadastro
           localization={{
             variables: {
               sign_in: {
