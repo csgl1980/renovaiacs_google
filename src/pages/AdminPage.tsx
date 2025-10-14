@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../integrations/supabase/client';
 import { useSession } from '../components/SessionContextProvider';
 import type { User } from '../types';
-import CoinIcon from '../../components/icons/CoinIcon'; // Caminho corrigido
-import UserIcon from '../../components/icons/UserIcon'; // Caminho corrigido
-import XCircleIcon from '../../components/icons/XCircleIcon'; // Caminho corrigido
+import CoinIcon from '../components/icons/CoinIcon'; // Caminho corrigido
+import UserIcon from '../components/icons/UserIcon'; // Caminho corrigido
+import XCircleIcon from '../components/icons/XCircleIcon'; // Caminho corrigido
 
 const AdminPage: React.FC = () => {
   const navigate = useNavigate();

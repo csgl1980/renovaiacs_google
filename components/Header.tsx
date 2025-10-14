@@ -4,8 +4,8 @@ import UserIcon from './icons/UserIcon';
 import LogOutIcon from './icons/LogOutIcon';
 import FolderIcon from './icons/FolderIcon';
 import CoinIcon from './icons/CoinIcon';
-import SettingsIcon from '../src/components/icons/SettingsIcon'; // Caminho corrigido
-import type { User } from '../src/types'; // Ajustado o caminho do import
+import SettingsIcon from './icons/SettingsIcon'; // Caminho corrigido
+import type { User } from '../types'; // Ajustado o caminho do import
 import { Link } from 'react-router-dom';
 
 interface HeaderProps {
