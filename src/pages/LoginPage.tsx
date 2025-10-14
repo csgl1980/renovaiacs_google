@@ -7,16 +7,16 @@ import { useSession } from '../components/SessionContextProvider'; // Import use
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const LoginPage: React.FC = () => {
-  const { session, isLoading } = useSession(); // Get session and isLoading from context
+  const { session, user, isLoading } = useSession(); // Obter 'user' também
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log('LoginPage: useEffect - isLoading:', isLoading, 'session:', session);
-    if (!isLoading && session) {
-      console.log('LoginPage: Session found, navigating to /app');
+    console.log('LoginPage: useEffect - isLoading:', isLoading, 'session:', session, 'user:', user);
+    if (!isLoading && session && user) { // Redirecionar apenas se a sessão E o usuário estiverem carregados
+      console.log('LoginPage: Sessão e usuário encontrados, navegando para /app');
       navigate('/app', { replace: true });
     }
-  }, [session, isLoading, navigate]);
+  }, [session, user, isLoading, navigate]); // Adicionar 'user' às dependências
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
@@ -30,7 +30,6 @@ const LoginPage: React.FC = () => {
           supabaseClient={supabase}
           appearance={{ theme: ThemeSupa }}
           providers={[]} // Removendo provedores de terceiros para simplificar
-          // redirectTo={window.location.origin + '/app'} // Removido: a navegação será gerenciada pelo useEffect
           localization={{
             variables: {
               sign_in: {
