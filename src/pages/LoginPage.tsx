@@ -1,10 +1,23 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from '../integrations/supabase/client';
 import SparklesIcon from '../components/icons/SparklesIcon'; // Caminho corrigido
+import { useSession } from '../components/SessionContextProvider'; // Import useSession
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const LoginPage: React.FC = () => {
+  const { session, isLoading } = useSession(); // Get session and isLoading from context
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    console.log('LoginPage: useEffect - isLoading:', isLoading, 'session:', session);
+    if (!isLoading && session) {
+      console.log('LoginPage: Session found, navigating to /app');
+      navigate('/app', { replace: true });
+    }
+  }, [session, isLoading, navigate]);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
@@ -17,7 +30,7 @@ const LoginPage: React.FC = () => {
           supabaseClient={supabase}
           appearance={{ theme: ThemeSupa }}
           providers={[]} // Removendo provedores de terceiros para simplificar
-          redirectTo={window.location.origin + '/app'} // Redireciona para /app após login/cadastro
+          // redirectTo={window.location.origin + '/app'} // Removido: a navegação será gerenciada pelo useEffect
           localization={{
             variables: {
               sign_in: {
