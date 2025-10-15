@@ -191,8 +191,9 @@ function App() {
               >
                 Renderizar Planta Baixa
               </button>
+              {/* Nova aba */}
               <button
-                onClick={() => handleModeChange('creativity')} {/* Nova aba */}
+                onClick={() => handleModeChange('creativity')}
                 className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'creativity' ? 'bg-white text-indigo-600 shadow' : 'text-gray-600 hover:bg-gray-200'}`}
               >
                 Espaço Criatividade
