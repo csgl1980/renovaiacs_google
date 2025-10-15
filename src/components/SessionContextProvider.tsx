@@ -39,45 +39,42 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
 
     if (profileData) {
       console.log('SessionContext: [fetchUserProfile] Perfil do usuário encontrado:', profileData);
-      setUser(profileData as User);
+      return profileData as User; // Retorna o usuário buscado
     } else {
-      // Se nenhum perfil for encontrado (PGRST116) ou qualquer outro erro,
-      // crie um objeto de usuário básico. Isso garante que 'user' nunca seja null
-      // se uma sessão válida existir, prevenindo problemas de redirecionamento.
       console.warn('SessionContext: [fetchUserProfile] Nenhum perfil encontrado ou erro ao buscar perfil. Criando objeto de usuário básico. Erro:', profileError);
-      setUser({
+      return { // Retorna o usuário básico
         id: currentSession.user.id,
         first_name: currentSession.user.user_metadata?.first_name || '',
         last_name: currentSession.user.user_metadata?.last_name || '',
         email: currentSession.user.email || '',
-        credits: 20, // Créditos padrão para novos usuários
+        credits: 10, // Créditos padrão para novos usuários
         is_admin: false, // Padrão para novos usuários sem perfil ainda
-      });
+      };
     }
-    console.log('SessionContext: [fetchUserProfile] Finalizado. User state after fetch/create:', user);
   }, []);
 
   const handleAuthChange = useCallback(async (event: string, currentSession: Session | null) => {
     console.log('SessionContext: [handleAuthChange] Evento:', event, 'Sessão:', currentSession);
-    setIsLoading(true); // Sempre defina loading como true no início de uma mudança de autenticação
+    setIsLoading(true);
 
     if (currentSession) {
       setSession(currentSession);
-      await fetchUserProfile(currentSession);
+      const fetchedUser = await fetchUserProfile(currentSession); // Aguarda e obtém o usuário
+      setUser(fetchedUser);
     } else {
       setSession(null);
       setUser(null);
     }
-    setIsLoading(false); // Sempre defina loading como false no final
+    setIsLoading(false);
     console.log('SessionContext: [handleAuthChange] Finalizado. isLoading:', false, 'Current user state:', user);
   }, [fetchUserProfile]);
 
   useEffect(() => {
-    let isMounted = true; // Flag para evitar atualizações de estado em componente desmontado
+    let isMounted = true;
 
     const setupAuth = async () => {
       console.log('SessionContext: [setupAuth] Iniciando...');
-      setIsLoading(true); // Iniciar carregamento imediatamente
+      setIsLoading(true);
 
       // 1. Lidar com parâmetros de hash primeiro
       const hash = window.location.hash;
@@ -96,16 +93,13 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
             console.log('SessionContext: [setupAuth] Sessão definida com sucesso a partir do hash.');
             // Limpar hash da URL para evitar reprocessamento no refresh
             window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
-            // Atualizar explicitamente a sessão para garantir que o estado interno esteja totalmente sincronizado
-            await supabase.auth.refreshSession();
-            console.log('SessionContext: [setupAuth] Sessão atualizada após definir do hash.');
           }
         }
       }
 
       // 2. Obter a sessão atual (isso também refletirá qualquer sessão definida por hash)
       const { data: { session: initialSession }, error: sessionError } = await supabase.auth.getSession();
-      if (isMounted) { // Apenas atualize o estado se o componente ainda estiver montado
+      if (isMounted) {
         if (sessionError) {
           console.error('SessionContext: [setupAuth] Erro ao obter sessão inicial:', sessionError);
           setSession(null);
@@ -113,14 +107,15 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
         } else if (initialSession) {
           console.log('SessionContext: [setupAuth] Sessão inicial encontrada:', initialSession);
           setSession(initialSession);
-          await fetchUserProfile(initialSession);
+          const fetchedUser = await fetchUserProfile(initialSession); // Aguarda e obtém o usuário
+          setUser(fetchedUser);
         } else {
           console.log('SessionContext: [setupAuth] Nenhuma sessão inicial encontrada.');
           setSession(null);
           setUser(null);
         }
         setIsLoading(false);
-        console.log('SessionContext: [setupAuth] Finalizado. isLoading:', false);
+        console.log('SessionContext: [setupAuth] Finalizado. isLoading:', false, 'Current user state:', user);
       }
     };
 
@@ -134,10 +129,10 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
     });
 
     return () => {
-      isMounted = false; // Flag de limpeza
+      isMounted = false;
       authListener.subscription.unsubscribe();
     };
-  }, [handleAuthChange, fetchUserProfile]); // Dependências para useEffect
+  }, [handleAuthChange, fetchUserProfile]);
 
   const refreshUser = useCallback(async () => {
     console.log('SessionContext: [refreshUser] chamado.');
@@ -149,7 +144,8 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
       setUser(null);
     } else if (currentSession) {
       setSession(currentSession);
-      await fetchUserProfile(currentSession);
+      const fetchedUser = await fetchUserProfile(currentSession); // Aguarda e obtém o usuário
+      setUser(fetchedUser);
     } else {
       setSession(null);
       setUser(null);

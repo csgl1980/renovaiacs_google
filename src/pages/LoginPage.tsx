@@ -2,21 +2,21 @@ import React, { useEffect } from 'react';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from '../integrations/supabase/client';
-import SparklesIcon from '../components/icons/SparklesIcon'; // Caminho corrigido
-import { useSession } from '../components/SessionContextProvider'; // Import useSession
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import SparklesIcon from '../components/icons/SparklesIcon';
+import { useSession } from '../components/SessionContextProvider';
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage: React.FC = () => {
-  const { session, user, isLoading } = useSession(); // Obter 'user' também
+  const { session, user, isLoading } = useSession();
   const navigate = useNavigate();
 
   useEffect(() => {
     console.log('LoginPage: useEffect - isLoading:', isLoading, 'session:', session, 'user:', user);
-    if (!isLoading && session && user) { // Redirecionar apenas se a sessão E o usuário estiverem carregados
+    if (!isLoading && session && user) {
       console.log('LoginPage: Sessão e usuário encontrados, navegando para /app');
       navigate('/app', { replace: true });
     }
-  }, [session, user, isLoading, navigate]); // Adicionar 'user' às dependências
+  }, [session, user, isLoading, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
@@ -29,7 +29,8 @@ const LoginPage: React.FC = () => {
         <Auth
           supabaseClient={supabase}
           appearance={{ theme: ThemeSupa }}
-          providers={[]} // Removendo provedores de terceiros para simplificar
+          providers={[]}
+          redirectTo={window.location.origin + '/app'} {/* Adicionado o redirectTo aqui */}
           localization={{
             variables: {
               sign_in: {
