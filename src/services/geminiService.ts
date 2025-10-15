@@ -56,6 +56,23 @@ export const generateConceptFromPlan = async (imageFile: File, prompt: string): 
     throw new Error(response.text || "A IA não retornou uma imagem de conceito.");
 };
 
+export const generateImageFromText = async (prompt: string): Promise<string> => {
+    const fullPrompt = `Crie uma imagem fotorrealista de alta qualidade com base na seguinte descrição: "${prompt}". Gere APENAS a imagem resultante, sem nenhum texto, comentário ou explicação.`;
+
+    const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash-image',
+        contents: { parts: [{ text: fullPrompt }] },
+        config: { responseModalities: [Modality.IMAGE, Modality.TEXT] },
+    });
+
+    for (const part of response.candidates[0].content.parts) {
+        if (part.inlineData) {
+            return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+        }
+    }
+    throw new Error(response.text || "A IA não retornou uma imagem.");
+};
+
 
 export const generateInternalViews = async (imageFile: File, designPrompt: string): Promise<string[]> => {
     const viewTypes = [

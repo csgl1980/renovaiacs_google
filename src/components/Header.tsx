@@ -1,11 +1,11 @@
 import React from 'react';
 import SparklesIcon from './icons/SparklesIcon';
-import UserIcon from './icons/UserIcon'; // Caminho corrigido
-import LogOutIcon from './icons/LogOutIcon'; // Caminho corrigido
-import FolderIcon from './icons/FolderIcon'; // Caminho corrigido
-import CoinIcon from './icons/CoinIcon'; // Caminho corrigido
-import SettingsIcon from './icons/SettingsIcon'; // Caminho corrigido
-import type { User } from '../types'; // Caminho corrigido
+import UserIcon from './icons/UserIcon';
+import LogOutIcon from './icons/LogOutIcon';
+import FolderIcon from './icons/FolderIcon';
+import CoinIcon from './icons/CoinIcon';
+import SettingsIcon from './icons/SettingsIcon';
+import type { User } from '../types';
 import { Link } from 'react-router-dom';
 
 interface HeaderProps {
@@ -18,7 +18,7 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ user, onLogin, onSignup, onLogout, onOpenProjects, onBuyCredits }) => {
-  const displayName = user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() : '';
+  const displayName = user ? (user.first_name || user.email) : ''; // Prioriza o primeiro nome, senão usa o email
 
   return (
     <header className="text-center p-4 md:p-6 relative">
@@ -33,7 +33,7 @@ const Header: React.FC<HeaderProps> = ({ user, onLogin, onSignup, onLogout, onOp
                       </div>
                       <div className="flex items-center gap-2">
                         <UserIcon className="w-5 h-5" />
-                        <span className="font-medium">Olá, {displayName || user.email}</span>
+                        <span className="font-medium">Olá, {displayName}</span>
                       </div>
                     </div>
                     {/* Container for action buttons */}

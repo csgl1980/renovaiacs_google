@@ -1,29 +1,29 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSession } from './components/SessionContextProvider'; // Caminho corrigido
-import { supabase } from './integrations/supabase/client'; // Importar supabase aqui
+import { useSession } from './components/SessionContextProvider';
+import { supabase } from './integrations/supabase/client';
 
-import Header from './components/Header'; // Caminho corrigido
-import ImageUploader from './components/ImageUploader'; // Caminho corrigido
-import PromptControls from './components/PromptControls'; // Caminho corrigido
-import ResultDisplay from './components/ResultDisplay'; // Caminho corrigido
-import SaveToProjectModal from './components/SaveToProjectModal'; // Caminho corrigido
-import ProjectsView from './components/ProjectsView'; // Caminho corrigido
-import BuyCreditsModal from './components/BuyCreditsModal'; // Caminho corrigido
-import HotmartRedirectModal from './components/HotmartRedirectModal'; // Caminho corrigido
-import PdfUploader from './components/PdfUploader'; // Caminho corrigido
-import DualiteView from './components/DualiteView'; // Caminho corrigido
+import Header from './components/Header';
+import ImageUploader from './components/ImageUploader';
+import PromptControls from './components/PromptControls';
+import ResultDisplay from './components/ResultDisplay';
+import SaveToProjectModal from './components/SaveToProjectModal';
+import ProjectsView from './components/ProjectsView';
+import BuyCreditsModal from './components/BuyCreditsModal';
+import HotmartRedirectModal from './components/HotmartRedirectModal';
+import PdfUploader from './components/PdfUploader';
+import CreativitySpaceView from './components/CreativitySpaceView'; // Importar o novo componente
 
 // Importar os novos hooks
-import { useImageUpload } from './hooks/useImageUpload'; // Caminho corrigido
-import { useGeneration } from './hooks/useGeneration'; // Caminho corrigido
-import { useCostEstimation } from './hooks/useCostEstimation'; // Caminho corrigido
-import { useInternalViews } from './hooks/useInternalViews'; // Caminho corrigido
-import { useProjectManagement } from './hooks/useProjectManagement'; // Caminho corrigido
-import { useModals } from './hooks/useModals'; // Caminho corrigido
+import { useImageUpload } from './hooks/useImageUpload';
+import { useGeneration } from './hooks/useGeneration';
+import { useCostEstimation } from './hooks/useCostEstimation';
+import { useInternalViews } from './hooks/useInternalViews';
+import { useProjectManagement } from './hooks/useProjectManagement';
+import { useModals } from './hooks/useModals';
 
 function App() {
-  type Mode = 'image' | 'floorplan' | 'dualite';
+  type Mode = 'image' | 'floorplan' | 'dualite' | 'creativity'; // Adicionar 'creativity'
   const navigate = useNavigate();
   const { session, user, isLoading: isSessionLoading, refreshUser } = useSession();
 
@@ -58,7 +58,7 @@ function App() {
     handleGenerate, clearGenerationResults, generationCost,
   } = useGeneration({
     originalImageFile,
-    mode,
+    mode: mode === 'creativity' ? 'image' : mode, // Passar 'image' ou 'floorplan' para useGeneration
     setBuyCreditsModalOpen,
     setError: setAppError,
   });
@@ -93,7 +93,7 @@ function App() {
     generatedImage,
     prompt,
     selectedStyle,
-    mode,
+    mode: mode === 'creativity' ? 'image' : mode, // Passar 'image' ou 'floorplan' para useProjectManagement
     setError: setAppError,
   });
 
@@ -183,19 +183,19 @@ function App() {
                 onClick={() => handleModeChange('image')}
                 className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'image' ? 'bg-white text-indigo-600 shadow' : 'text-gray-600 hover:bg-gray-200'}`}
               >
-                Redesenhar Imagem
+                Renovar Ambiente
               </button>
               <button
                 onClick={() => handleModeChange('floorplan')}
                 className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'floorplan' ? 'bg-white text-indigo-600 shadow' : 'text-gray-600 hover:bg-gray-200'}`}
               >
-                Gerar de Planta Baixa
+                Renderizar Planta Baixa
               </button>
               <button
-                onClick={() => handleModeChange('dualite')}
-                className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'dualite' ? 'bg-white text-indigo-600 shadow' : 'text-gray-600 hover:bg-gray-200'}`}
+                onClick={() => handleModeChange('creativity')} {/* Nova aba */}
+                className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'creativity' ? 'bg-white text-indigo-600 shadow' : 'text-gray-600 hover:bg-gray-200'}`}
               >
-                Dualite AI
+                Espaço Criatividade
               </button>
             </div>
 
@@ -214,8 +214,8 @@ function App() {
                 isProcessingPdf={isProcessingPdf}
               />
             )}
-            {mode === 'dualite' && (
-              <DualiteView />
+            {mode === 'creativity' && (
+              <CreativitySpaceView setBuyCreditsModalOpen={setBuyCreditsModalOpen} setError={setAppError} />
             )}
 
             {(mode === 'image' || mode === 'floorplan') && (

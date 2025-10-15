@@ -12,7 +12,7 @@ const corsHeaders = {
 const creditProductMapping: { [hotmartProductId: string]: number } = {
   "6243393": 20,  // ID do produto Hotmart para o Pacote Básico (20 créditos)
   "6243679": 50,  // ID do produto Hotmart para o Pacote Padrão (50 créditos)
-  "SEU_ID_PRODUTO_PACOTE_PROFISSIONAL": 150, // Exemplo: Pacote Profissional (150 créditos) - Substitua pelo ID real se tiver
+  "6243722": 150, // ID do produto Hotmart para o Pacote Profissional (150 créditos)
   // Adicione mais mapeamentos aqui se tiver outros pacotes de créditos
 };
 

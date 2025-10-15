@@ -73,6 +73,34 @@ const LoginPage: React.FC = () => {
               },
             },
           }}
+          form_fields={{
+            sign_up: {
+              first_name: {
+                label: 'Nome',
+                placeholder: 'Seu primeiro nome',
+                type: 'text',
+                required: true,
+              },
+              last_name: {
+                label: 'Sobrenome',
+                placeholder: 'Seu sobrenome',
+                type: 'text',
+                required: false,
+              },
+              password: {
+                label: 'Senha',
+                placeholder: 'Crie uma senha',
+                type: 'password',
+                required: true,
+              },
+              password_confirmation: {
+                label: 'Confirme a Senha',
+                placeholder: 'Confirme sua senha',
+                type: 'password',
+                required: true,
+              },
+            },
+          }}
         />
       </div>
     </div>
