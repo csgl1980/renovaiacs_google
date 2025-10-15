@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import XCircleIcon from '../components/icons/XCircleIcon';
 import SparklesIcon from '../components/icons/SparklesIcon';
-import LogoBranco from '/LOGO BRANCO.jpg'; // Importar o logo
+import LogoBranco from '/LOGO BRANCO.jpg'; // Caminho atualizado para a pasta public
 
 const AboutPage: React.FC = () => {
   const navigate = useNavigate();

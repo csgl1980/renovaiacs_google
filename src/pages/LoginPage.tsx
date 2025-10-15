@@ -5,7 +5,7 @@ import { supabase } from '../integrations/supabase/client';
 import SparklesIcon from '../components/icons/SparklesIcon';
 import { useSession } from '../components/SessionContextProvider';
 import { useNavigate } from 'react-router-dom';
-import LogoBranco from '/LOGO BRANCO.jpg'; // Importar o logo
+import LogoBranco from '/LOGO BRANCO.jpg'; // Caminho atualizado para a pasta public
 
 const LoginPage: React.FC = () => {
   const { session, user, isLoading } = useSession();

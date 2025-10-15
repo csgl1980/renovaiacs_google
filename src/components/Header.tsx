@@ -7,7 +7,7 @@ import CoinIcon from './icons/CoinIcon';
 import SettingsIcon from './icons/SettingsIcon';
 import type { User } from '../types';
 import { Link } from 'react-router-dom';
-import LogoBranco from '/LOGO BRANCO.jpg'; // Importar o logo
+import LogoBranco from '/LOGO BRANCO.jpg'; // Caminho atualizado para a pasta public
 
 interface HeaderProps {
   user: User | null;
