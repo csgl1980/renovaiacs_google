@@ -65,11 +65,12 @@ function App() {
 
   const {
     isEstimatingCost, costEstimate, costError,
-    handleEstimateCost, clearCostEstimation,
+    handleEstimateCost, clearCostEstimation, estimationCost, // Adicionado estimationCost
   } = useCostEstimation({
     generatedImage,
     prompt,
     selectedStyle,
+    setBuyCreditsModalOpen, // Passado para o hook
   });
 
   const {
@@ -248,14 +249,14 @@ function App() {
                 onEstimateCost={handleEstimateCost}
                 isEstimatingCost={isEstimatingCost}
                 costEstimate={costEstimate}
-                costError={costError}
+                costError={costError} // Passando costError diretamente
                 onGenerateInternalViews={handleGenerateInternalViews}
                 isInternalViewsLoading={isInternalViewsLoading}
                 internalViews={internalViews}
                 internalViewsError={internalViewsError}
                 onSaveToProject={() => setSaveModalOpen(true)}
                 credits={user.credits}
-                variationCost={1}
+                variationCost={2} // Custo de variação atualizado
                 internalViewsCost={internalViewsCost}
               />
             </div>

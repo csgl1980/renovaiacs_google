@@ -144,7 +144,7 @@ const PromptControls: React.FC<PromptControlsProps> = ({
         </div>
         {!isLoading && isImageUploaded && (
              <span className={`text-xs flex items-center gap-1 ${hasEnoughCredits ? 'text-indigo-200' : 'text-white font-bold'}`}>
-                {hasEnoughCredits ? `(Custa ${cost} crédito)` : 'Créditos insuficientes'}
+                {hasEnoughCredits ? `(Custa ${cost} ${cost === 1 ? 'crédito' : 'créditos'})` : 'Créditos insuficientes'}
              </span>
         )}
       </button>

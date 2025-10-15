@@ -19,14 +19,14 @@ interface ResultDisplayProps {
   onEstimateCost: () => void;
   isEstimatingCost: boolean;
   costEstimate: CostEstimate | null;
-  costError: string | null;
+  costError: string | null; // Passado diretamente
   onGenerateInternalViews: () => void;
   isInternalViewsLoading: boolean;
   internalViews: string[] | null;
   internalViewsError: string | null;
   onSaveToProject: () => void;
   credits: number;
-  variationCost: number;
+  variationCost: number; // Custo de variação
   internalViewsCost: number;
 }
 
@@ -42,7 +42,7 @@ const ActionButton: React.FC<{ onClick: () => void; disabled?: boolean; label: s
     </button>
     <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-max bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
       {label}
-      {cost && <span className="text-amber-300 ml-1">({cost} {cost === 1 ? 'crédito' : 'créditos'})</span>}
+      {cost !== undefined && <span className="text-amber-300 ml-1">({cost} {cost === 1 ? 'crédito' : 'créditos'})</span>}
     </div>
   </div>
 );
@@ -50,7 +50,7 @@ const ActionButton: React.FC<{ onClick: () => void; disabled?: boolean; label: s
 const ResultDisplay: React.FC<ResultDisplayProps> = (props) => {
   const {
     mode, originalPreview, generatedImage, isLoading, isVariationLoading, error,
-    onGenerateVariation, onEstimateCost, isEstimatingCost, costEstimate, costError,
+    onGenerateVariation, onEstimateCost, isEstimatingCost, costEstimate, costError, // Usando costError
     onGenerateInternalViews, isInternalViewsLoading, internalViews, internalViewsError,
     onSaveToProject, credits, variationCost, internalViewsCost
   } = props;
@@ -170,7 +170,7 @@ const ResultDisplay: React.FC<ResultDisplayProps> = (props) => {
               <SaveIcon className="w-5 h-5" />
             </ActionButton>
           {mode === 'image' && (
-            <ActionButton onClick={onEstimateCost} disabled={isEstimatingCost} label="Estimar Custo">
+            <ActionButton onClick={onEstimateCost} disabled={isEstimatingCost || credits < 1} label="Estimar Custo" cost={1}> {/* Custo de 1 crédito para estimativa */}
               <DollarSignIcon className="w-5 h-5" />
             </ActionButton>
           )}
@@ -183,7 +183,7 @@ const ResultDisplay: React.FC<ResultDisplayProps> = (props) => {
       )}
 
       {(isEstimatingCost || costEstimate || costError) && mode === 'image' && (
-        <CostEstimator isLoading={isEstimatingCost} estimate={costEstimate} error={error} />
+        <CostEstimator isLoading={isEstimatingCost} estimate={costEstimate} error={costError} /> {/* Passando costError */}
       )}
       
       {(isInternalViewsLoading || internalViewsError || internalViews) && mode === 'floorplan' && (

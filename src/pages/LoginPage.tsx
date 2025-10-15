@@ -5,6 +5,7 @@ import { supabase } from '../integrations/supabase/client';
 import SparklesIcon from '../components/icons/SparklesIcon';
 import { useSession } from '../components/SessionContextProvider';
 import { useNavigate } from 'react-router-dom';
+import LogoBranco from '/LOGO BRANCO.jpg'; // Importar o logo
 
 const LoginPage: React.FC = () => {
   const { session, user, isLoading } = useSession();
@@ -22,7 +23,7 @@ const LoginPage: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
         <div className="text-center mb-8">
-          <SparklesIcon className="w-12 h-12 text-indigo-500 mx-auto mb-3" />
+          <img src={LogoBranco} alt="Logo C&S Construção" className="h-16 mx-auto mb-4" /> {/* Logo aqui */}
           <h2 className="text-3xl font-bold text-gray-800">Bem-vindo ao Renova IA C&S</h2>
           <p className="text-gray-600 mt-2">Entre ou cadastre-se para começar a transformar seus espaços.</p>
         </div>

@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { redesignImage, generateConceptFromPlan } from '../services/geminiService'; // Caminho corrigido
+import { redesignImage, generateConceptFromPlan } from '../services/geminiService';
 import { supabase } from '../integrations/supabase/client';
 import { useSession } from '../components/SessionContextProvider';
 import type { User } from '../types';
@@ -39,7 +39,8 @@ export const useGeneration = ({
   const [isVariationLoading, setIsVariationLoading] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
 
-  const generationCost = mode === 'image' ? 2 : 3;
+  const baseGenerationCost = mode === 'image' ? 2 : 3;
+  const variationCost = 2; // Custo de variação ajustado para 2 créditos
 
   const clearGenerationResults = useCallback(() => {
     setGeneratedImage(null);
@@ -50,9 +51,9 @@ export const useGeneration = ({
   const handleGenerate = useCallback(async (isVariation = false) => {
     if (!originalImageFile || !user) return;
 
-    const currentGenerationCost = isVariation ? 1 : generationCost;
+    const currentGenerationCost = isVariation ? variationCost : baseGenerationCost;
     if (user.credits < currentGenerationCost) {
-      setGenerationError("Créditos insuficientes para realizar esta operação.");
+      setGenerationError(`Créditos insuficientes para realizar esta operação. Você precisa de ${currentGenerationCost} créditos.`);
       setBuyCreditsModalOpen(true);
       return;
     }
@@ -100,7 +101,7 @@ export const useGeneration = ({
       setIsLoading(false);
       setIsVariationLoading(false);
     }
-  }, [originalImageFile, user, generationCost, selectedStyle, prompt, mode, setBuyCreditsModalOpen, clearGenerationResults, refreshUser]);
+  }, [originalImageFile, user, baseGenerationCost, variationCost, selectedStyle, prompt, mode, setBuyCreditsModalOpen, clearGenerationResults, refreshUser]);
 
   return {
     prompt,
@@ -113,6 +114,6 @@ export const useGeneration = ({
     generationError,
     handleGenerate,
     clearGenerationResults,
-    generationCost,
+    generationCost: baseGenerationCost, // Retorna o custo base para a primeira geração
   };
 };

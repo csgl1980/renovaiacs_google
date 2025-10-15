@@ -1,11 +1,14 @@
 import { useState, useCallback } from 'react';
-import { estimateCost } from '../services/geminiService'; // Caminho corrigido
+import { estimateCost } from '../services/geminiService';
+import { supabase } from '../integrations/supabase/client';
+import { useSession } from '../components/SessionContextProvider';
 import type { CostEstimate } from '../types';
 
 interface UseCostEstimationProps {
   generatedImage: string | null;
   prompt: string;
   selectedStyle: string;
+  setBuyCreditsModalOpen: (isOpen: boolean) => void; // Adicionado
 }
 
 interface UseCostEstimationResult {
@@ -14,16 +17,21 @@ interface UseCostEstimationResult {
   costError: string | null;
   handleEstimateCost: () => Promise<void>;
   clearCostEstimation: () => void;
+  estimationCost: number; // Adicionado
 }
 
 export const useCostEstimation = ({
   generatedImage,
   prompt,
   selectedStyle,
+  setBuyCreditsModalOpen, // Adicionado
 }: UseCostEstimationProps): UseCostEstimationResult => {
+  const { user, refreshUser } = useSession(); // Adicionado
   const [isEstimatingCost, setIsEstimatingCost] = useState(false);
   const [costEstimate, setCostEstimate] = useState<CostEstimate | null>(null);
   const [costError, setCostError] = useState<string | null>(null);
+
+  const estimationCost = 1; // Custo para estimativa de custo
 
   const clearCostEstimation = useCallback(() => {
     setCostEstimate(null);
@@ -31,7 +39,14 @@ export const useCostEstimation = ({
   }, []);
 
   const handleEstimateCost = useCallback(async () => {
-    if (!generatedImage) return;
+    if (!generatedImage || !user) return; // Adicionado verificação de usuário
+
+    if (user.credits < estimationCost) { // Verificação de créditos
+      setCostError(`Créditos insuficientes para estimar o custo. Você precisa de ${estimationCost} crédito.`);
+      setBuyCreditsModalOpen(true);
+      return;
+    }
+
     const fullPrompt = selectedStyle ? `${prompt} ${selectedStyle}`.trim() : prompt;
     if (!fullPrompt) {
       setCostError("É necessário um prompt para estimar o custo.");
@@ -47,12 +62,28 @@ export const useCostEstimation = ({
     try {
       const estimate = await estimateCost(estimationPrompt);
       setCostEstimate(estimate);
+
+      // Deduct credits from Supabase
+      const { data: updatedProfile, error: updateError } = await supabase
+        .from('profiles')
+        .update({ credits: user.credits - estimationCost })
+        .eq('id', user.id)
+        .select()
+        .single();
+
+      if (updateError) {
+        console.error('Erro ao deduzir créditos para estimativa de custo:', updateError);
+        setCostError('Erro ao deduzir créditos para estimativa de custo. Tente novamente.');
+      } else if (updatedProfile) {
+        refreshUser(); // Refresh user context to show updated credits
+      }
+
     } catch (err) {
       setCostError((err as Error).message || "Falha ao estimar o custo.");
     } finally {
       setIsEstimatingCost(false);
     }
-  }, [generatedImage, prompt, selectedStyle]);
+  }, [generatedImage, prompt, selectedStyle, user, estimationCost, setBuyCreditsModalOpen, refreshUser]);
 
   return {
     isEstimatingCost,
@@ -60,5 +91,6 @@ export const useCostEstimation = ({
     costError,
     handleEstimateCost,
     clearCostEstimation,
+    estimationCost, // Retorna o custo
   };
 };

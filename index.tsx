@@ -5,6 +5,7 @@ import App from './src/App';
 import LoginPage from "./src/pages/LoginPage";
 import { SessionContextProvider, useSession } from './src/components/SessionContextProvider';
 import AdminPage from './src/pages/AdminPage';
+import AboutPage from './src/pages/AboutPage'; // Importar a nova página
 
 // Um componente simples para lidar com o redirecionamento inicial da raiz
 const RootRedirector: React.FC = () => {
@@ -50,6 +51,7 @@ root.render(
           <Route path="/login" element={<LoginPage />} />
           <Route path="/app/*" element={<App />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/about" element={<AboutPage />} /> {/* Nova rota */}
         </Routes>
       </Router>
     </SessionContextProvider>

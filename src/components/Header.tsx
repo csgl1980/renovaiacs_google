@@ -7,6 +7,7 @@ import CoinIcon from './icons/CoinIcon';
 import SettingsIcon from './icons/SettingsIcon';
 import type { User } from '../types';
 import { Link } from 'react-router-dom';
+import LogoBranco from '/LOGO BRANCO.jpg'; // Importar o logo
 
 interface HeaderProps {
   user: User | null;
@@ -21,12 +22,15 @@ const Header: React.FC<HeaderProps> = ({ user, onLogin, onSignup, onLogout, onOp
   const displayName = user ? (user.first_name || user.email) : ''; // Prioriza o primeiro nome, senão usa o email
 
   return (
-    <header className="text-center p-4 md:p-6 relative">
+    <header className="text-center p-4 md:p-6 relative bg-white shadow-sm"> {/* Fundo branco para o header */}
+        <div className="absolute top-4 left-4 md:top-6 md:left-6">
+            <img src={LogoBranco} alt="Logo C&S Construção" className="h-10 md:h-12" />
+        </div>
         <div className="absolute top-4 right-4 md:top-6 md:right-6">
              {user ? (
                   <div className="flex flex-col items-end gap-2">
                     <div className="flex items-center gap-4 text-gray-700 mb-1">
-                      <div className="flex items-center gap-2 bg-white border border-gray-200 px-3 py-1.5 rounded-full">
+                      <div className="flex items-center gap-2 bg-gray-100 border border-gray-200 px-3 py-1.5 rounded-full">
                         <CoinIcon className="w-5 h-5 text-amber-500" />
                         <span className="font-bold text-gray-800">{user.credits}</span>
                         <span className="text-sm text-gray-500">créditos</span>
@@ -49,6 +53,14 @@ const Header: React.FC<HeaderProps> = ({ user, onLogin, onSignup, onLogout, onOp
                               <span>Admin</span>
                             </Link>
                           )}
+                          <Link
+                            to="/about" // Novo botão para a página "Sobre a C&S"
+                            className="flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors"
+                            aria-label="Sobre a C&S"
+                          >
+                            <SparklesIcon className="w-5 h-5" /> {/* Usando SparklesIcon temporariamente */}
+                            <span>Sobre C&S</span>
+                          </Link>
                           <button
                               onClick={onOpenProjects}
                               className="flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors"

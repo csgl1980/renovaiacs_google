@@ -6,7 +6,7 @@ import type { CostEstimate } from '../types'; // Caminho corrigido
 interface CostEstimatorProps {
   isLoading: boolean;
   estimate: CostEstimate | null;
-  error: string | null;
+  error: string | null; // Agora é o costError
 }
 
 const CostEstimator: React.FC<CostEstimatorProps> = ({ isLoading, estimate, error }) => {

@@ -41,7 +41,7 @@ export const useCreativitySpace = ({
     if (!user) return;
 
     if (user.credits < cost) {
-      setGenerationError("Créditos insuficientes para gerar a imagem.");
+      setGenerationError(`Créditos insuficientes para gerar a imagem. Você precisa de ${cost} créditos.`);
       setBuyCreditsModalOpen(true);
       return;
     }

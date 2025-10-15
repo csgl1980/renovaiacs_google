@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { generateInternalViews } from '../services/geminiService'; // Caminho corrigido
+import { generateInternalViews } from '../services/geminiService';
 import { supabase } from '../integrations/supabase/client';
 import { useSession } from '../components/SessionContextProvider';
 import type { User } from '../types';
@@ -49,7 +49,7 @@ export const useInternalViews = ({
     if (!generatedImage || !user) return;
 
     if (user.credits < internalViewsCost) {
-      setInternalViewsError("Créditos insuficientes para gerar as vistas internas.");
+      setInternalViewsError(`Créditos insuficientes para gerar as vistas internas. Você precisa de ${internalViewsCost} créditos.`);
       setBuyCreditsModalOpen(true);
       return;
     }
