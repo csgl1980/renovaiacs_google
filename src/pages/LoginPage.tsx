@@ -30,7 +30,7 @@ const LoginPage: React.FC = () => {
           supabaseClient={supabase}
           appearance={{ theme: ThemeSupa }}
           providers={[]}
-          redirectTo={window.location.origin + '/app'} {/* Adicionado o redirectTo aqui */}
+          redirectTo={window.location.origin + '/app'}
           localization={{
             variables: {
               sign_in: {
