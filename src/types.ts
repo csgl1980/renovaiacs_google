@@ -28,7 +28,7 @@ export interface User {
 
 export interface Generation {
   id: string;
-  generated_image: string; // Alterado de 'generatedImage' para 'generated_image'
+  generatedImage: string; // Revertido para 'generatedImage' (camelCase)
   prompt: string;
   created_at: string;
   project_id: string;
@@ -37,7 +37,7 @@ export interface Generation {
 export interface Project {
   id: string;
   name: string;
-  original_image: string;
+  originalImage: string; // Revertido para 'originalImage' (camelCase)
   created_at: string;
   generations: Generation[];
   user_id: string;

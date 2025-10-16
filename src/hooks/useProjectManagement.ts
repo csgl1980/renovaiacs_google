@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../integrations/supabase/client';
 import { useSession } from '../components/SessionContextProvider';
 import type { Project, Generation } from '../types';
+import { showSuccess, showError } from '../utils/toast'; // Importar showSuccess e showError
 
 interface UseProjectManagementProps {
   originalImagePreview: string | null;
@@ -39,16 +40,26 @@ export const useProjectManagement = ({
         console.log('useProjectManagement: Buscando projetos para o usuário:', user.id);
         const { data, error } = await supabase
           .from('projects')
-          .select('*, generations(*)') // Fetch generations along with projects
+          .select('id, name, original_image, created_at, user_id, generations(id, generated_image, prompt, created_at, project_id)') // Explicitly select columns
           .eq('user_id', user.id)
           .order('created_at', { ascending: false });
 
         if (error) {
           console.error('useProjectManagement: Erro ao buscar projetos:', error);
           setError('Erro ao carregar projetos.');
+          showError('Erro ao carregar projetos.');
         } else {
-          setProjects(data as Project[]);
-          console.log('useProjectManagement: Projetos carregados:', data);
+          // Map snake_case from DB to camelCase for frontend types
+          const mappedProjects = data.map(p => ({
+            ...p,
+            originalImage: p.original_image,
+            generations: p.generations.map((g: any) => ({
+              ...g,
+              generatedImage: g.generated_image,
+            }))
+          })) as Project[];
+          setProjects(mappedProjects);
+          console.log('useProjectManagement: Projetos carregados:', mappedProjects);
         }
       } else {
         setProjects([]);
@@ -63,20 +74,23 @@ export const useProjectManagement = ({
     
     if (!originalPreviewForProject || !generatedImage || !user) {
       setError('Dados insuficientes para salvar o projeto.');
+      showError('Dados insuficientes para salvar o projeto.');
       console.error('useProjectManagement: Dados insuficientes para salvar o projeto. originalPreviewForProject:', originalPreviewForProject, 'generatedImage:', generatedImage, 'user:', user);
       return;
     }
 
     const newGeneration: Omit<Generation, 'id' | 'project_id'> = {
-      generated_image: generatedImage, // Alterado de 'generatedImage' para 'generated_image'
+      generated_image: generatedImage,
       prompt: selectedStyle ? `${prompt} ${selectedStyle}`.trim() : prompt,
       created_at: new Date().toISOString(),
     };
     console.log('useProjectManagement: Nova geração a ser salva:', newGeneration);
 
     let currentProjectId = projectId;
+    let isNewProject = false;
 
     if (!currentProjectId) { // Create new project
+      isNewProject = true;
       const newProject: Omit<Project, 'id' | 'generations'> = {
         name: newProjectName,
         original_image: originalPreviewForProject,
@@ -88,6 +102,7 @@ export const useProjectManagement = ({
       if (error) {
         console.error('useProjectManagement: Erro ao criar novo projeto:', error);
         setError('Erro ao criar novo projeto. Tente novamente.');
+        showError('Erro ao criar novo projeto.');
         return;
       }
       currentProjectId = data.id;
@@ -104,6 +119,7 @@ export const useProjectManagement = ({
     if (genError) {
       console.error('useProjectManagement: Erro ao salvar geração:', genError);
       setError('Erro ao salvar imagem gerada. Tente novamente.');
+      showError('Erro ao salvar imagem gerada.');
       return;
     }
     console.log('useProjectManagement: Geração salva com sucesso.');
@@ -112,16 +128,26 @@ export const useProjectManagement = ({
     console.log('useProjectManagement: Recarregando projetos após salvar...');
     const { data: updatedProjects, error: fetchError } = await supabase
       .from('projects')
-      .select('*, generations(*)') // Fetch generations along with projects
+      .select('id, name, original_image, created_at, user_id, generations(id, generated_image, prompt, created_at, project_id)') // Explicitly select columns
       .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
     if (fetchError) {
       console.error('useProjectManagement: Erro ao recarregar projetos:', fetchError);
       setError('Erro ao recarregar projetos após salvar.');
+      showError('Erro ao recarregar projetos após salvar.');
     } else {
-      setProjects(updatedProjects as Project[]);
-      console.log('useProjectManagement: Projetos recarregados:', updatedProjects);
+      const mappedProjects = updatedProjects.map(p => ({
+        ...p,
+        originalImage: p.original_image,
+        generations: p.generations.map((g: any) => ({
+          ...g,
+          generatedImage: g.generated_image,
+        }))
+      })) as Project[];
+      setProjects(mappedProjects);
+      showSuccess(isNewProject ? 'Novo projeto criado e imagem salva!' : 'Imagem salva no projeto existente!');
+      console.log('useProjectManagement: Projetos recarregados:', mappedProjects);
     }
   }, [originalImagePreview, pdfPreview, generatedImage, prompt, selectedStyle, mode, user, setError]);
 
@@ -132,8 +158,10 @@ export const useProjectManagement = ({
     if (error) {
       console.error('useProjectManagement: Erro ao deletar projeto:', error);
       setError('Erro ao deletar projeto. Tente novamente.');
+      showError('Erro ao deletar projeto.');
     } else {
       setProjects(projects.filter(p => p.id !== projectId));
+      showSuccess('Projeto deletado com sucesso!');
       console.log('useProjectManagement: Projeto deletado com sucesso.');
     }
   }, [user, projects, setError]);
@@ -145,12 +173,14 @@ export const useProjectManagement = ({
     if (error) {
       console.error('useProjectManagement: Erro ao deletar geração:', error);
       setError('Erro ao deletar imagem gerada. Tente novamente.');
+      showError('Erro ao deletar imagem gerada.');
     } else {
       setProjects(prevProjects => prevProjects.map(p =>
         p.id === projectId
           ? { ...p, generations: p.generations.filter(g => g.id !== generationId) }
           : p
       ));
+      showSuccess('Imagem gerada deletada com sucesso!');
       console.log('useProjectManagement: Geração deletada com sucesso.');
     }
   }, [user, projects, setError]);

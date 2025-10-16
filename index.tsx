@@ -5,27 +5,28 @@ import App from './src/App';
 import LoginPage from "./src/pages/LoginPage";
 import { SessionContextProvider, useSession } from './src/components/SessionContextProvider';
 import AdminPage from './src/pages/AdminPage';
-import AboutPage from './src/pages/AboutPage'; // Importar a nova página
+import AboutPage from './src/pages/AboutPage';
+import ToastProvider from './src/components/ToastProvider'; // Importar ToastProvider
 
 // Um componente simples para lidar com o redirecionamento inicial da raiz
 const RootRedirector: React.FC = () => {
   const navigate = useNavigate();
-  const { session, user, isLoading } = useSession(); // Obter o objeto 'user' também
+  const { session, user, isLoading } = useSession();
 
   useEffect(() => {
     console.log('RootRedirector: isLoading:', isLoading, 'session:', session, 'user:', user);
-    if (!isLoading) { // Uma vez que o SessionContextProvider terminou de carregar
-      if (session && user) { // Se a sessão e o perfil do usuário estiverem carregados
+    if (!isLoading) {
+      if (session && user) {
         console.log('RootRedirector: Sessão e usuário encontrados, redirecionando para /app');
         navigate('/app', { replace: true });
-      } else { // Se não houver sessão ou o perfil do usuário não foi carregado
+      } else {
         console.log('RootRedirector: Nenhuma sessão ou perfil de usuário, redirecionando para /login');
         navigate('/login', { replace: true });
       }
     }
-  }, [session, user, isLoading, navigate]); // Adicionar 'user' às dependências
+  }, [session, user, isLoading, navigate]);
 
-  if (isLoading) { // Mostrar carregando APENAS se o SessionContextProvider ainda estiver processando
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
@@ -33,7 +34,7 @@ const RootRedirector: React.FC = () => {
       </div>
     );
   }
-  return null; // Deve redirecionar antes de renderizar qualquer coisa
+  return null;
 };
 
 const rootElement = document.getElementById('root');
@@ -46,12 +47,13 @@ root.render(
   <React.StrictMode>
     <SessionContextProvider>
       <Router>
+        <ToastProvider /> {/* Adicionar ToastProvider aqui */}
         <Routes>
           <Route path="/" element={<RootRedirector />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/app/*" element={<App />} />
           <Route path="/admin" element={<AdminPage />} />
-          <Route path="/about" element={<AboutPage />} /> {/* Nova rota */}
+          <Route path="/about" element={<AboutPage />} />
         </Routes>
       </Router>
     </SessionContextProvider>

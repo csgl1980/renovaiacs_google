@@ -1,12 +1,13 @@
 import React from 'react';
 import DollarSignIcon from './icons/DollarSignIcon';
 import ShareIcon from './icons/ShareIcon';
-import type { CostEstimate } from '../types'; // Caminho corrigido
+import DownloadIcon from './icons/DownloadIcon'; // Importar DownloadIcon
+import type { CostEstimate } from '../types';
 
 interface CostEstimatorProps {
   isLoading: boolean;
   estimate: CostEstimate | null;
-  error: string | null; // Agora é o costError
+  error: string | null;
 }
 
 const CostEstimator: React.FC<CostEstimatorProps> = ({ isLoading, estimate, error }) => {
@@ -17,9 +18,7 @@ const CostEstimator: React.FC<CostEstimatorProps> = ({ isLoading, estimate, erro
     }).format(value);
   };
 
-  const handleShare = async () => {
-    if (!estimate) return;
-
+  const generateShareText = (estimate: CostEstimate) => {
     let shareText = 'Estimativa de Custo da Transformação - Renova IA C&S\n\n';
     
     estimate.items.forEach(item => {
@@ -34,6 +33,12 @@ const CostEstimator: React.FC<CostEstimatorProps> = ({ isLoading, estimate, erro
     shareText += `TOTAL GERAL ESTIMADO: ${formatCurrency(estimate.totalCost)}\n\n`;
     shareText += '*Valores são estimativas e podem variar.\n';
     shareText += 'https://cesconstrucao.com.br/';
+    return shareText;
+  };
+
+  const handleShare = async () => {
+    if (!estimate) return;
+    const shareText = generateShareText(estimate);
 
     if (navigator.share) {
         try {
@@ -48,6 +53,19 @@ const CostEstimator: React.FC<CostEstimatorProps> = ({ isLoading, estimate, erro
     } else {
         alert('Seu navegador não suporta a função de compartilhamento.');
     }
+  };
+
+  const handleDownloadText = () => {
+    if (!estimate) return;
+    const textContent = generateShareText(estimate);
+    const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'estimativa_custo_renova_ia_ces.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href); // Clean up the object URL
   };
 
   const renderContent = () => {
@@ -74,15 +92,24 @@ const CostEstimator: React.FC<CostEstimatorProps> = ({ isLoading, estimate, erro
         <div className="w-full text-left pt-4">
           <div className="flex justify-between items-center mb-3 px-4">
             <h3 className="text-lg font-bold text-gray-800">Estimativa de Custo</h3>
-             {navigator.share && (
+             <div className="flex gap-2"> {/* Container para os botões de ação */}
                 <button 
-                  onClick={handleShare}
+                  onClick={handleDownloadText} // Novo botão de download
                   className="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-indigo-600 transition-colors"
-                  aria-label="Compartilhar estimativa"
+                  aria-label="Baixar estimativa como texto"
                 >
-                  <ShareIcon className="w-5 h-5" />
+                  <DownloadIcon className="w-5 h-5" />
                 </button>
-              )}
+                {navigator.share && (
+                    <button 
+                      onClick={handleShare}
+                      className="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-indigo-600 transition-colors"
+                      aria-label="Compartilhar estimativa"
+                    >
+                      <ShareIcon className="w-5 h-5" />
+                    </button>
+                )}
+             </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full min-w-max">
