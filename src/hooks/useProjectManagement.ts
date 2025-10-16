@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../integrations/supabase/client';
-import { useSession } from '../components/SessionContextProvider'; // Caminho corrigido
-import type { Project, Generation } from '../types'; // Caminho corrigido
+import { useSession } from '../components/SessionContextProvider';
+import type { Project, Generation } from '../types';
 
 interface UseProjectManagementProps {
   originalImagePreview: string | null;
@@ -70,7 +70,7 @@ export const useProjectManagement = ({
     const newGeneration: Omit<Generation, 'id' | 'project_id'> = {
       generatedImage,
       prompt: selectedStyle ? `${prompt} ${selectedStyle}`.trim() : prompt,
-      created_at: new Date().toISOString(), // Alterado de 'createdAt' para 'created_at'
+      created_at: new Date().toISOString(),
     };
     console.log('useProjectManagement: Nova geração a ser salva:', newGeneration);
 
@@ -79,8 +79,8 @@ export const useProjectManagement = ({
     if (!currentProjectId) { // Create new project
       const newProject: Omit<Project, 'id' | 'generations'> = {
         name: newProjectName,
-        originalImage: originalPreviewForProject,
-        created_at: new Date().toISOString(), // Alterado de 'createdAt' para 'created_at'
+        original_image: originalPreviewForProject, // Alterado de 'originalImage' para 'original_image'
+        created_at: new Date().toISOString(),
         user_id: user.id,
       };
       console.log('useProjectManagement: Criando novo projeto:', newProject);

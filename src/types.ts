@@ -30,15 +30,15 @@ export interface Generation {
   id: string;
   generatedImage: string;
   prompt: string;
-  created_at: string; // Alterado de 'createdAt' para 'created_at'
+  created_at: string;
   project_id: string;
 }
 
 export interface Project {
   id: string;
   name: string;
-  originalImage: string;
-  created_at: string; // Alterado de 'createdAt' para 'created_at'
+  original_image: string; // Alterado de 'originalImage' para 'original_image'
+  created_at: string;
   generations: Generation[];
   user_id: string;
 }
