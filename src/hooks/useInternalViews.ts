@@ -48,52 +48,66 @@ export const useInternalViews = ({
   const handleGenerateInternalViews = useCallback(async () => {
     if (!generatedImage || !user) {
       setInternalViewsError('Imagem gerada ou usuário não autenticado não disponível para gerar vistas internas.');
+      console.error('useInternalViews: Imagem gerada ou usuário não autenticado não disponível para gerar vistas internas.');
       return;
     }
 
+    console.log(`useInternalViews: Tentando gerar vistas internas. Custo: ${internalViewsCost} créditos. Créditos atuais do usuário: ${user.credits}`);
     if (user.credits < internalViewsCost) {
       setInternalViewsError(`Créditos insuficientes para gerar as vistas internas. Você precisa de ${internalViewsCost} créditos.`);
       setBuyCreditsModalOpen(true);
+      console.warn(`useInternalViews: Créditos insuficientes. Necessário: ${internalViewsCost}, Disponível: ${user.credits}`);
       return;
     }
 
     const fullPrompt = selectedStyle ? `${prompt} ${selectedStyle}`.trim() : prompt;
     if (!fullPrompt) {
       setInternalViewsError("Por favor, descreva o estilo de design para as vistas internas.");
+      console.warn('useInternalViews: Prompt vazio para vistas internas.');
       return;
     }
 
     setIsInternalViewsLoading(true);
     setInternalViewsError(null); // Limpar erros anteriores
     setInternalViews(null);
+    console.log('useInternalViews: Iniciando geração de vistas internas...');
+
     try {
       const conceptImageFile = await dataUrlToFile(generatedImage, 'concept-3d.png');
+      console.log('useInternalViews: Imagem de conceito convertida para File.');
       const views = await generateInternalViews(conceptImageFile, fullPrompt);
       
       if (views.length === 0) {
         setInternalViewsError("A IA não conseguiu gerar nenhuma vista interna. Tente novamente com um prompt diferente.");
+        console.warn('useInternalViews: Nenhuma vista interna gerada pela IA.');
       } else {
         setInternalViews(views);
+        console.log(`useInternalViews: ${views.length} vistas internas geradas com sucesso.`);
       }
 
       // Deduct credits from Supabase
+      const newCredits = user.credits - internalViewsCost;
+      console.log(`useInternalViews: Deduzindo ${internalViewsCost} créditos. Novos créditos: ${newCredits}`);
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({ credits: user.credits - internalViewsCost })
+        .update({ credits: newCredits })
         .eq('id', user.id);
 
       if (updateError) {
-        console.error('Erro ao deduzir créditos em useInternalViews:', updateError);
+        console.error('useInternalViews: Erro ao deduzir créditos no Supabase:', updateError);
         setInternalViewsError('Erro ao deduzir créditos. Tente novamente.');
       } else {
+        console.log('useInternalViews: Créditos deduzidos com sucesso no Supabase. Atualizando sessão do usuário...');
         await refreshUser(); // Refresh user context to show updated credits
+        console.log('useInternalViews: Sessão do usuário atualizada.');
       }
 
     } catch (err) {
-      console.error('Erro na geração de vistas internas:', err);
+      console.error('useInternalViews: Erro na geração de vistas internas:', err);
       setInternalViewsError((err as Error).message || "Ocorreu um erro ao gerar as vistas internas.");
     } finally {
       setIsInternalViewsLoading(false);
+      console.log('useInternalViews: Geração de vistas internas finalizada.');
     }
   }, [generatedImage, user, prompt, selectedStyle, setBuyCreditsModalOpen, refreshUser]);
 

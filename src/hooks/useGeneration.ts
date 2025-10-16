@@ -51,27 +51,34 @@ export const useGeneration = ({
   const handleGenerate = useCallback(async (isVariation = false) => {
     if (!originalImageFile || !user) {
       setError('Dados insuficientes para gerar a imagem ou usuário não autenticado.');
+      console.error('useGeneration: Dados insuficientes para gerar a imagem ou usuário não autenticado.');
       return;
     }
 
     const currentGenerationCost = isVariation ? variationCost : baseGenerationCost;
+    console.log(`useGeneration: Tentando gerar imagem. Custo: ${currentGenerationCost} créditos. Créditos atuais do usuário: ${user.credits}`);
+
     if (user.credits < currentGenerationCost) {
       setGenerationError(`Créditos insuficientes para realizar esta operação. Você precisa de ${currentGenerationCost} créditos.`);
       setBuyCreditsModalOpen(true);
+      console.warn(`useGeneration: Créditos insuficientes. Necessário: ${currentGenerationCost}, Disponível: ${user.credits}`);
       return;
     }
 
     const fullPrompt = selectedStyle ? `${prompt} ${selectedStyle}`.trim() : prompt;
     if (!fullPrompt) {
       setGenerationError("Por favor, descreva a mudança ou escolha um estilo.");
+      console.warn('useGeneration: Prompt vazio.');
       return;
     }
 
     if (isVariation) {
       setIsVariationLoading(true);
+      console.log('useGeneration: Iniciando geração de variação...');
     } else {
       setIsLoading(true);
       clearGenerationResults();
+      console.log('useGeneration: Iniciando nova geração...');
     }
 
     try {
@@ -82,26 +89,32 @@ export const useGeneration = ({
         resultImage = await generateConceptFromPlan(originalImageFile, fullPrompt);
       }
       setGeneratedImage(resultImage);
+      console.log('useGeneration: Imagem gerada com sucesso.');
 
       // Deduct credits from Supabase
+      const newCredits = user.credits - currentGenerationCost;
+      console.log(`useGeneration: Deduzindo ${currentGenerationCost} créditos. Novos créditos: ${newCredits}`);
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({ credits: user.credits - currentGenerationCost })
+        .update({ credits: newCredits })
         .eq('id', user.id);
 
       if (updateError) {
-        console.error('Erro ao deduzir créditos em useGeneration:', updateError);
+        console.error('useGeneration: Erro ao deduzir créditos no Supabase:', updateError);
         setGenerationError('Erro ao deduzir créditos. Tente novamente.');
       } else {
+        console.log('useGeneration: Créditos deduzidos com sucesso no Supabase. Atualizando sessão do usuário...');
         await refreshUser(); // Refresh user context to show updated credits
+        console.log('useGeneration: Sessão do usuário atualizada.');
       }
 
     } catch (err) {
-      console.error('Erro na geração da imagem:', err);
+      console.error('useGeneration: Erro na geração da imagem:', err);
       setGenerationError((err as Error).message || "Ocorreu um erro desconhecido ao gerar a imagem.");
     } finally {
       setIsLoading(false);
       setIsVariationLoading(false);
+      console.log('useGeneration: Geração finalizada.');
     }
   }, [originalImageFile, user, baseGenerationCost, variationCost, selectedStyle, prompt, mode, setBuyCreditsModalOpen, clearGenerationResults, refreshUser, setError]);
 

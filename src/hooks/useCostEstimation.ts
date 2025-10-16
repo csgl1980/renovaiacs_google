@@ -41,49 +41,61 @@ export const useCostEstimation = ({
   const handleEstimateCost = useCallback(async () => {
     if (!generatedImage || !user) { // Adicionado verificação de usuário
       setCostError('Imagem gerada ou usuário não autenticado não disponível para estimar custo.');
+      console.error('useCostEstimation: Imagem gerada ou usuário não autenticado não disponível para estimar custo.');
       return;
     }
 
+    console.log(`useCostEstimation: Tentando estimar custo. Custo: ${estimationCost} crédito. Créditos atuais do usuário: ${user.credits}`);
     if (user.credits < estimationCost) { // Verificação de créditos
       setCostError(`Créditos insuficientes para estimar o custo. Você precisa de ${estimationCost} crédito.`);
       setBuyCreditsModalOpen(true);
+      console.warn(`useCostEstimation: Créditos insuficientes. Necessário: ${estimationCost}, Disponível: ${user.credits}`);
       return;
     }
 
     const fullPrompt = selectedStyle ? `${prompt} ${selectedStyle}`.trim() : prompt;
     if (!fullPrompt) {
       setCostError("É necessário um prompt para estimar o custo.");
+      console.warn('useCostEstimation: Prompt vazio para estimativa de custo.');
       return;
     }
 
     setIsEstimatingCost(true);
     setCostError(null);
     setCostEstimate(null);
+    console.log('useCostEstimation: Iniciando estimativa de custo...');
 
     const estimationPrompt = `Com base na seguinte descrição de uma reforma: "${fullPrompt}", e considerando a imagem gerada, crie uma estimativa de custo detalhada em BRL para uma cidade de médio porte no Brasil. Separe os custos de material e mão de obra para cada item. Forneça o resultado em JSON.`;
+    console.log('useCostEstimation: Prompt enviado para IA:', estimationPrompt);
 
     try {
       const estimate = await estimateCost(estimationPrompt);
       setCostEstimate(estimate);
+      console.log('useCostEstimation: Estimativa de custo recebida com sucesso.');
 
       // Deduct credits from Supabase
+      const newCredits = user.credits - estimationCost;
+      console.log(`useCostEstimation: Deduzindo ${estimationCost} créditos. Novos créditos: ${newCredits}`);
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({ credits: user.credits - estimationCost })
+        .update({ credits: newCredits })
         .eq('id', user.id);
 
       if (updateError) {
-        console.error('Erro ao deduzir créditos para estimativa de custo:', updateError);
+        console.error('useCostEstimation: Erro ao deduzir créditos no Supabase:', updateError);
         setCostError('Erro ao deduzir créditos para estimativa de custo. Tente novamente.');
       } else {
+        console.log('useCostEstimation: Créditos deduzidos com sucesso no Supabase. Atualizando sessão do usuário...');
         await refreshUser(); // Refresh user context to show updated credits
+        console.log('useCostEstimation: Sessão do usuário atualizada.');
       }
 
     } catch (err) {
-      console.error('Erro na estimativa de custo:', err);
+      console.error('useCostEstimation: Erro na estimativa de custo:', err);
       setCostError((err as Error).message || "Falha ao estimar o custo.");
     } finally {
       setIsEstimatingCost(false);
+      console.log('useCostEstimation: Estimativa de custo finalizada.');
     }
   }, [generatedImage, prompt, selectedStyle, user, estimationCost, setBuyCreditsModalOpen, refreshUser]);
 

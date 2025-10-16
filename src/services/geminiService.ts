@@ -107,11 +107,11 @@ export const generateInternalViews = async (imageFile: File, designPrompt: strin
             }
 
             if (!imageFound) {
-                 console.warn(`A IA não retornou uma imagem para a vista: ${view}. Resposta: ${response.text}`);
+                 console.warn(`geminiService: A IA não retornou uma imagem para a vista: ${view}. Resposta: ${response.text}`);
             }
 
         } catch (error) {
-            console.error(`Erro ao gerar a vista interna para: ${view}`, error);
+            console.error(`geminiService: Erro ao gerar a vista interna para: ${view}`, error);
             // Continue para a próxima vista mesmo que uma falhe
         }
     }
@@ -157,7 +157,7 @@ export const estimateCost = async (prompt: string): Promise<CostEstimate> => {
 
     try {
         const jsonText = response.text.trim();
-        console.log("geminiService: [estimateCost] Resposta bruta da IA:", jsonText);
+        console.log("geminiService: [estimateCost] Resposta bruta da IA:", jsonText); // Log da resposta bruta
         // A API pode retornar o JSON dentro de um bloco de código markdown
         const sanitizedJson = jsonText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
         console.log("geminiService: [estimateCost] Resposta JSON sanitizada:", sanitizedJson);

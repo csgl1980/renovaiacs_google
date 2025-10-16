@@ -40,45 +40,56 @@ export const useCreativitySpace = ({
   const handleGenerateImage = useCallback(async () => {
     if (!user) {
       setGenerationError('Usuário não autenticado para gerar a imagem.');
+      console.error('useCreativitySpace: Usuário não autenticado para gerar a imagem.');
       return;
     }
 
+    console.log(`useCreativitySpace: Tentando gerar imagem. Custo: ${cost} créditos. Créditos atuais do usuário: ${user.credits}`);
     if (user.credits < cost) {
       setGenerationError(`Créditos insuficientes para gerar a imagem. Você precisa de ${cost} créditos.`);
       setBuyCreditsModalOpen(true);
+      console.warn(`useCreativitySpace: Créditos insuficientes. Necessário: ${cost}, Disponível: ${user.credits}`);
       return;
     }
 
     if (!prompt.trim()) {
       setGenerationError("Por favor, descreva o que você quer criar.");
+      console.warn('useCreativitySpace: Prompt vazio.');
       return;
     }
 
     setIsLoading(true);
     clearResults();
+    console.log('useCreativitySpace: Iniciando geração de imagem no Espaço Criatividade...');
 
     try {
       const resultImage = await generateImageFromText(prompt);
       setGeneratedImage(resultImage);
+      console.log('useCreativitySpace: Imagem gerada com sucesso.');
 
       // Deduct credits from Supabase
+      const newCredits = user.credits - cost;
+      console.log(`useCreativitySpace: Deduzindo ${cost} créditos. Novos créditos: ${newCredits}`);
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({ credits: user.credits - cost })
+        .update({ credits: newCredits })
         .eq('id', user.id);
 
       if (updateError) {
-        console.error('Erro ao deduzir créditos em useCreativitySpace:', updateError);
+        console.error('useCreativitySpace: Erro ao deduzir créditos no Supabase:', updateError);
         setGenerationError('Erro ao deduzir créditos. Tente novamente.');
       } else {
+        console.log('useCreativitySpace: Créditos deduzidos com sucesso no Supabase. Atualizando sessão do usuário...');
         await refreshUser(); // Refresh user context to show updated credits
+        console.log('useCreativitySpace: Sessão do usuário atualizada.');
       }
 
     } catch (err) {
-      console.error('Erro na geração de imagem do Espaço Criatividade:', err);
+      console.error('useCreativitySpace: Erro na geração de imagem do Espaço Criatividade:', err);
       setGenerationError((err as Error).message || "Ocorreu um erro desconhecido ao gerar a imagem.");
     } finally {
       setIsLoading(false);
+      console.log('useCreativitySpace: Geração de imagem no Espaço Criatividade finalizada.');
     }
   }, [user, prompt, cost, setBuyCreditsModalOpen, clearResults, refreshUser, setError]);
 
