@@ -76,11 +76,17 @@ const LoginPage: React.FC = () => {
           }}
           form_fields={{
             sign_up: {
+              email: { // Definindo explicitamente o campo de e-mail
+                label: 'Seu e-mail',
+                placeholder: 'exemplo@email.com',
+                type: 'email',
+                required: true,
+              },
               first_name: {
                 label: 'Nome',
                 placeholder: 'Seu primeiro nome',
                 type: 'text',
-                required: true, // Tornando o nome obrigatório
+                required: true,
               },
               last_name: {
                 label: 'Sobrenome',
@@ -88,9 +94,9 @@ const LoginPage: React.FC = () => {
                 type: 'text',
                 required: false,
               },
-              password: {
-                label: 'Senha',
-                placeholder: 'Crie uma senha',
+              password: { // Definindo explicitamente o campo de senha
+                label: 'Crie uma senha',
+                placeholder: '••••••••',
                 type: 'password',
                 required: true,
               },
