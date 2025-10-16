@@ -39,7 +39,10 @@ export const useCostEstimation = ({
   }, []);
 
   const handleEstimateCost = useCallback(async () => {
-    if (!generatedImage || !user) return; // Adicionado verificação de usuário
+    if (!generatedImage || !user) { // Adicionado verificação de usuário
+      setCostError('Imagem gerada ou usuário não autenticado não disponível para estimar custo.');
+      return;
+    }
 
     if (user.credits < estimationCost) { // Verificação de créditos
       setCostError(`Créditos insuficientes para estimar o custo. Você precisa de ${estimationCost} crédito.`);
@@ -64,21 +67,20 @@ export const useCostEstimation = ({
       setCostEstimate(estimate);
 
       // Deduct credits from Supabase
-      const { data: updatedProfile, error: updateError } = await supabase
+      const { error: updateError } = await supabase
         .from('profiles')
         .update({ credits: user.credits - estimationCost })
-        .eq('id', user.id)
-        .select()
-        .single();
+        .eq('id', user.id);
 
       if (updateError) {
         console.error('Erro ao deduzir créditos para estimativa de custo:', updateError);
         setCostError('Erro ao deduzir créditos para estimativa de custo. Tente novamente.');
-      } else if (updatedProfile) {
-        refreshUser(); // Refresh user context to show updated credits
+      } else {
+        await refreshUser(); // Refresh user context to show updated credits
       }
 
     } catch (err) {
+      console.error('Erro na estimativa de custo:', err);
       setCostError((err as Error).message || "Falha ao estimar o custo.");
     } finally {
       setIsEstimatingCost(false);

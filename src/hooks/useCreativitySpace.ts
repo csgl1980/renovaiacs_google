@@ -38,7 +38,10 @@ export const useCreativitySpace = ({
   }, [setError]);
 
   const handleGenerateImage = useCallback(async () => {
-    if (!user) return;
+    if (!user) {
+      setGenerationError('Usuário não autenticado para gerar a imagem.');
+      return;
+    }
 
     if (user.credits < cost) {
       setGenerationError(`Créditos insuficientes para gerar a imagem. Você precisa de ${cost} créditos.`);
@@ -59,26 +62,25 @@ export const useCreativitySpace = ({
       setGeneratedImage(resultImage);
 
       // Deduct credits from Supabase
-      const { data: updatedProfile, error: updateError } = await supabase
+      const { error: updateError } = await supabase
         .from('profiles')
         .update({ credits: user.credits - cost })
-        .eq('id', user.id)
-        .select()
-        .single();
+        .eq('id', user.id);
 
       if (updateError) {
-        console.error('Erro ao deduzir créditos:', updateError);
+        console.error('Erro ao deduzir créditos em useCreativitySpace:', updateError);
         setGenerationError('Erro ao deduzir créditos. Tente novamente.');
-      } else if (updatedProfile) {
-        refreshUser(); // Refresh user context to show updated credits
+      } else {
+        await refreshUser(); // Refresh user context to show updated credits
       }
 
     } catch (err) {
+      console.error('Erro na geração de imagem do Espaço Criatividade:', err);
       setGenerationError((err as Error).message || "Ocorreu um erro desconhecido ao gerar a imagem.");
     } finally {
       setIsLoading(false);
     }
-  }, [user, prompt, cost, setBuyCreditsModalOpen, clearResults, refreshUser]);
+  }, [user, prompt, cost, setBuyCreditsModalOpen, clearResults, refreshUser, setError]);
 
   return {
     prompt,

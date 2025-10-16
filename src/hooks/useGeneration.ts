@@ -49,7 +49,10 @@ export const useGeneration = ({
   }, [setError]);
 
   const handleGenerate = useCallback(async (isVariation = false) => {
-    if (!originalImageFile || !user) return;
+    if (!originalImageFile || !user) {
+      setError('Dados insuficientes para gerar a imagem ou usuário não autenticado.');
+      return;
+    }
 
     const currentGenerationCost = isVariation ? variationCost : baseGenerationCost;
     if (user.credits < currentGenerationCost) {
@@ -81,27 +84,26 @@ export const useGeneration = ({
       setGeneratedImage(resultImage);
 
       // Deduct credits from Supabase
-      const { data: updatedProfile, error: updateError } = await supabase
+      const { error: updateError } = await supabase
         .from('profiles')
         .update({ credits: user.credits - currentGenerationCost })
-        .eq('id', user.id)
-        .select()
-        .single();
+        .eq('id', user.id);
 
       if (updateError) {
-        console.error('Erro ao deduzir créditos:', updateError);
+        console.error('Erro ao deduzir créditos em useGeneration:', updateError);
         setGenerationError('Erro ao deduzir créditos. Tente novamente.');
-      } else if (updatedProfile) {
-        refreshUser(); // Refresh user context to show updated credits
+      } else {
+        await refreshUser(); // Refresh user context to show updated credits
       }
 
     } catch (err) {
+      console.error('Erro na geração da imagem:', err);
       setGenerationError((err as Error).message || "Ocorreu um erro desconhecido ao gerar a imagem.");
     } finally {
       setIsLoading(false);
       setIsVariationLoading(false);
     }
-  }, [originalImageFile, user, baseGenerationCost, variationCost, selectedStyle, prompt, mode, setBuyCreditsModalOpen, clearGenerationResults, refreshUser]);
+  }, [originalImageFile, user, baseGenerationCost, variationCost, selectedStyle, prompt, mode, setBuyCreditsModalOpen, clearGenerationResults, refreshUser, setError]);
 
   return {
     prompt,

@@ -46,7 +46,10 @@ export const useInternalViews = ({
   }, []);
 
   const handleGenerateInternalViews = useCallback(async () => {
-    if (!generatedImage || !user) return;
+    if (!generatedImage || !user) {
+      setInternalViewsError('Imagem gerada ou usuário não autenticado não disponível para gerar vistas internas.');
+      return;
+    }
 
     if (user.credits < internalViewsCost) {
       setInternalViewsError(`Créditos insuficientes para gerar as vistas internas. Você precisa de ${internalViewsCost} créditos.`);
@@ -61,29 +64,33 @@ export const useInternalViews = ({
     }
 
     setIsInternalViewsLoading(true);
-    setInternalViewsError(null);
+    setInternalViewsError(null); // Limpar erros anteriores
     setInternalViews(null);
     try {
       const conceptImageFile = await dataUrlToFile(generatedImage, 'concept-3d.png');
       const views = await generateInternalViews(conceptImageFile, fullPrompt);
-      setInternalViews(views);
+      
+      if (views.length === 0) {
+        setInternalViewsError("A IA não conseguiu gerar nenhuma vista interna. Tente novamente com um prompt diferente.");
+      } else {
+        setInternalViews(views);
+      }
 
       // Deduct credits from Supabase
-      const { data: updatedProfile, error: updateError } = await supabase
+      const { error: updateError } = await supabase
         .from('profiles')
         .update({ credits: user.credits - internalViewsCost })
-        .eq('id', user.id)
-        .select()
-        .single();
+        .eq('id', user.id);
 
       if (updateError) {
-        console.error('Erro ao deduzir créditos:', updateError);
+        console.error('Erro ao deduzir créditos em useInternalViews:', updateError);
         setInternalViewsError('Erro ao deduzir créditos. Tente novamente.');
-      } else if (updatedProfile) {
-        refreshUser(); // Refresh user context to show updated credits
+      } else {
+        await refreshUser(); // Refresh user context to show updated credits
       }
 
     } catch (err) {
+      console.error('Erro na geração de vistas internas:', err);
       setInternalViewsError((err as Error).message || "Ocorreu um erro ao gerar as vistas internas.");
     } finally {
       setIsInternalViewsLoading(false);

@@ -125,6 +125,7 @@ export const generateInternalViews = async (imageFile: File, designPrompt: strin
 
 
 export const estimateCost = async (prompt: string): Promise<CostEstimate> => {
+    console.log("geminiService: [estimateCost] Enviando prompt:", prompt);
     const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
         contents: prompt,
@@ -156,18 +157,22 @@ export const estimateCost = async (prompt: string): Promise<CostEstimate> => {
 
     try {
         const jsonText = response.text.trim();
+        console.log("geminiService: [estimateCost] Resposta bruta da IA:", jsonText);
         // A API pode retornar o JSON dentro de um bloco de código markdown
         const sanitizedJson = jsonText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+        console.log("geminiService: [estimateCost] Resposta JSON sanitizada:", sanitizedJson);
         const parsed = JSON.parse(sanitizedJson);
 
         // Validação extra para garantir que o objeto tem a estrutura esperada
         if (parsed && Array.isArray(parsed.items) && typeof parsed.totalCost === 'number') {
+           console.log("geminiService: [estimateCost] Estimativa de custo analisada com sucesso:", parsed);
            return parsed;
         } else {
+           console.error("geminiService: [estimateCost] Resposta da IA não corresponde ao formato esperado:", parsed);
            throw new Error("A resposta da IA não corresponde ao formato esperado.");
         }
     } catch (e) {
-        console.error("Erro ao analisar a estimativa de custo:", e);
+        console.error("geminiService: [estimateCost] Erro ao analisar a estimativa de custo:", e);
         throw new Error("Não foi possível processar a estimativa de custo retornada pela IA.");
     }
 };
