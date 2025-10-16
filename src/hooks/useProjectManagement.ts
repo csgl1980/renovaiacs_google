@@ -70,7 +70,7 @@ export const useProjectManagement = ({
     const newGeneration: Omit<Generation, 'id' | 'project_id'> = {
       generatedImage,
       prompt: selectedStyle ? `${prompt} ${selectedStyle}`.trim() : prompt,
-      createdAt: new Date().toISOString(),
+      created_at: new Date().toISOString(), // Alterado de 'createdAt' para 'created_at'
     };
     console.log('useProjectManagement: Nova geração a ser salva:', newGeneration);
 
@@ -80,7 +80,7 @@ export const useProjectManagement = ({
       const newProject: Omit<Project, 'id' | 'generations'> = {
         name: newProjectName,
         originalImage: originalPreviewForProject,
-        createdAt: new Date().toISOString(),
+        created_at: new Date().toISOString(), // Alterado de 'createdAt' para 'created_at'
         user_id: user.id,
       };
       console.log('useProjectManagement: Criando novo projeto:', newProject);

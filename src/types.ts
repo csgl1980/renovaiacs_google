@@ -30,7 +30,7 @@ export interface Generation {
   id: string;
   generatedImage: string;
   prompt: string;
-  createdAt: string;
+  created_at: string; // Alterado de 'createdAt' para 'created_at'
   project_id: string;
 }
 
@@ -38,7 +38,7 @@ export interface Project {
   id: string;
   name: string;
   originalImage: string;
-  createdAt: string;
+  created_at: string; // Alterado de 'createdAt' para 'created_at'
   generations: Generation[];
   user_id: string;
 }
