@@ -183,7 +183,7 @@ const ResultDisplay: React.FC<ResultDisplayProps> = (props) => {
       )}
 
       {(isEstimatingCost || costEstimate || costError) && mode === 'image' && (
-        <CostEstimator isLoading={isEstimatingCost} estimate={costEstimate} error={costError} /> {/* Passando costError */}
+        <CostEstimator isLoading={isEstimatingCost} estimate={costEstimate} error={costError} />
       )}
       
       {(isInternalViewsLoading || internalViewsError || internalViews) && mode === 'floorplan' && (
