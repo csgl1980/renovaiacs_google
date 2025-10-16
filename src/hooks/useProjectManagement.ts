@@ -68,7 +68,7 @@ export const useProjectManagement = ({
     }
 
     const newGeneration: Omit<Generation, 'id' | 'project_id'> = {
-      generatedImage,
+      generated_image: generatedImage, // Alterado de 'generatedImage' para 'generated_image'
       prompt: selectedStyle ? `${prompt} ${selectedStyle}`.trim() : prompt,
       created_at: new Date().toISOString(),
     };
@@ -79,7 +79,7 @@ export const useProjectManagement = ({
     if (!currentProjectId) { // Create new project
       const newProject: Omit<Project, 'id' | 'generations'> = {
         name: newProjectName,
-        original_image: originalPreviewForProject, // Alterado de 'originalImage' para 'original_image'
+        original_image: originalPreviewForProject,
         created_at: new Date().toISOString(),
         user_id: user.id,
       };
