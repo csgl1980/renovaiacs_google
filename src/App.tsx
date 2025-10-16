@@ -119,11 +119,34 @@ function App() {
 
   // Auth Handlers (usando Supabase)
   const handleLogout = useCallback(async () => {
+    console.log('App.tsx: [handleLogout] Iniciando logout...');
+    const { data: { session: currentSession }, error: getSessionError } = await supabase.auth.getSession();
+
+    if (getSessionError) {
+      console.error('App.tsx: [handleLogout] Erro ao obter sessão antes do logout:', getSessionError);
+      setAppError('Erro ao verificar sessão antes do logout. Tente novamente.');
+      return;
+    }
+
+    if (!currentSession) {
+      console.warn('App.tsx: [handleLogout] Nenhuma sessão ativa encontrada. Limpando estado local.');
+      // Se não houver sessão, apenas limpe o estado local e redirecione
+      navigate('/login');
+      clearUploadState();
+      clearGenerationResults();
+      clearCostEstimation();
+      clearInternalViews();
+      closeAllModals();
+      setAppError(null);
+      return;
+    }
+
     const { error } = await supabase.auth.signOut();
     if (error) {
-      console.error('Erro ao fazer logout:', error);
-      setAppError('Erro ao fazer logout. Tente novamente.');
+      console.error('App.tsx: [handleLogout] Erro ao fazer logout:', error);
+      setAppError(`Erro ao fazer logout: ${error.message}. Tente novamente.`);
     } else {
+      console.log('App.tsx: [handleLogout] Logout realizado com sucesso.');
       navigate('/login');
       clearUploadState();
       clearGenerationResults();
@@ -132,7 +155,7 @@ function App() {
       closeAllModals();
       setAppError(null);
     }
-  }, [navigate, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, closeAllModals]);
+  }, [navigate, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, closeAllModals, setAppError]);
 
   // Modal Triggers
   const openLoginModal = useCallback(() => navigate('/login'), [navigate]);
