@@ -39,7 +39,8 @@ export const redesignImage = async (imageFile: File, prompt: string): Promise<st
 };
 
 export const generateConceptFromPlan = async (imageFile: File, prompt: string): Promise<string> => {
-    const fullPrompt = `A partir desta planta baixa, crie uma renderização 3D fotorrealista de alta definição com vista isométrica. A renderização deve ter um aspecto de maquete profissional. Incorpore as seguintes instruções de design. Gere apenas a imagem resultante, sem nenhum texto ou explicação: "${prompt}"`;
+    // Prompt ajustado para enfatizar a fidelidade ao layout da planta baixa
+    const fullPrompt = `A partir desta planta baixa, crie uma renderização 3D fotorrealista de alta definição com vista isométrica. A renderização deve ter um aspecto de maquete profissional, mantendo fielmente o layout, a estrutura e a proporção dos ambientes da planta baixa fornecida. Incorpore as seguintes instruções de design. Gere apenas a imagem resultante, sem nenhum texto ou explicação: "${prompt}"`;
     const imagePart = await fileToGenerativePart(imageFile);
 
     const response = await ai.models.generateContent({
@@ -89,7 +90,8 @@ export const generateInternalViews = async (imageFile: File, designPrompt: strin
     // Use um loop sequencial para evitar limites de taxa e permitir sucesso parcial
     for (const view of viewTypes) {
         try {
-            const fullPrompt = `A partir desta maquete 3D, gere uma única imagem fotorrealista de uma vista interna (ao nível dos olhos) ${view}. A imagem deve parecer que uma pessoa está dentro do espaço. Incorpore as seguintes instruções de design: "${designPrompt}". Gere APENAS a imagem, sem nenhum texto ou explicação.`;
+            // Prompt ajustado para enfatizar a perspectiva interna
+            const fullPrompt = `A partir desta maquete 3D, gere uma única imagem fotorrealista de uma vista interna (ao nível dos olhos), como se uma pessoa estivesse dentro do espaço, explorando o ambiente ${view}. Incorpore as seguintes instruções de design: "${designPrompt}". Gere APENAS a imagem, sem nenhum texto ou explicação.`;
             
             const response = await ai.models.generateContent({
                 model: 'gemini-2.5-flash-image',
