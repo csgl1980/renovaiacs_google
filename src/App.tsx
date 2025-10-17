@@ -120,40 +120,36 @@ function App() {
   // Auth Handlers (usando Supabase)
   const handleLogout = useCallback(async () => {
     console.log('App.tsx: [handleLogout] Iniciando logout...');
-    const { data: { session: currentSession }, error: getSessionError } = await supabase.auth.getSession();
+    setAppError(null); // Limpa qualquer erro anterior
 
-    if (getSessionError) {
-      console.error('App.tsx: [handleLogout] Erro ao obter sessão antes do logout:', getSessionError);
-      setAppError('Erro ao verificar sessão antes do logout. Tente novamente.');
-      return;
-    }
+    try {
+      const { error } = await supabase.auth.signOut();
 
-    if (!currentSession) {
-      console.warn('App.tsx: [handleLogout] Nenhuma sessão ativa encontrada. Limpando estado local.');
-      // Se não houver sessão, apenas limpe o estado local e redirecione
+      if (error) {
+        console.error('App.tsx: [handleLogout] Erro ao fazer logout:', error);
+        // Verifica se o erro é "Auth session missing!"
+        if (error.message.includes('Auth session missing!')) {
+          console.warn('App.tsx: [handleLogout] Sessão de autenticação já ausente. Prosseguindo com limpeza local.');
+          // Trata como um logout "client-side" bem-sucedido
+        } else {
+          setAppError(`Erro ao fazer logout: ${error.message}. Tente novamente.`);
+          return; // Para se for um erro diferente e crítico
+        }
+      } else {
+        console.log('App.tsx: [handleLogout] Logout realizado com sucesso.');
+      }
+
+      // Sempre limpa o estado local e redireciona após tentar o signOut
       navigate('/login');
       clearUploadState();
       clearGenerationResults();
       clearCostEstimation();
       clearInternalViews();
       closeAllModals();
-      setAppError(null);
-      return;
-    }
-
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error('App.tsx: [handleLogout] Erro ao fazer logout:', error);
-      setAppError(`Erro ao fazer logout: ${error.message}. Tente novamente.`);
-    } else {
-      console.log('App.tsx: [handleLogout] Logout realizado com sucesso.');
-      navigate('/login');
-      clearUploadState();
-      clearGenerationResults();
-      clearCostEstimation();
-      clearInternalViews();
-      closeAllModals();
-      setAppError(null);
+      setAppError(null); // Garante que o erro seja limpo após o "logout"
+    } catch (e) {
+      console.error('App.tsx: [handleLogout] Erro inesperado durante o logout:', e);
+      setAppError(`Ocorreu um erro inesperado durante o logout: ${(e as Error).message}.`);
     }
   }, [navigate, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, closeAllModals, setAppError]);
 
