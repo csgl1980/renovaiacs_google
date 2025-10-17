@@ -19,7 +19,7 @@ import { useImageUpload } from './hooks/useImageUpload';
 import { useGeneration } from './hooks/useGeneration';
 import { useCostEstimation } from './hooks/useCostEstimation';
 import { useInternalViews } from './hooks/useInternalViews';
-import { useProjectManagement } from './hooks/useProjectManagement';
+import { useProjectManagement } => './hooks/useProjectManagement';
 import { useModals } from './hooks/useModals';
 
 function App() {
@@ -100,7 +100,9 @@ function App() {
 
   // Efeito para redirecionar usuários não autenticados
   useEffect(() => {
+    console.log('App.tsx: useEffect for redirection - isSessionLoading:', isSessionLoading, 'session:', session, 'user:', user);
     if (!isSessionLoading && !session) {
+      console.log('App.tsx: Redirecting to /login due to no session.');
       navigate('/login', { replace: true });
     }
   }, [session, isSessionLoading, navigate]);
@@ -127,29 +129,27 @@ function App() {
 
       if (error) {
         console.error('App.tsx: [handleLogout] Erro ao fazer logout:', error);
-        // Verifica se o erro é "Auth session missing!"
-        if (error.message.includes('Auth session missing!')) {
-          console.warn('App.tsx: [handleLogout] Sessão de autenticação já ausente. Prosseguindo com limpeza local.');
-          // Trata como um logout "client-side" bem-sucedido
-        } else {
-          setAppError(`Erro ao fazer logout: ${error.message}. Tente novamente.`);
-          return; // Para se for um erro diferente e crítico
+        // Apenas define appError para erros críticos, mas ainda prossegue com a limpeza local e navegação.
+        if (!error.message.includes('Auth session missing!')) {
+          setAppError(`Erro ao fazer logout: ${error.message}.`);
         }
       } else {
         console.log('App.tsx: [handleLogout] Logout realizado com sucesso.');
       }
 
-      // Sempre limpa o estado local e redireciona após tentar o signOut
-      navigate('/login');
+      // Sempre realiza a limpeza local e redireciona após tentar o signOut
       clearUploadState();
       clearGenerationResults();
       clearCostEstimation();
       clearInternalViews();
       closeAllModals();
       setAppError(null); // Garante que o erro seja limpo após o "logout"
+      navigate('/login', { replace: true }); // Força a navegação
+
     } catch (e) {
       console.error('App.tsx: [handleLogout] Erro inesperado durante o logout:', e);
       setAppError(`Ocorreu um erro inesperado durante o logout: ${(e as Error).message}.`);
+      navigate('/login', { replace: true }); // Também navega em erros inesperados
     }
   }, [navigate, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, closeAllModals, setAppError]);
 
