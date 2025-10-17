@@ -19,7 +19,7 @@ import { useImageUpload } from './hooks/useImageUpload';
 import { useGeneration } from './hooks/useGeneration';
 import { useCostEstimation } from './hooks/useCostEstimation';
 import { useInternalViews } from './hooks/useInternalViews';
-import { useProjectManagement } => './hooks/useProjectManagement';
+import { useProjectManagement } from './hooks/useProjectManagement';
 import { useModals } from './hooks/useModals';
 
 function App() {
