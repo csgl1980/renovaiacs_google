@@ -40,7 +40,7 @@ export const redesignImage = async (imageFile: File, prompt: string): Promise<st
 
 export const generateConceptFromPlan = async (imageFile: File, prompt: string): Promise<string> => {
     // Prompt ajustado para enfatizar a fidelidade ao layout da planta baixa e a renderização completa
-    const fullPrompt = `A partir desta planta baixa, crie uma renderização 3D fotorrealista de alta definição com vista isométrica. É crucial que a renderização **abranja e transforme a planta baixa por completo, sem omitir nenhuma parte do layout original**. A renderização deve ter um aspecto de maquete profissional, mantendo fielmente o layout, a estrutura e a proporção dos ambientes da planta baixa fornecida. Incorpore as seguintes instruções de design. Gere apenas a imagem resultante, sem nenhum texto ou explicação: "${prompt}"`;
+    const fullPrompt = `A partir desta planta baixa, crie uma renderização 3D fotorrealista de alta definição com vista isométrica. É **ABSOLUTAMENTE CRUCIAL** que a renderização **abranja e transforme a planta baixa por completo, sem omitir NENHUMA parte do layout original**. A renderização deve ser um modelo 3D completo e detalhado de TODO o espaço da planta, respeitando fielmente o formato, a disposição dos ambientes, as paredes, as aberturas (portas/janelas) e a proporção de CADA elemento da planta baixa fornecida. Incorpore as seguintes instruções de design. Gere APENAS a imagem resultante, sem nenhum texto, comentário ou explicação: "${prompt}"`;
     const imagePart = await fileToGenerativePart(imageFile);
 
     const response = await ai.models.generateContent({
@@ -91,7 +91,7 @@ export const generateInternalViews = async (imageFile: File, designPrompt: strin
     for (const view of viewTypes) {
         try {
             // Prompt ajustado para enfatizar a perspectiva interna
-            const fullPrompt = `A partir desta maquete 3D, gere uma única imagem fotorrealista de uma vista interna (ao nível dos olhos), como se uma pessoa estivesse dentro do espaço, explorando o ambiente ${view}. Incorpore as seguintes instruções de design: "${designPrompt}". Gere APENAS a imagem, sem nenhum texto ou explicação.`;
+            const fullPrompt = `A partir desta maquete 3D, gere uma única imagem fotorrealista de uma vista interna (ao nível dos olhos), como se uma pessoa estivesse dentro do espaço, explorando o ambiente ${view}. Incorpore as seguintes instruções de design. Gere APENAS a imagem, sem nenhum texto ou explicação.`;
             
             const response = await ai.models.generateContent({
                 model: 'gemini-2.5-flash-image',
