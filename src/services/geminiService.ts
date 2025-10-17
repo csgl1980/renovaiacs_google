@@ -39,8 +39,8 @@ export const redesignImage = async (imageFile: File, prompt: string): Promise<st
 };
 
 export const generateConceptFromPlan = async (imageFile: File, prompt: string): Promise<string> => {
-    // Prompt ajustado para enfatizar a fidelidade ao layout da planta baixa
-    const fullPrompt = `A partir desta planta baixa, crie uma renderização 3D fotorrealista de alta definição com vista isométrica. A renderização deve ter um aspecto de maquete profissional, mantendo fielmente o layout, a estrutura e a proporção dos ambientes da planta baixa fornecida. Incorpore as seguintes instruções de design. Gere apenas a imagem resultante, sem nenhum texto ou explicação: "${prompt}"`;
+    // Prompt ajustado para enfatizar a fidelidade ao layout da planta baixa e a renderização completa
+    const fullPrompt = `A partir desta planta baixa, crie uma renderização 3D fotorrealista de alta definição com vista isométrica. É crucial que a renderização **abranja e transforme a planta baixa por completo, sem omitir nenhuma parte do layout original**. A renderização deve ter um aspecto de maquete profissional, mantendo fielmente o layout, a estrutura e a proporção dos ambientes da planta baixa fornecida. Incorpore as seguintes instruções de design. Gere apenas a imagem resultante, sem nenhum texto ou explicação: "${prompt}"`;
     const imagePart = await fileToGenerativePart(imageFile);
 
     const response = await ai.models.generateContent({
