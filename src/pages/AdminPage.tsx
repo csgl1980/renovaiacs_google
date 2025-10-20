@@ -74,7 +74,7 @@ const AdminPage: React.FC = () => {
   if (isSessionLoading || !user || !user.is_admin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="w-10 h-10 border-4 border-indigo-200 border-t-cs-blue rounded-full animate-spin"></div> {/* Usando a nova cor */}
+        <div className="w-10 h-10 border-4 border-indigo-200 border-t-cs-blue rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -84,7 +84,7 @@ const AdminPage: React.FC = () => {
       <div className="bg-white p-6 rounded-xl shadow-lg">
         <div className="flex items-center justify-between mb-6 border-b pb-4">
           <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-            <UserIcon className="w-7 h-7 text-cs-blue" /> {/* Usando a nova cor */}
+            <UserIcon className="w-7 h-7 text-cs-blue" />
             Painel de Administração
           </h2>
           <button
@@ -105,7 +105,7 @@ const AdminPage: React.FC = () => {
 
         {isLoadingUsers ? (
           <div className="text-center text-gray-600 p-8">
-            <div className="w-8 h-8 border-4 border-indigo-200 border-t-cs-blue rounded-full animate-spin mx-auto mb-4"></div> {/* Usando a nova cor */}
+            <div className="w-8 h-8 border-4 border-indigo-200 border-t-cs-blue rounded-full animate-spin mx-auto mb-4"></div>
             <p className="font-semibold">Carregando usuários...</p>
           </div>
         ) : (
@@ -140,7 +140,7 @@ const AdminPage: React.FC = () => {
                         />
                       ) : (
                         <div className="flex items-center gap-1">
-                          <CoinIcon className="w-4 h-4 text-cs-orange" /> {/* Usando a nova cor */}
+                          <CoinIcon className="w-4 h-4 text-cs-orange" />
                           {u.credits}
                         </div>
                       )}
@@ -149,7 +149,7 @@ const AdminPage: React.FC = () => {
                       {editingUserId === u.id ? (
                         <button
                           onClick={() => handleSaveCredits(u.id)}
-                          className="bg-cs-blue text-white px-3 py-1.5 rounded-md text-xs font-medium hover:bg-blue-800 transition-colors" {/* Usando a nova cor */}
+                          className="bg-cs-blue text-white px-3 py-1.5 rounded-md text-xs font-medium hover:bg-blue-800 transition-colors"
                         >
                           Salvar
                         </button>
