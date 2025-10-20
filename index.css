@@ -17,3 +17,8 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #aaa;
 }
+
+/* TESTE: Borda grossa para verificar se o CSS está sendo carregado */
+#root {
+  border: 5px solid purple !important; /* Borda roxa */
+}
