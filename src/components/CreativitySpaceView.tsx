@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'; // Importar useEffect
+import React from 'react'; // Removido useEffect
 import SparklesIcon from './icons/SparklesIcon';
 import DownloadIcon from './icons/DownloadIcon';
 import ShareIcon from './icons/ShareIcon';
@@ -19,19 +19,14 @@ const CreativitySpaceView: React.FC<CreativitySpaceViewProps> = ({ setBuyCredits
     isLoading,
     generationError,
     handleGenerateImage,
-    clearResults,
+    clearResults, // Mantido para uso futuro se necessário, mas não chamado aqui
     cost,
   } = useCreativitySpace({ setBuyCreditsModalOpen, setError });
 
   const hasEnoughCredits = user ? user.credits >= cost : false;
 
-  // Adicionar um useEffect para limpar resultados quando o componente é montado/desmontado
-  // ou quando o usuário muda, para garantir um estado limpo.
-  useEffect(() => {
-    return () => {
-      clearResults();
-    };
-  }, [clearResults]);
+  // O useEffect que limpava resultados foi removido daqui, pois a lógica de limpeza
+  // agora é controlada dentro do hook useCreativitySpace ao iniciar uma nova geração.
 
   const handleDownload = () => {
     if (!generatedImage) return;
@@ -80,7 +75,7 @@ const CreativitySpaceView: React.FC<CreativitySpaceViewProps> = ({ setBuyCredits
       <button
         onClick={handleGenerateImage}
         disabled={isLoading || !prompt.trim() || !hasEnoughCredits}
-        className={`w-full flex flex-col items-center justify-center gap-1 bg-cs-blue text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-800 transition-colors duration-300 disabled:bg-indigo-300 disabled:cursor-not-allowed text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5`}
+        className={`w-full flex flex-col items-center justify-center gap-1 bg-cs-blue text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-800 transition-colors duration-300 disabled:bg-cs-blue/50 disabled:cursor-not-allowed text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5`}
       >
         <div className="flex items-center gap-2">
           {isLoading ? (
@@ -96,7 +91,7 @@ const CreativitySpaceView: React.FC<CreativitySpaceViewProps> = ({ setBuyCredits
           )}
         </div>
         {!isLoading && (
-          <span className={`text-xs flex items-center gap-1 ${hasEnoughCredits ? 'text-indigo-200' : 'text-white font-bold'}`}>
+          <span className={`text-xs flex items-center gap-1 ${hasEnoughCredits ? 'text-cs-blue/80' : 'text-white font-bold'}`}>
             {hasEnoughCredits ? `(Custa ${cost} créditos)` : 'Créditos insuficientes'}
           </span>
         )}
@@ -105,7 +100,7 @@ const CreativitySpaceView: React.FC<CreativitySpaceViewProps> = ({ setBuyCredits
       <div className="relative w-full aspect-video bg-white rounded-lg border border-gray-200 flex items-center justify-center overflow-hidden shadow-sm mt-4">
         {isLoading && (
           <div className="text-center text-gray-600">
-            <div className="w-10 h-10 border-4 border-indigo-200 border-t-cs-blue rounded-full animate-spin mx-auto mb-4"></div>
+            <div className="w-10 h-10 border-4 border-gray-200 border-t-cs-blue rounded-full animate-spin mx-auto mb-4"></div>
             <p className="font-semibold text-lg">Criando sua imagem...</p>
             <p className="text-sm text-gray-500">Isso pode levar alguns segundos.</p>
           </div>

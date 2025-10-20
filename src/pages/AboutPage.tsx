@@ -25,8 +25,8 @@ const AboutPage: React.FC = () => {
 
       <main className="flex-grow max-w-4xl mx-auto p-4 md:p-8">
         <div className="bg-white rounded-xl shadow-lg p-6 md:p-8">
-          <h2 className="text-xl md:text-2xl font-bold text-cs-blue mb-4 flex items-center gap-2"> {/* Usando a nova cor */}
-            <SparklesIcon className="w-6 h-6 text-cs-blue" /> {/* Usando a nova cor */}
+          <h2 className="text-xl md:text-2xl font-bold text-cs-blue mb-4 flex items-center gap-2">
+            <SparklesIcon className="w-6 h-6 text-cs-blue" />
             Nossa História e Missão
           </h2>
           <p className="text-gray-700 leading-relaxed mb-4">
@@ -36,8 +36,8 @@ const AboutPage: React.FC = () => {
             Nossa missão é construir e renovar com qualidade, segurança e sustentabilidade, superando as expectativas de nossos clientes. Acreditamos que cada projeto é único e merece atenção personalizada, combinando funcionalidade, estética e as mais recentes tecnologias.
           </p>
 
-          <h3 className="text-lg md:text-xl font-bold text-cs-blue mb-3 flex items-center gap-2"> {/* Usando a nova cor */}
-            <SparklesIcon className="w-5 h-5 text-cs-blue" /> {/* Usando a nova cor */}
+          <h3 className="text-lg md:text-xl font-bold text-cs-blue mb-3 flex items-center gap-2">
+            <SparklesIcon className="w-5 h-5 text-cs-blue" />
             O que nos diferencia
           </h3>
           <ul className="list-disc list-inside text-gray-700 space-y-2 mb-6">
@@ -48,8 +48,8 @@ const AboutPage: React.FC = () => {
             <li>**Atendimento Personalizado:** Foco total nas necessidades e desejos de cada cliente.</li>
           </ul>
 
-          <h3 className="text-lg md:text-xl font-bold text-cs-blue mb-3 flex items-center gap-2"> {/* Usando a nova cor */}
-            <SparklesIcon className="w-5 h-5 text-cs-blue" /> {/* Usando a nova cor */}
+          <h3 className="text-lg md:text-xl font-bold text-cs-blue mb-3 flex items-center gap-2">
+            <SparklesIcon className="w-5 h-5 text-cs-blue" />
             Visite nosso site
           </h3>
           <p className="text-gray-700 leading-relaxed">
@@ -59,7 +59,7 @@ const AboutPage: React.FC = () => {
             href="https://cesconstrucao.com.br/"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block mt-4 bg-cs-blue text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-800 transition-colors shadow-md" {/* Usando a nova cor */}
+            className="inline-block mt-4 bg-cs-blue text-white font-bold py-3 px-6 rounded-lg hover:bg-cs-blue/90 transition-colors shadow-md"
           >
             Acessar Site da C&S Construção
           </a>

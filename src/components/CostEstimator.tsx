@@ -72,7 +72,7 @@ const CostEstimator: React.FC<CostEstimatorProps> = ({ isLoading, estimate, erro
     if (isLoading) {
       return (
         <div className="text-center text-gray-500 flex items-center justify-center p-6">
-          <div className="w-6 h-6 border-2 border-gray-300 border-t-cs-blue rounded-full animate-spin mr-3"></div> {/* Usando a nova cor */}
+          <div className="w-6 h-6 border-2 border-gray-300 border-t-cs-blue rounded-full animate-spin mr-3"></div>
           <p className="font-semibold">Estimando custos...</p>
         </div>
       );
@@ -95,7 +95,7 @@ const CostEstimator: React.FC<CostEstimatorProps> = ({ isLoading, estimate, erro
              <div className="flex gap-2">
                 <button 
                   onClick={handleDownloadText}
-                  className="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-cs-blue transition-colors" {/* Usando a nova cor */}
+                  className="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-cs-blue transition-colors"
                   aria-label="Baixar estimativa como texto"
                 >
                   <DownloadIcon className="w-5 h-5" />
@@ -103,7 +103,7 @@ const CostEstimator: React.FC<CostEstimatorProps> = ({ isLoading, estimate, erro
                 {navigator.share && (
                     <button 
                       onClick={handleShare}
-                      className="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-cs-blue transition-colors" {/* Usando a nova cor */}
+                      className="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-cs-blue transition-colors"
                       aria-label="Compartilhar estimativa"
                     >
                       <ShareIcon className="w-5 h-5" />
@@ -136,8 +136,8 @@ const CostEstimator: React.FC<CostEstimatorProps> = ({ isLoading, estimate, erro
                    <td className="p-3 text-gray-800 text-right">{formatCurrency(estimate.totalLaborCost)}</td>
                 </tr>
                 <tr>
-                   <td colSpan={2} className="p-4 text-xl text-cs-blue">Total Geral Estimado</td> {/* Usando a nova cor */}
-                   <td className="p-4 text-xl text-cs-blue text-right">{formatCurrency(estimate.totalCost)}</td> {/* Usando a nova cor */}
+                   <td colSpan={2} className="p-4 text-xl text-cs-blue">Total Geral Estimado</td>
+                   <td className="p-4 text-xl text-cs-blue text-right">{formatCurrency(estimate.totalCost)}</td>
                 </tr>
               </tfoot>
             </table>

@@ -32,7 +32,7 @@ export const useCreativitySpace = ({
   const cost = 5;
 
   const clearResults = useCallback(() => {
-    setGeneratedImage(null);
+    // Limpa apenas o erro, a imagem deve permanecer até uma nova geração ou ação do usuário
     setGenerationError(null);
     setError(null);
   }, [setError]);
@@ -63,7 +63,8 @@ export const useCreativitySpace = ({
     }
 
     setIsLoading(true);
-    clearResults();
+    setGenerationError(null); // Limpa o erro anterior
+    setGeneratedImage(null); // Limpa a imagem anterior ao iniciar uma nova geração
     console.log('useCreativitySpace: Iniciando geração de imagem no Espaço Criatividade...');
 
     try {
@@ -99,7 +100,7 @@ export const useCreativitySpace = ({
       setIsLoading(false);
       console.log('useCreativitySpace: Geração de imagem no Espaço Criatividade finalizada.');
     }
-  }, [user, prompt, cost, setBuyCreditsModalOpen, clearResults, refreshUser, setError]);
+  }, [user, prompt, cost, setBuyCreditsModalOpen, refreshUser, setError]);
 
   return {
     prompt,

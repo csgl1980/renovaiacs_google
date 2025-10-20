@@ -55,7 +55,7 @@ function App() {
     handleGenerate, clearGenerationResults, generationCost,
   } = useGeneration({
     originalImageFile,
-    mode: mode === 'creativity' ? 'image' : mode,
+    mode: mode === 'creativity' ? 'image' : mode, // Passa 'image' para criatividade, pois não usa imagem original
     setBuyCreditsModalOpen,
     setError: setAppError,
   });
@@ -91,7 +91,7 @@ function App() {
     generatedImage,
     prompt,
     selectedStyle,
-    mode: mode === 'creativity' ? 'image' : mode,
+    mode: mode === 'creativity' ? 'image' : mode, // Passa 'image' para criatividade
     setError: setAppError,
   });
 
@@ -153,7 +153,7 @@ function App() {
   if (isSessionLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="w-10 h-10 border-4 border-indigo-200 border-t-cs-blue rounded-full animate-spin"></div> {/* Usando a nova cor */}
+        <div className="w-10 h-10 border-4 border-gray-200 border-t-cs-blue rounded-full animate-spin"></div>
         <p className="text-lg font-semibold text-gray-700 ml-4">Carregando sessão...</p>
       </div>
     );
@@ -188,19 +188,19 @@ function App() {
             <div className="flex bg-gray-100 rounded-lg p-1">
               <button
                 onClick={() => handleModeChange('image')}
-                className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'image' ? 'bg-white text-cs-blue shadow' : 'text-gray-600 hover:bg-gray-200'}`} {/* Usando a nova cor */}
+                className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'image' ? 'bg-white text-cs-blue shadow' : 'text-gray-600 hover:bg-gray-200'}`}
               >
                 Renovar Ambiente
               </button>
               <button
                 onClick={() => handleModeChange('floorplan')}
-                className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'floorplan' ? 'bg-white text-cs-blue shadow' : 'text-gray-600 hover:bg-gray-200'}`} {/* Usando a nova cor */}
+                className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'floorplan' ? 'bg-white text-cs-blue shadow' : 'text-gray-600 hover:bg-gray-200'}`}
               >
                 Renderizar Planta Baixa
               </button>
               <button
                 onClick={() => handleModeChange('creativity')}
-                className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'creativity' ? 'bg-white text-cs-blue shadow' : 'text-gray-600 hover:bg-gray-200'}`} {/* Usando a nova cor */}
+                className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'creativity' ? 'bg-white text-cs-blue shadow' : 'text-gray-600 hover:bg-gray-200'}`}
               >
                 Espaço Criatividade
               </button>

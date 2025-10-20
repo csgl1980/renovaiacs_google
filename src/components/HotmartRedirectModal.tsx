@@ -44,7 +44,7 @@ const HotmartRedirectModal: React.FC<HotmartRedirectModalProps> = ({ onClose, re
 
         <h2 className="text-xl font-bold text-gray-800 mb-4">Redirecionando para Pagamento</h2>
         
-        <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto my-6"></div>
+        <div className="w-10 h-10 border-4 border-gray-200 border-t-cs-blue rounded-full animate-spin mx-auto my-6"></div>
 
         <p className="text-gray-600 text-sm mb-6">
           Você está sendo redirecionado para um ambiente de pagamento seguro. Se a página não abrir automaticamente, clique no botão abaixo.
@@ -52,7 +52,7 @@ const HotmartRedirectModal: React.FC<HotmartRedirectModalProps> = ({ onClose, re
 
         <button
           onClick={handleRedirect}
-          className="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 transition-colors"
+          className="w-full bg-cs-blue text-white font-bold py-3 rounded-lg hover:bg-cs-blue/90 transition-colors"
         >
           Ir para Pagamento
         </button>

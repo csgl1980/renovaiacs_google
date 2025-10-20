@@ -19,7 +19,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ originalImagePreview, onI
   return (
     <div className="w-full">
       <h2 className="text-lg font-semibold text-gray-700 mb-2">1. Envie uma Imagem</h2>
-      <div className="relative w-full aspect-video bg-white rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center hover:border-indigo-400 transition-colors duration-300 p-2">
+      <div className="relative w-full aspect-video bg-white rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center hover:border-cs-blue transition-colors duration-300 p-2">
         {originalImagePreview ? (
           <>
             <img src={originalImagePreview} alt="Preview" className="max-h-full max-w-full object-contain rounded-md" />

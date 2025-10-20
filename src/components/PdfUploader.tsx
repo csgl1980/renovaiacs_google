@@ -34,13 +34,13 @@ const PdfUploader: React.FC<PdfUploaderProps> = ({ onPdfChange, pdfPreview, isPr
       <h2 className="text-lg font-semibold text-gray-700 mb-2">1. Envie a Planta Baixa</h2>
       <div
         className={`relative w-full aspect-video bg-white rounded-lg border-2 border-dashed flex items-center justify-center p-2 transition-colors duration-300 ${
-          !isProcessingPdf && 'hover:border-indigo-400 cursor-pointer'
+          !isProcessingPdf && 'hover:border-cs-blue cursor-pointer'
         }`}
         onClick={handleAreaClick}
       >
         {isProcessingPdf ? (
           <div className="text-center text-gray-500">
-            <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-3"></div>
+            <div className="w-8 h-8 border-4 border-gray-200 border-t-cs-blue rounded-full animate-spin mx-auto mb-3"></div>
             <p className="font-semibold">Processando PDF...</p>
           </div>
         ) : pdfPreview ? (

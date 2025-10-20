@@ -74,7 +74,7 @@ const DualiteView: React.FC = () => {
       {isLoading && (
         <div className="absolute inset-0 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center z-10">
           <div className="text-center text-gray-300">
-            <div className="w-8 h-8 border-4 border-cs-blue border-t-transparent rounded-full animate-spin mx-auto mb-3"></div> {/* Usando a nova cor */}
+            <div className="w-8 h-8 border-4 border-gray-700 border-t-cs-blue rounded-full animate-spin mx-auto mb-3"></div>
             <p className="font-semibold">Processando...</p>
           </div>
         </div>
@@ -96,7 +96,7 @@ const DualiteView: React.FC = () => {
                 <div className="absolute top-2 right-2 z-10">
                     <button
                         onClick={handleCopyCode}
-                        className="flex items-center gap-2 bg-gray-700 hover:bg-cs-blue text-gray-200 font-semibold px-3 py-1.5 rounded-md text-xs transition-colors" {/* Usando a nova cor */}
+                        className="flex items-center gap-2 bg-gray-700 hover:bg-cs-blue text-gray-200 font-semibold px-3 py-1.5 rounded-md text-xs transition-colors"
                     >
                         <ClipboardIcon className="w-4 h-4" />
                         {copySuccess ? 'Copiado!' : 'Copiar'}
@@ -120,13 +120,13 @@ const DualiteView: React.FC = () => {
         <div className="flex bg-gray-100 rounded-lg p-1">
           <button
             onClick={() => setMode('generate')}
-            className={`w-1/2 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'generate' ? 'bg-white text-cs-blue shadow' : 'text-gray-600 hover:bg-gray-200'}`} {/* Usando a nova cor */}
+            className={`w-1/2 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'generate' ? 'bg-white text-cs-blue shadow' : 'text-gray-600 hover:bg-gray-200'}`}
           >
             Gerar Código
           </button>
           <button
             onClick={() => setMode('explain')}
-            className={`w-1/2 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'explain' ? 'bg-white text-cs-blue shadow' : 'text-gray-600 hover:bg-gray-200'}`} {/* Usando a nova cor */}
+            className={`w-1/2 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'explain' ? 'bg-white text-cs-blue shadow' : 'text-gray-600 hover:bg-gray-200'}`}
           >
             Explicar Código
           </button>
@@ -141,14 +141,14 @@ const DualiteView: React.FC = () => {
                 value={generationPrompt}
                 onChange={(e) => setGenerationPrompt(e.target.value)}
                 placeholder="Ex: Crie um componente React com um botão que busca e exibe uma piada de uma API pública."
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue transition-shadow duration-200 font-mono text-sm" {/* Usando a nova cor */}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue transition-shadow duration-200 font-mono text-sm"
                 rows={6}
               />
             </div>
             <button
               onClick={handleGenerate}
               disabled={isGenerating || !generationPrompt.trim()}
-              className="w-full flex items-center justify-center gap-2 bg-cs-blue text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-800 transition-colors duration-300 disabled:bg-indigo-300 disabled:cursor-not-allowed text-lg shadow-lg hover:shadow-xl" {/* Usando a nova cor */}
+              className="w-full flex items-center justify-center gap-2 bg-cs-blue text-white font-bold py-3 px-4 rounded-lg hover:bg-cs-blue/90 transition-colors duration-300 disabled:bg-cs-blue/50 disabled:cursor-not-allowed text-lg shadow-lg hover:shadow-xl"
             >
               {isGenerating ? (
                 <>
@@ -168,20 +168,20 @@ const DualiteView: React.FC = () => {
         {mode === 'explain' && (
           <div className="flex flex-col gap-4">
             <div>
-              <label htmlFor="explain-code" className="text-lg font-semibold text-gray-700 mb-2 block">1. Cole seu código aqui</label>
+              <label htmlFor="explain-code" className="block text-lg font-semibold text-gray-700 mb-2 block">1. Cole seu código aqui</label>
               <textarea
                 id="explain-code"
                 value={codeToExplain}
                 onChange={(e) => setCodeToExplain(e.target.value)}
                 placeholder="function helloWorld() { console.log('Hello, World!'); }"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue transition-shadow duration-200 font-mono text-sm" {/* Usando a nova cor */}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue transition-shadow duration-200 font-mono text-sm"
                 rows={6}
               />
             </div>
             <button
               onClick={handleExplain}
               disabled={isExplaining || !codeToExplain.trim()}
-              className="w-full flex items-center justify-center gap-2 bg-cs-blue text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-800 transition-colors duration-300 disabled:bg-indigo-300 disabled:cursor-not-allowed text-lg shadow-lg hover:shadow-xl" {/* Usando a nova cor */}
+              className="w-full flex items-center justify-center gap-2 bg-cs-blue text-white font-bold py-3 px-4 rounded-lg hover:bg-cs-blue/90 transition-colors duration-300 disabled:bg-cs-blue/50 disabled:cursor-not-allowed text-lg shadow-lg hover:shadow-xl"
             >
               {isExplaining ? (
                 <>
