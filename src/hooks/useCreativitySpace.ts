@@ -85,9 +85,12 @@ export const useCreativitySpace = ({
           console.error('useCreativitySpace: Erro ao deduzir créditos no Supabase:', updateError);
           setGenerationError('Erro ao deduzir créditos. Tente novamente.');
         } else {
-          console.log('useCreativitySpace: Créditos deduzidos com sucesso no Supabase. Atualizando sessão do usuário...');
-          await refreshUser();
-          console.log('useCreativitySpace: Sessão do usuário atualizada.');
+          console.log('useCreativitySpace: Créditos deduzidos com sucesso no Supabase.');
+          // Atrasar a atualização da sessão do usuário para permitir que a imagem seja renderizada primeiro
+          setTimeout(async () => {
+            await refreshUser();
+            console.log('useCreativitySpace: Sessão do usuário atualizada após um pequeno atraso.');
+          }, 0);
         }
       } else {
         console.log('useCreativitySpace: Usuário é admin, créditos não foram debitados.');
