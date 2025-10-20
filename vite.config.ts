@@ -11,19 +11,20 @@ export default defineConfig(({ mode }) => {
       },
       plugins: [react()],
       define: {
-        // Removido: 'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        // Removido: 'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
         'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(env.VITE_SUPABASE_URL),
         'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(env.VITE_SUPABASE_ANON_KEY),
-        'import.meta.env.VITE_GEMINI_API_KEY': JSON.stringify(env.VITE_GEMINI_API_KEY) // Adicionado para consistência
+        'import.meta.env.VITE_GEMINI_API_KEY': JSON.stringify(env.VITE_GEMINI_API_KEY)
       },
       resolve: {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
       },
+      css: { // Adicionado para configurar explicitamente o PostCSS
+        postcss: './postcss.config.js',
+      },
       optimizeDeps: {
-        include: ['react', 'react-dom'], // Garante que React e ReactDOM sejam pré-empacotados
+        include: ['react', 'react-dom'],
       },
     };
 });
