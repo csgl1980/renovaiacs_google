@@ -17,3 +17,8 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #aaa;
 }
+
+/* TESTE: Cor de fundo vermelha para verificar se o CSS está sendo carregado */
+body {
+  background-color: #ff0000 !important; /* Fundo vermelho */
+}
