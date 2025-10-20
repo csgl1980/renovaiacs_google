@@ -100,13 +100,13 @@ const AuthForm: React.FC = () => {
       <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
         <button
           onClick={() => { setIsLoginView(true); resetSignupForm(); setMessage(null); }}
-          className={`w-1/2 p-2 rounded-md font-semibold text-sm transition-colors ${isLoginView ? 'bg-white text-cs-blue shadow' : 'text-gray-600 hover:bg-gray-200'}`} {/* Usando a nova cor */}
+          className={`w-1/2 p-2 rounded-md font-semibold text-sm transition-colors ${isLoginView ? 'bg-white text-cs-blue shadow' : 'text-gray-600 hover:bg-gray-200'}`}
         >
           Entrar
         </button>
         <button
           onClick={() => { setIsLoginView(false); resetLoginForm(); setMessage(null); }}
-          className={`w-1/2 p-2 rounded-md font-semibold text-sm transition-colors ${!isLoginView ? 'bg-white text-cs-blue shadow' : 'text-gray-600 hover:bg-gray-200'}`} {/* Usando a nova cor */}
+          className={`w-1/2 p-2 rounded-md font-semibold text-sm transition-colors ${!isLoginView ? 'bg-white text-cs-blue shadow' : 'text-gray-600 hover:bg-gray-200'}`}
         >
           Cadastre-se
         </button>
@@ -126,7 +126,7 @@ const AuthForm: React.FC = () => {
               id="login-email"
               type="email"
               {...registerLogin('email')}
-              className="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue" {/* Usando a nova cor */}
+              className="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue"
               placeholder="seu@email.com"
             />
             {loginErrors.email && <p className="mt-1 text-sm text-red-600">{loginErrors.email.message}</p>}
@@ -138,7 +138,7 @@ const AuthForm: React.FC = () => {
                 id="login-password"
                 type={isPasswordVisible ? 'text' : 'password'}
                 {...registerLogin('password')}
-                className="block w-full p-3 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue pr-10" {/* Usando a nova cor */}
+                className="block w-full p-3 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue pr-10"
                 placeholder="••••••••"
               />
               <button
@@ -155,7 +155,7 @@ const AuthForm: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 bg-cs-blue text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-800 transition-colors duration-300 disabled:bg-indigo-300 disabled:cursor-not-allowed text-lg shadow-lg" {/* Usando a nova cor */}
+            className="w-full flex items-center justify-center gap-2 bg-cs-blue text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-800 transition-colors duration-300 disabled:bg-indigo-300 disabled:cursor-not-allowed text-lg shadow-lg"
           >
             {loading ? (
               <>
@@ -175,7 +175,7 @@ const AuthForm: React.FC = () => {
               id="signup-email"
               type="email"
               {...registerSignup('email')}
-              className="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue" {/* Usando a nova cor */}
+              className="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue"
               placeholder="seu@email.com"
             />
             {signupErrors.email && <p className="mt-1 text-sm text-red-600">{signupErrors.email.message}</p>}
@@ -186,7 +186,7 @@ const AuthForm: React.FC = () => {
               id="signup-firstName"
               type="text"
               {...registerSignup('firstName')}
-              className="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue" {/* Usando a nova cor */}
+              className="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue"
               placeholder="Seu primeiro nome"
             />
             {signupErrors.firstName && <p className="mt-1 text-sm text-red-600">{signupErrors.firstName.message}</p>}
@@ -197,7 +197,7 @@ const AuthForm: React.FC = () => {
               id="signup-lastName"
               type="text"
               {...registerSignup('lastName')}
-              className="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue" {/* Usando a nova cor */}
+              className="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue"
               placeholder="Seu sobrenome"
             />
             {signupErrors.lastName && <p className="mt-1 text-sm text-red-600">{signupErrors.lastName.message}</p>}
@@ -209,7 +209,7 @@ const AuthForm: React.FC = () => {
                 id="signup-password"
                 type={isPasswordVisible ? 'text' : 'password'}
                 {...registerSignup('password')}
-                className="block w-full p-3 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue pr-10" {/* Usando a nova cor */}
+                className="block w-full p-3 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue pr-10"
                 placeholder="••••••••"
               />
               <button
@@ -230,7 +230,7 @@ const AuthForm: React.FC = () => {
                 id="signup-confirmPassword"
                 type={isConfirmPasswordVisible ? 'text' : 'password'}
                 {...registerSignup('confirmPassword')}
-                className="block w-full p-3 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue pr-10" {/* Usando a nova cor */}
+                className="block w-full p-3 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue pr-10"
                 placeholder="••••••••"
               />
               <button
@@ -247,7 +247,7 @@ const AuthForm: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 bg-cs-blue text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-800 transition-colors duration-300 disabled:bg-indigo-300 disabled:cursor-not-allowed text-lg shadow-lg" {/* Usando a nova cor */}
+            className="w-full flex items-center justify-center gap-2 bg-cs-blue text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-800 transition-colors duration-300 disabled:bg-indigo-300 disabled:cursor-not-allowed text-lg shadow-lg"
           >
             {loading ? (
               <>
