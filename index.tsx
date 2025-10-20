@@ -7,6 +7,7 @@ import { SessionContextProvider, useSession } from './src/components/SessionCont
 import AdminPage from './src/pages/AdminPage';
 import AboutPage from './src/pages/AboutPage';
 import ToastProvider from './src/components/ToastProvider'; // Importar ToastProvider
+import './index.css'; // Importar o CSS aqui
 
 // Um componente simples para lidar com o redirecionamento inicial da raiz
 const RootRedirector: React.FC = () => {
