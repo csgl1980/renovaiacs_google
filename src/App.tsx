@@ -136,14 +136,13 @@ function App() {
       clearInternalViews();
       closeAllModals();
       setAppError(null);
-      navigate('/login', { replace: true });
-
+      // REMOVIDO: navigate('/login', { replace: true }); // Deixe o useEffect lidar com isso
     } catch (e) {
       console.error('App.tsx: [handleLogout] Erro inesperado durante o logout:', e);
       setAppError(`Ocorreu um erro inesperado durante o logout: ${(e as Error).message}.`);
-      navigate('/login', { replace: true });
+      // REMOVIDO: navigate('/login', { replace: true }); // Deixe o useEffect lidar com isso
     }
-  }, [navigate, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, closeAllModals, setAppError]);
+  }, [clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, closeAllModals, setAppError]);
 
   const openLoginModal = useCallback(() => navigate('/login'), [navigate]);
   const openSignupModal = useCallback(() => navigate('/login'), [navigate]);
