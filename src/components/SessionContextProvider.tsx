@@ -42,6 +42,8 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
       return profileData as User;
     } else {
       console.warn('SessionContext: [fetchUserProfile] Nenhum perfil encontrado ou erro ao buscar perfil. Criando objeto de usuário básico. Erro:', profileError);
+      // Adicionado log para ver o email do usuário que está caindo no fallback
+      console.warn('SessionContext: [fetchUserProfile] Usuário caindo no fallback:', currentSession.user.email);
       return {
         id: currentSession.user.id,
         first_name: currentSession.user.user_metadata?.first_name || '',
