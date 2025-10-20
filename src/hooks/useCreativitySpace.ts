@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react'; // Adicionado useEffect
 import { generateImageFromText } from '../services/geminiService';
 import { supabase } from '../integrations/supabase/client';
 import { useSession } from '../components/SessionContextProvider';
@@ -65,12 +65,12 @@ export const useCreativitySpace = ({
     setIsLoading(true);
     setGenerationError(null); // Limpa o erro anterior
     setGeneratedImage(null); // Limpa a imagem anterior ao iniciar uma nova geração
-    console.log('useCreativitySpace: Iniciando geração de imagem no Espaço Criatividade...');
+    console.log('useCreativitySpace: Iniciando geração de imagem no Espaço Criatividade. generatedImage set to null.');
 
     try {
       const resultImage = await generateImageFromText(prompt);
       setGeneratedImage(resultImage);
-      console.log('useCreativitySpace: Imagem gerada com sucesso.');
+      console.log('useCreativitySpace: Imagem gerada e setada. generatedImage agora é:', resultImage ? 'data:...' : 'null');
 
       // Deduct credits from Supabase ONLY if not admin
       if (!user.is_admin) {
@@ -85,12 +85,9 @@ export const useCreativitySpace = ({
           console.error('useCreativitySpace: Erro ao deduzir créditos no Supabase:', updateError);
           setGenerationError('Erro ao deduzir créditos. Tente novamente.');
         } else {
-          console.log('useCreativitySpace: Créditos deduzidos com sucesso no Supabase.');
-          // Atrasar a atualização da sessão do usuário para permitir que a imagem seja renderizada primeiro
-          setTimeout(async () => {
-            await refreshUser();
-            console.log('useCreativitySpace: Sessão do usuário atualizada após um pequeno atraso.');
-          }, 0);
+          console.log('useCreativitySpace: Créditos deduzidos com sucesso no Supabase. Atualizando sessão do usuário...');
+          await refreshUser(); // Chamada direta, sem setTimeout
+          console.log('useCreativitySpace: Sessão do usuário atualizada.');
         }
       } else {
         console.log('useCreativitySpace: Usuário é admin, créditos não foram debitados.');
@@ -101,9 +98,14 @@ export const useCreativitySpace = ({
       setGenerationError((err as Error).message || "Ocorreu um erro desconhecido ao gerar a imagem.");
     } finally {
       setIsLoading(false);
-      console.log('useCreativitySpace: Geração de imagem no Espaço Criatividade finalizada.');
+      console.log('useCreativitySpace: Geração de imagem no Espaço Criatividade finalizada. isLoading set to false.');
     }
   }, [user, prompt, cost, setBuyCreditsModalOpen, refreshUser, setError]);
+
+  // Adiciona um useEffect para logar mudanças no estado generatedImage
+  useEffect(() => {
+    console.log('useCreativitySpace (useEffect): generatedImage state changed to:', generatedImage ? 'data:...' : 'null');
+  }, [generatedImage]);
 
   return {
     prompt,

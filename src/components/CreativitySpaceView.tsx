@@ -1,4 +1,4 @@
-import React from 'react'; // Removido useEffect
+import React from 'react';
 import SparklesIcon from './icons/SparklesIcon';
 import DownloadIcon from './icons/DownloadIcon';
 import ShareIcon from './icons/ShareIcon';
@@ -23,10 +23,9 @@ const CreativitySpaceView: React.FC<CreativitySpaceViewProps> = ({ setBuyCredits
     cost,
   } = useCreativitySpace({ setBuyCreditsModalOpen, setError });
 
-  const hasEnoughCredits = user ? user.credits >= cost : false;
+  console.log('CreativitySpaceView render: generatedImage from hook =', generatedImage ? 'data:...' : 'null', 'isLoading:', isLoading);
 
-  // O useEffect que limpava resultados foi removido daqui, pois a lógica de limpeza
-  // agora é controlada dentro do hook useCreativitySpace ao iniciar uma nova geração.
+  const hasEnoughCredits = user ? user.credits >= cost : false;
 
   const handleDownload = () => {
     if (!generatedImage) return;
@@ -120,6 +119,7 @@ const CreativitySpaceView: React.FC<CreativitySpaceViewProps> = ({ setBuyCredits
         {generatedImage && (
           <>
             <img src={generatedImage} alt="Generated result" className="max-h-full max-w-full object-contain" />
+            {console.log('CreativitySpaceView: Image element rendered with src:', generatedImage ? 'data:...' : 'null')}
             <div className="absolute bottom-4 flex items-center justify-center gap-4 bg-gray-50 p-2 rounded-full">
               <button onClick={handleDownload} className="relative group bg-white rounded-full p-3 text-gray-600 hover:bg-gray-100 hover:text-cs-blue transition-all duration-200 shadow-md" aria-label="Baixar Imagem">
                 <DownloadIcon className="w-5 h-5" />
