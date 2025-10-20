@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react'; // Importar useEffect
 import SparklesIcon from './icons/SparklesIcon';
 import DownloadIcon from './icons/DownloadIcon';
 import ShareIcon from './icons/ShareIcon';
@@ -24,6 +24,14 @@ const CreativitySpaceView: React.FC<CreativitySpaceViewProps> = ({ setBuyCredits
   } = useCreativitySpace({ setBuyCreditsModalOpen, setError });
 
   const hasEnoughCredits = user ? user.credits >= cost : false;
+
+  // Adicionar um useEffect para limpar resultados quando o componente é montado/desmontado
+  // ou quando o usuário muda, para garantir um estado limpo.
+  useEffect(() => {
+    return () => {
+      clearResults();
+    };
+  }, [clearResults]);
 
   const handleDownload = () => {
     if (!generatedImage) return;
@@ -65,14 +73,14 @@ const CreativitySpaceView: React.FC<CreativitySpaceViewProps> = ({ setBuyCredits
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="Ex: Um quarto minimalista com vista para o oceano ao pôr do sol, em tons de azul e branco."
-          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow duration-200"
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue transition-shadow duration-200"
           rows={6}
         />
       </div>
       <button
         onClick={handleGenerateImage}
         disabled={isLoading || !prompt.trim() || !hasEnoughCredits}
-        className={`w-full flex flex-col items-center justify-center gap-1 bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition-colors duration-300 disabled:bg-indigo-300 disabled:cursor-not-allowed text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5`}
+        className={`w-full flex flex-col items-center justify-center gap-1 bg-cs-blue text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-800 transition-colors duration-300 disabled:bg-indigo-300 disabled:cursor-not-allowed text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5`}
       >
         <div className="flex items-center gap-2">
           {isLoading ? (
@@ -97,7 +105,7 @@ const CreativitySpaceView: React.FC<CreativitySpaceViewProps> = ({ setBuyCredits
       <div className="relative w-full aspect-video bg-white rounded-lg border border-gray-200 flex items-center justify-center overflow-hidden shadow-sm mt-4">
         {isLoading && (
           <div className="text-center text-gray-600">
-            <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <div className="w-10 h-10 border-4 border-indigo-200 border-t-cs-blue rounded-full animate-spin mx-auto mb-4"></div>
             <p className="font-semibold text-lg">Criando sua imagem...</p>
             <p className="text-sm text-gray-500">Isso pode levar alguns segundos.</p>
           </div>
@@ -118,14 +126,14 @@ const CreativitySpaceView: React.FC<CreativitySpaceViewProps> = ({ setBuyCredits
           <>
             <img src={generatedImage} alt="Generated result" className="max-h-full max-w-full object-contain" />
             <div className="absolute bottom-4 flex items-center justify-center gap-4 bg-gray-50 p-2 rounded-full">
-              <button onClick={handleDownload} className="relative group bg-white rounded-full p-3 text-gray-600 hover:bg-gray-100 hover:text-indigo-600 transition-all duration-200 shadow-md" aria-label="Baixar Imagem">
+              <button onClick={handleDownload} className="relative group bg-white rounded-full p-3 text-gray-600 hover:bg-gray-100 hover:text-cs-blue transition-all duration-200 shadow-md" aria-label="Baixar Imagem">
                 <DownloadIcon className="w-5 h-5" />
                 <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-max bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                   Baixar Imagem
                 </div>
               </button>
               {navigator.share && (
-                <button onClick={handleShare} className="relative group bg-white rounded-full p-3 text-gray-600 hover:bg-gray-100 hover:text-indigo-600 transition-all duration-200 shadow-md" aria-label="Compartilhar">
+                <button onClick={handleShare} className="relative group bg-white rounded-full p-3 text-gray-600 hover:bg-gray-100 hover:text-cs-blue transition-all duration-200 shadow-md" aria-label="Compartilhar">
                   <ShareIcon className="w-5 h-5" />
                   <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-max bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                     Compartilhar

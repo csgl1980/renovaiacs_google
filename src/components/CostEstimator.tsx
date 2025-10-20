@@ -1,7 +1,7 @@
 import React from 'react';
 import DollarSignIcon from './icons/DollarSignIcon';
 import ShareIcon from './icons/ShareIcon';
-import DownloadIcon from './icons/DownloadIcon'; // Importar DownloadIcon
+import DownloadIcon from './icons/DownloadIcon';
 import type { CostEstimate } from '../types';
 
 interface CostEstimatorProps {
@@ -72,7 +72,7 @@ const CostEstimator: React.FC<CostEstimatorProps> = ({ isLoading, estimate, erro
     if (isLoading) {
       return (
         <div className="text-center text-gray-500 flex items-center justify-center p-6">
-          <div className="w-6 h-6 border-2 border-gray-300 border-t-indigo-600 rounded-full animate-spin mr-3"></div>
+          <div className="w-6 h-6 border-2 border-gray-300 border-t-cs-blue rounded-full animate-spin mr-3"></div> {/* Usando a nova cor */}
           <p className="font-semibold">Estimando custos...</p>
         </div>
       );
@@ -92,10 +92,10 @@ const CostEstimator: React.FC<CostEstimatorProps> = ({ isLoading, estimate, erro
         <div className="w-full text-left pt-4">
           <div className="flex justify-between items-center mb-3 px-4">
             <h3 className="text-lg font-bold text-gray-800">Estimativa de Custo</h3>
-             <div className="flex gap-2"> {/* Container para os botões de ação */}
+             <div className="flex gap-2">
                 <button 
-                  onClick={handleDownloadText} // Novo botão de download
-                  className="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-indigo-600 transition-colors"
+                  onClick={handleDownloadText}
+                  className="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-cs-blue transition-colors" {/* Usando a nova cor */}
                   aria-label="Baixar estimativa como texto"
                 >
                   <DownloadIcon className="w-5 h-5" />
@@ -103,7 +103,7 @@ const CostEstimator: React.FC<CostEstimatorProps> = ({ isLoading, estimate, erro
                 {navigator.share && (
                     <button 
                       onClick={handleShare}
-                      className="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-indigo-600 transition-colors"
+                      className="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-cs-blue transition-colors" {/* Usando a nova cor */}
                       aria-label="Compartilhar estimativa"
                     >
                       <ShareIcon className="w-5 h-5" />
@@ -136,8 +136,8 @@ const CostEstimator: React.FC<CostEstimatorProps> = ({ isLoading, estimate, erro
                    <td className="p-3 text-gray-800 text-right">{formatCurrency(estimate.totalLaborCost)}</td>
                 </tr>
                 <tr>
-                   <td colSpan={2} className="p-4 text-xl text-indigo-700">Total Geral Estimado</td>
-                   <td className="p-4 text-xl text-indigo-700 text-right">{formatCurrency(estimate.totalCost)}</td>
+                   <td colSpan={2} className="p-4 text-xl text-cs-blue">Total Geral Estimado</td> {/* Usando a nova cor */}
+                   <td className="p-4 text-xl text-cs-blue text-right">{formatCurrency(estimate.totalCost)}</td> {/* Usando a nova cor */}
                 </tr>
               </tfoot>
             </table>
@@ -147,7 +147,7 @@ const CostEstimator: React.FC<CostEstimatorProps> = ({ isLoading, estimate, erro
       );
     }
 
-    return null; // Don't render anything if there's no action
+    return null;
   };
 
   return (

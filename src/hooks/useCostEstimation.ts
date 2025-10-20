@@ -8,7 +8,7 @@ interface UseCostEstimationProps {
   generatedImage: string | null;
   prompt: string;
   selectedStyle: string;
-  setBuyCreditsModalOpen: (isOpen: boolean) => void; // Adicionado
+  setBuyCreditsModalOpen: (isOpen: boolean) => void;
 }
 
 interface UseCostEstimationResult {
@@ -17,21 +17,21 @@ interface UseCostEstimationResult {
   costError: string | null;
   handleEstimateCost: () => Promise<void>;
   clearCostEstimation: () => void;
-  estimationCost: number; // Adicionado
+  estimationCost: number;
 }
 
 export const useCostEstimation = ({
   generatedImage,
   prompt,
   selectedStyle,
-  setBuyCreditsModalOpen, // Adicionado
+  setBuyCreditsModalOpen,
 }: UseCostEstimationProps): UseCostEstimationResult => {
-  const { user, refreshUser } = useSession(); // Adicionado
+  const { user, refreshUser } = useSession();
   const [isEstimatingCost, setIsEstimatingCost] = useState(false);
   const [costEstimate, setCostEstimate] = useState<CostEstimate | null>(null);
   const [costError, setCostError] = useState<string | null>(null);
 
-  const estimationCost = 1; // Custo para estimativa de custo
+  const estimationCost = 1;
 
   const clearCostEstimation = useCallback(() => {
     setCostEstimate(null);
@@ -39,18 +39,22 @@ export const useCostEstimation = ({
   }, []);
 
   const handleEstimateCost = useCallback(async () => {
-    if (!generatedImage || !user) { // Adicionado verificação de usuário
+    if (!generatedImage || !user) {
       setCostError('Imagem gerada ou usuário não autenticado não disponível para estimar custo.');
       console.error('useCostEstimation: Imagem gerada ou usuário não autenticado não disponível para estimar custo.');
       return;
     }
 
     console.log(`useCostEstimation: Tentando estimar custo. Custo: ${estimationCost} crédito. Créditos atuais do usuário: ${user.credits}`);
-    if (user.credits < estimationCost) { // Verificação de créditos
-      setCostError(`Créditos insuficientes para estimar o custo. Você precisa de ${estimationCost} crédito.`);
-      setBuyCreditsModalOpen(true);
-      console.warn(`useCostEstimation: Créditos insuficientes. Necessário: ${estimationCost}, Disponível: ${user.credits}`);
-      return;
+    
+    // Ignorar verificação de créditos e débito para usuários administradores
+    if (!user.is_admin) {
+      if (user.credits < estimationCost) {
+        setCostError(`Créditos insuficientes para estimar o custo. Você precisa de ${estimationCost} crédito.`);
+        setBuyCreditsModalOpen(true);
+        console.warn(`useCostEstimation: Créditos insuficientes. Necessário: ${estimationCost}, Disponível: ${user.credits}`);
+        return;
+      }
     }
 
     const fullPrompt = selectedStyle ? `${prompt} ${selectedStyle}`.trim() : prompt;
@@ -73,21 +77,25 @@ export const useCostEstimation = ({
       setCostEstimate(estimate);
       console.log('useCostEstimation: Estimativa de custo recebida com sucesso.');
 
-      // Deduct credits from Supabase
-      const newCredits = user.credits - estimationCost;
-      console.log(`useCostEstimation: Deduzindo ${estimationCost} créditos. Novos créditos: ${newCredits}`);
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ credits: newCredits })
-        .eq('id', user.id);
+      // Deduct credits from Supabase ONLY if not admin
+      if (!user.is_admin) {
+        const newCredits = user.credits - estimationCost;
+        console.log(`useCostEstimation: Deduzindo ${estimationCost} créditos. Novos créditos: ${newCredits}`);
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ credits: newCredits })
+          .eq('id', user.id);
 
-      if (updateError) {
-        console.error('useCostEstimation: Erro ao deduzir créditos no Supabase:', updateError);
-        setCostError('Erro ao deduzir créditos para estimativa de custo. Tente novamente.');
+        if (updateError) {
+          console.error('useCostEstimation: Erro ao deduzir créditos no Supabase:', updateError);
+          setCostError('Erro ao deduzir créditos para estimativa de custo. Tente novamente.');
+        } else {
+          console.log('useCostEstimation: Créditos deduzidos com sucesso no Supabase. Atualizando sessão do usuário...');
+          await refreshUser();
+          console.log('useCostEstimation: Sessão do usuário atualizada.');
+        }
       } else {
-        console.log('useCostEstimation: Créditos deduzidos com sucesso no Supabase. Atualizando sessão do usuário...');
-        await refreshUser(); // Refresh user context to show updated credits
-        console.log('useCostEstimation: Sessão do usuário atualizada.');
+        console.log('useCostEstimation: Usuário é admin, créditos não foram debitados.');
       }
 
     } catch (err) {
@@ -105,6 +113,6 @@ export const useCostEstimation = ({
     costError,
     handleEstimateCost,
     clearCostEstimation,
-    estimationCost, // Retorna o custo
+    estimationCost,
   };
 };

@@ -2,8 +2,8 @@ import React, { useEffect } from 'react';
 import { supabase } from '../integrations/supabase/client';
 import { useSession } from '../components/SessionContextProvider';
 import { useNavigate } from 'react-router-dom';
-import LogoBranco from '/LOGO BRANCO.jpg'; // Caminho atualizado para a pasta public
-import AuthForm from '../components/AuthForm'; // Importar o novo componente AuthForm
+import LogoBranco from '/LOGO BRANCO.jpg';
+import AuthForm from '../components/AuthForm';
 
 const LoginPage: React.FC = () => {
   const { session, user, isLoading } = useSession();
@@ -25,7 +25,7 @@ const LoginPage: React.FC = () => {
           <h2 className="text-3xl font-bold text-gray-800">Bem-vindo ao Renova IA C&S</h2>
           <p className="text-gray-600 mt-2">Entre ou cadastre-se para começar a transformar seus espaços.</p>
         </div>
-        <AuthForm /> {/* Usando o novo componente AuthForm */}
+        <AuthForm />
       </div>
     </div>
   );

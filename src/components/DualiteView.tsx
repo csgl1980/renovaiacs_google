@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { explainCode, generateCode } from '../services/dualiteService'; // Caminho corrigido
+import { explainCode, generateCode } from '../services/dualiteService';
 import SparklesIcon from './icons/SparklesIcon';
 import ClipboardIcon from './icons/ClipboardIcon';
 import CodeIcon from './icons/CodeIcon';
@@ -74,7 +74,7 @@ const DualiteView: React.FC = () => {
       {isLoading && (
         <div className="absolute inset-0 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center z-10">
           <div className="text-center text-gray-300">
-            <div className="w-8 h-8 border-4 border-indigo-400 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+            <div className="w-8 h-8 border-4 border-cs-blue border-t-transparent rounded-full animate-spin mx-auto mb-3"></div> {/* Usando a nova cor */}
             <p className="font-semibold">Processando...</p>
           </div>
         </div>
@@ -96,7 +96,7 @@ const DualiteView: React.FC = () => {
                 <div className="absolute top-2 right-2 z-10">
                     <button
                         onClick={handleCopyCode}
-                        className="flex items-center gap-2 bg-gray-700 hover:bg-indigo-600 text-gray-200 font-semibold px-3 py-1.5 rounded-md text-xs transition-colors"
+                        className="flex items-center gap-2 bg-gray-700 hover:bg-cs-blue text-gray-200 font-semibold px-3 py-1.5 rounded-md text-xs transition-colors" {/* Usando a nova cor */}
                     >
                         <ClipboardIcon className="w-4 h-4" />
                         {copySuccess ? 'Copiado!' : 'Copiar'}
@@ -120,13 +120,13 @@ const DualiteView: React.FC = () => {
         <div className="flex bg-gray-100 rounded-lg p-1">
           <button
             onClick={() => setMode('generate')}
-            className={`w-1/2 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'generate' ? 'bg-white text-indigo-600 shadow' : 'text-gray-600 hover:bg-gray-200'}`}
+            className={`w-1/2 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'generate' ? 'bg-white text-cs-blue shadow' : 'text-gray-600 hover:bg-gray-200'}`} {/* Usando a nova cor */}
           >
             Gerar Código
           </button>
           <button
             onClick={() => setMode('explain')}
-            className={`w-1/2 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'explain' ? 'bg-white text-indigo-600 shadow' : 'text-gray-600 hover:bg-gray-200'}`}
+            className={`w-1/2 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'explain' ? 'bg-white text-cs-blue shadow' : 'text-gray-600 hover:bg-gray-200'}`} {/* Usando a nova cor */}
           >
             Explicar Código
           </button>
@@ -141,14 +141,14 @@ const DualiteView: React.FC = () => {
                 value={generationPrompt}
                 onChange={(e) => setGenerationPrompt(e.target.value)}
                 placeholder="Ex: Crie um componente React com um botão que busca e exibe uma piada de uma API pública."
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow duration-200 font-mono text-sm"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue transition-shadow duration-200 font-mono text-sm" {/* Usando a nova cor */}
                 rows={6}
               />
             </div>
             <button
               onClick={handleGenerate}
               disabled={isGenerating || !generationPrompt.trim()}
-              className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition-colors duration-300 disabled:bg-indigo-300 disabled:cursor-not-allowed text-lg shadow-lg hover:shadow-xl"
+              className="w-full flex items-center justify-center gap-2 bg-cs-blue text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-800 transition-colors duration-300 disabled:bg-indigo-300 disabled:cursor-not-allowed text-lg shadow-lg hover:shadow-xl" {/* Usando a nova cor */}
             >
               {isGenerating ? (
                 <>
@@ -174,14 +174,14 @@ const DualiteView: React.FC = () => {
                 value={codeToExplain}
                 onChange={(e) => setCodeToExplain(e.target.value)}
                 placeholder="function helloWorld() { console.log('Hello, World!'); }"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow duration-200 font-mono text-sm"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue transition-shadow duration-200 font-mono text-sm" {/* Usando a nova cor */}
                 rows={6}
               />
             </div>
             <button
               onClick={handleExplain}
               disabled={isExplaining || !codeToExplain.trim()}
-              className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition-colors duration-300 disabled:bg-indigo-300 disabled:cursor-not-allowed text-lg shadow-lg hover:shadow-xl"
+              className="w-full flex items-center justify-center gap-2 bg-cs-blue text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-800 transition-colors duration-300 disabled:bg-indigo-300 disabled:cursor-not-allowed text-lg shadow-lg hover:shadow-xl" {/* Usando a nova cor */}
             >
               {isExplaining ? (
                 <>

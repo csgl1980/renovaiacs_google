@@ -40,12 +40,12 @@ export const useGeneration = ({
   const [generationError, setGenerationError] = useState<string | null>(null);
 
   const baseGenerationCost = mode === 'image' ? 2 : 3;
-  const variationCost = 2; // Custo de variação ajustado para 2 créditos
+  const variationCost = 2;
 
   const clearGenerationResults = useCallback(() => {
     setGeneratedImage(null);
     setGenerationError(null);
-    setError(null); // Clear main app error
+    setError(null);
   }, [setError]);
 
   const handleGenerate = useCallback(async (isVariation = false) => {
@@ -58,11 +58,14 @@ export const useGeneration = ({
     const currentGenerationCost = isVariation ? variationCost : baseGenerationCost;
     console.log(`useGeneration: Tentando gerar imagem. Custo: ${currentGenerationCost} créditos. Créditos atuais do usuário: ${user.credits}`);
 
-    if (user.credits < currentGenerationCost) {
-      setGenerationError(`Créditos insuficientes para realizar esta operação. Você precisa de ${currentGenerationCost} créditos.`);
-      setBuyCreditsModalOpen(true);
-      console.warn(`useGeneration: Créditos insuficientes. Necessário: ${currentGenerationCost}, Disponível: ${user.credits}`);
-      return;
+    // Ignorar verificação de créditos e débito para usuários administradores
+    if (!user.is_admin) {
+      if (user.credits < currentGenerationCost) {
+        setGenerationError(`Créditos insuficientes para realizar esta operação. Você precisa de ${currentGenerationCost} créditos.`);
+        setBuyCreditsModalOpen(true);
+        console.warn(`useGeneration: Créditos insuficientes. Necessário: ${currentGenerationCost}, Disponível: ${user.credits}`);
+        return;
+      }
     }
 
     const fullPrompt = selectedStyle ? `${prompt} ${selectedStyle}`.trim() : prompt;
@@ -91,21 +94,25 @@ export const useGeneration = ({
       setGeneratedImage(resultImage);
       console.log('useGeneration: Imagem gerada com sucesso.');
 
-      // Deduct credits from Supabase
-      const newCredits = user.credits - currentGenerationCost;
-      console.log(`useGeneration: Deduzindo ${currentGenerationCost} créditos. Novos créditos: ${newCredits}`);
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ credits: newCredits })
-        .eq('id', user.id);
+      // Deduct credits from Supabase ONLY if not admin
+      if (!user.is_admin) {
+        const newCredits = user.credits - currentGenerationCost;
+        console.log(`useGeneration: Deduzindo ${currentGenerationCost} créditos. Novos créditos: ${newCredits}`);
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ credits: newCredits })
+          .eq('id', user.id);
 
-      if (updateError) {
-        console.error('useGeneration: Erro ao deduzir créditos no Supabase:', updateError);
-        setGenerationError('Erro ao deduzir créditos. Tente novamente.');
+        if (updateError) {
+          console.error('useGeneration: Erro ao deduzir créditos no Supabase:', updateError);
+          setGenerationError('Erro ao deduzir créditos. Tente novamente.');
+        } else {
+          console.log('useGeneration: Créditos deduzidos com sucesso no Supabase. Atualizando sessão do usuário...');
+          await refreshUser();
+          console.log('useGeneration: Sessão do usuário atualizada.');
+        }
       } else {
-        console.log('useGeneration: Créditos deduzidos com sucesso no Supabase. Atualizando sessão do usuário...');
-        await refreshUser(); // Refresh user context to show updated credits
-        console.log('useGeneration: Sessão do usuário atualizada.');
+        console.log('useGeneration: Usuário é admin, créditos não foram debitados.');
       }
 
     } catch (err) {
@@ -129,6 +136,6 @@ export const useGeneration = ({
     generationError,
     handleGenerate,
     clearGenerationResults,
-    generationCost: baseGenerationCost, // Retorna o custo base para a primeira geração
+    generationCost: baseGenerationCost,
   };
 };

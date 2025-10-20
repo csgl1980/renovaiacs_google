@@ -21,14 +21,14 @@ export interface User {
   id: string;
   first_name: string;
   last_name: string;
-  email: string;
+  email: string; // Adicionado
   credits: number;
-  is_admin: boolean;
+  is_admin: boolean; // Adicionado
 }
 
 export interface Generation {
   id: string;
-  generatedImage: string; // Revertido para 'generatedImage' (camelCase)
+  generatedImage: string;
   prompt: string;
   created_at: string;
   project_id: string;
@@ -37,7 +37,7 @@ export interface Generation {
 export interface Project {
   id: string;
   name: string;
-  originalImage: string; // Revertido para 'originalImage' (camelCase)
+  originalImage: string;
   created_at: string;
   generations: Generation[];
   user_id: string;

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { Project, Generation } from '../types'; // Caminho corrigido
+import type { Project, Generation } from '../types';
 import XCircleIcon from './icons/XCircleIcon';
 import FolderIcon from './icons/FolderIcon';
 import TrashIcon from './icons/TrashIcon';
@@ -82,7 +82,7 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onClose, onDelete
       <div className="flex-shrink-0 bg-white/80 backdrop-blur-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto p-4 flex justify-between items-center">
             <div className="flex items-center gap-3">
-                <FolderIcon className="w-7 h-7 text-indigo-500" />
+                <FolderIcon className="w-7 h-7 text-cs-blue" /> {/* Usando a nova cor */}
                 <h2 className="text-2xl font-bold text-gray-800">Meus Projetos</h2>
             </div>
             <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-200" aria-label="Fechar">

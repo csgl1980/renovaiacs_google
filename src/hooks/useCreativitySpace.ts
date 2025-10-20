@@ -29,7 +29,7 @@ export const useCreativitySpace = ({
   const [isLoading, setIsLoading] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
 
-  const cost = 5; // 5 créditos por geração de imagem
+  const cost = 5;
 
   const clearResults = useCallback(() => {
     setGeneratedImage(null);
@@ -45,11 +45,15 @@ export const useCreativitySpace = ({
     }
 
     console.log(`useCreativitySpace: Tentando gerar imagem. Custo: ${cost} créditos. Créditos atuais do usuário: ${user.credits}`);
-    if (user.credits < cost) {
-      setGenerationError(`Créditos insuficientes para gerar a imagem. Você precisa de ${cost} créditos.`);
-      setBuyCreditsModalOpen(true);
-      console.warn(`useCreativitySpace: Créditos insuficientes. Necessário: ${cost}, Disponível: ${user.credits}`);
-      return;
+    
+    // Ignorar verificação de créditos e débito para usuários administradores
+    if (!user.is_admin) {
+      if (user.credits < cost) {
+        setGenerationError(`Créditos insuficientes para gerar a imagem. Você precisa de ${cost} créditos.`);
+        setBuyCreditsModalOpen(true);
+        console.warn(`useCreativitySpace: Créditos insuficientes. Necessário: ${cost}, Disponível: ${user.credits}`);
+        return;
+      }
     }
 
     if (!prompt.trim()) {
@@ -67,21 +71,25 @@ export const useCreativitySpace = ({
       setGeneratedImage(resultImage);
       console.log('useCreativitySpace: Imagem gerada com sucesso.');
 
-      // Deduct credits from Supabase
-      const newCredits = user.credits - cost;
-      console.log(`useCreativitySpace: Deduzindo ${cost} créditos. Novos créditos: ${newCredits}`);
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ credits: newCredits })
-        .eq('id', user.id);
+      // Deduct credits from Supabase ONLY if not admin
+      if (!user.is_admin) {
+        const newCredits = user.credits - cost;
+        console.log(`useCreativitySpace: Deduzindo ${cost} créditos. Novos créditos: ${newCredits}`);
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ credits: newCredits })
+          .eq('id', user.id);
 
-      if (updateError) {
-        console.error('useCreativitySpace: Erro ao deduzir créditos no Supabase:', updateError);
-        setGenerationError('Erro ao deduzir créditos. Tente novamente.');
+        if (updateError) {
+          console.error('useCreativitySpace: Erro ao deduzir créditos no Supabase:', updateError);
+          setGenerationError('Erro ao deduzir créditos. Tente novamente.');
+        } else {
+          console.log('useCreativitySpace: Créditos deduzidos com sucesso no Supabase. Atualizando sessão do usuário...');
+          await refreshUser();
+          console.log('useCreativitySpace: Sessão do usuário atualizada.');
+        }
       } else {
-        console.log('useCreativitySpace: Créditos deduzidos com sucesso no Supabase. Atualizando sessão do usuário...');
-        await refreshUser(); // Refresh user context to show updated credits
-        console.log('useCreativitySpace: Sessão do usuário atualizada.');
+        console.log('useCreativitySpace: Usuário é admin, créditos não foram debitados.');
       }
 
     } catch (err) {

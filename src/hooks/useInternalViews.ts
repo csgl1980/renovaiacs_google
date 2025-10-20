@@ -53,11 +53,15 @@ export const useInternalViews = ({
     }
 
     console.log(`useInternalViews: Tentando gerar vistas internas. Custo: ${internalViewsCost} créditos. Créditos atuais do usuário: ${user.credits}`);
-    if (user.credits < internalViewsCost) {
-      setInternalViewsError(`Créditos insuficientes para gerar as vistas internas. Você precisa de ${internalViewsCost} créditos.`);
-      setBuyCreditsModalOpen(true);
-      console.warn(`useInternalViews: Créditos insuficientes. Necessário: ${internalViewsCost}, Disponível: ${user.credits}`);
-      return;
+    
+    // Ignorar verificação de créditos e débito para usuários administradores
+    if (!user.is_admin) {
+      if (user.credits < internalViewsCost) {
+        setInternalViewsError(`Créditos insuficientes para gerar as vistas internas. Você precisa de ${internalViewsCost} créditos.`);
+        setBuyCreditsModalOpen(true);
+        console.warn(`useInternalViews: Créditos insuficientes. Necessário: ${internalViewsCost}, Disponível: ${user.credits}`);
+        return;
+      }
     }
 
     const fullPrompt = selectedStyle ? `${prompt} ${selectedStyle}`.trim() : prompt;
@@ -68,7 +72,7 @@ export const useInternalViews = ({
     }
 
     setIsInternalViewsLoading(true);
-    setInternalViewsError(null); // Limpar erros anteriores
+    setInternalViewsError(null);
     setInternalViews(null);
     console.log('useInternalViews: Iniciando geração de vistas internas...');
 
@@ -85,21 +89,25 @@ export const useInternalViews = ({
         console.log(`useInternalViews: ${views.length} vistas internas geradas com sucesso.`);
       }
 
-      // Deduct credits from Supabase
-      const newCredits = user.credits - internalViewsCost;
-      console.log(`useInternalViews: Deduzindo ${internalViewsCost} créditos. Novos créditos: ${newCredits}`);
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ credits: newCredits })
-        .eq('id', user.id);
+      // Deduct credits from Supabase ONLY if not admin
+      if (!user.is_admin) {
+        const newCredits = user.credits - internalViewsCost;
+        console.log(`useInternalViews: Deduzindo ${internalViewsCost} créditos. Novos créditos: ${newCredits}`);
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ credits: newCredits })
+          .eq('id', user.id);
 
-      if (updateError) {
-        console.error('useInternalViews: Erro ao deduzir créditos no Supabase:', updateError);
-        setInternalViewsError('Erro ao deduzir créditos. Tente novamente.');
+        if (updateError) {
+          console.error('useInternalViews: Erro ao deduzir créditos no Supabase:', updateError);
+          setInternalViewsError('Erro ao deduzir créditos. Tente novamente.');
+        } else {
+          console.log('useInternalViews: Créditos deduzidos com sucesso no Supabase. Atualizando sessão do usuário...');
+          await refreshUser();
+          console.log('useInternalViews: Sessão do usuário atualizada.');
+        }
       } else {
-        console.log('useInternalViews: Créditos deduzidos com sucesso no Supabase. Atualizando sessão do usuário...');
-        await refreshUser(); // Refresh user context to show updated credits
-        console.log('useInternalViews: Sessão do usuário atualizada.');
+        console.log('useInternalViews: Usuário é admin, créditos não foram debitados.');
       }
 
     } catch (err) {

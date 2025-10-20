@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { STYLE_OPTIONS } from '@/src/constants'; // Caminho corrigido
+import { STYLE_OPTIONS } from '@/src/constants';
 import type { StyleOption } from '../types';
 import SparklesIcon from './icons/SparklesIcon';
 import ArrowLeftIcon from './icons/ArrowLeftIcon';
@@ -74,7 +74,7 @@ const PromptControls: React.FC<PromptControlsProps> = ({
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="Ex: Mude a cor da parede para azul, adicione um sofá de couro..."
-          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow duration-200"
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue transition-shadow duration-200" {/* Usando a nova cor */}
           rows={3}
           disabled={!isImageUploaded}
         />
@@ -99,7 +99,7 @@ const PromptControls: React.FC<PromptControlsProps> = ({
                   disabled={!isImageUploaded}
                   className={`px-4 py-2 text-sm font-medium rounded-full transition-all duration-200 flex-shrink-0 ${
                     selectedStyle === style.prompt
-                      ? 'bg-indigo-600 text-white shadow-md'
+                      ? 'bg-cs-blue text-white shadow-md' {/* Usando a nova cor */}
                       : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-100'
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
@@ -118,7 +118,7 @@ const PromptControls: React.FC<PromptControlsProps> = ({
           </div>
         </div>
         {selectedStyleDetails && (
-          <div className="mt-3 p-3 bg-indigo-50 border border-indigo-200 rounded-lg transition-all duration-300">
+          <div className="mt-3 p-3 bg-indigo-50 border border-indigo-200 rounded-lg transition-all duration-300"> {/* Mantendo tons de indigo para este bloco */}
             <h4 className="font-bold text-indigo-800">{selectedStyleDetails.name}</h4>
             <p className="text-sm text-indigo-700 mt-1">{selectedStyleDetails.prompt}</p>
           </div>
@@ -127,7 +127,7 @@ const PromptControls: React.FC<PromptControlsProps> = ({
       <button
         onClick={handleGenerate}
         disabled={isLoading || !isImageUploaded || (!prompt && !selectedStyle) || !hasEnoughCredits}
-        className={`w-full flex flex-col items-center justify-center gap-1 bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition-colors duration-300 disabled:bg-indigo-300 disabled:cursor-not-allowed text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5`}
+        className={`w-full flex flex-col items-center justify-center gap-1 bg-cs-blue text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-800 transition-colors duration-300 disabled:bg-indigo-300 disabled:cursor-not-allowed text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5`} {/* Usando a nova cor */}
       >
         <div className="flex items-center gap-2">
             {isLoading ? (
@@ -143,7 +143,7 @@ const PromptControls: React.FC<PromptControlsProps> = ({
             )}
         </div>
         {!isLoading && isImageUploaded && (
-             <span className={`text-xs flex items-center gap-1 ${hasEnoughCredits ? 'text-indigo-200' : 'text-white font-bold'}`}>
+             <span className={`text-xs flex items-center gap-1 ${hasEnoughCredits ? 'text-indigo-200' : 'text-white font-bold'}`}> {/* Mantendo tons de indigo aqui */}
                 {hasEnoughCredits ? `(Custa ${cost} ${cost === 1 ? 'crédito' : 'créditos'})` : 'Créditos insuficientes'}
              </span>
         )}

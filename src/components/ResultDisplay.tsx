@@ -6,7 +6,7 @@ import DollarSignIcon from './icons/DollarSignIcon';
 import CameraIcon from './icons/CameraIcon';
 import SaveIcon from './icons/SaveIcon';
 import CostEstimator from './CostEstimator';
-import type { CostEstimate } from '../types'; // Caminho corrigido
+import type { CostEstimate } from '../types';
 
 interface ResultDisplayProps {
   mode: 'image' | 'floorplan';
@@ -19,14 +19,14 @@ interface ResultDisplayProps {
   onEstimateCost: () => void;
   isEstimatingCost: boolean;
   costEstimate: CostEstimate | null;
-  costError: string | null; // Passado diretamente
+  costError: string | null;
   onGenerateInternalViews: () => void;
   isInternalViewsLoading: boolean;
   internalViews: string[] | null;
   internalViewsError: string | null;
   onSaveToProject: () => void;
   credits: number;
-  variationCost: number; // Custo de variação
+  variationCost: number;
   internalViewsCost: number;
 }
 
@@ -35,14 +35,14 @@ const ActionButton: React.FC<{ onClick: () => void; disabled?: boolean; label: s
     <button
       onClick={onClick}
       disabled={disabled}
-      className="bg-white rounded-full p-3 text-gray-600 hover:bg-gray-100 hover:text-indigo-600 transition-all duration-200 shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-gray-600"
+      className="bg-white rounded-full p-3 text-gray-600 hover:bg-gray-100 hover:text-cs-blue transition-all duration-200 shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-gray-600" {/* Usando a nova cor */}
       aria-label={label}
     >
       {children}
     </button>
     <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-max bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
       {label}
-      {cost !== undefined && <span className="text-amber-300 ml-1">({cost} {cost === 1 ? 'crédito' : 'créditos'})</span>}
+      {cost !== undefined && <span className="text-cs-orange ml-1">({cost} {cost === 1 ? 'crédito' : 'créditos'})</span>} {/* Usando a nova cor */}
     </div>
   </div>
 );
@@ -50,7 +50,7 @@ const ActionButton: React.FC<{ onClick: () => void; disabled?: boolean; label: s
 const ResultDisplay: React.FC<ResultDisplayProps> = (props) => {
   const {
     mode, originalPreview, generatedImage, isLoading, isVariationLoading, error,
-    onGenerateVariation, onEstimateCost, isEstimatingCost, costEstimate, costError, // Usando costError
+    onGenerateVariation, onEstimateCost, isEstimatingCost, costEstimate, costError,
     onGenerateInternalViews, isInternalViewsLoading, internalViews, internalViewsError,
     onSaveToProject, credits, variationCost, internalViewsCost
   } = props;
@@ -124,7 +124,7 @@ const ResultDisplay: React.FC<ResultDisplayProps> = (props) => {
       <div className="relative w-full aspect-video bg-white rounded-lg border border-gray-200 flex items-center justify-center overflow-hidden shadow-sm">
         {isLoading && (
           <div className="text-center text-gray-600">
-            <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <div className="w-10 h-10 border-4 border-indigo-200 border-t-cs-blue rounded-full animate-spin mx-auto mb-4"></div> {/* Usando a nova cor */}
             <p className="font-semibold text-lg">Gerando sua transformação...</p>
             <p className="text-sm text-gray-500">Isso pode levar alguns segundos.</p>
           </div>
@@ -146,7 +146,7 @@ const ResultDisplay: React.FC<ResultDisplayProps> = (props) => {
             <img src={generatedImage} alt="Generated result" className="max-h-full max-w-full object-contain" />
             {(isVariationLoading) && (
               <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center">
-                  <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                  <div className="w-8 h-8 border-4 border-indigo-200 border-t-cs-blue rounded-full animate-spin"></div> {/* Usando a nova cor */}
               </div>
             )}
           </>
@@ -170,7 +170,7 @@ const ResultDisplay: React.FC<ResultDisplayProps> = (props) => {
               <SaveIcon className="w-5 h-5" />
             </ActionButton>
           {mode === 'image' && (
-            <ActionButton onClick={onEstimateCost} disabled={isEstimatingCost || credits < 1} label="Estimar Custo" cost={1}> {/* Custo de 1 crédito para estimativa */}
+            <ActionButton onClick={onEstimateCost} disabled={isEstimatingCost || credits < 1} label="Estimar Custo" cost={1}>
               <DollarSignIcon className="w-5 h-5" />
             </ActionButton>
           )}
@@ -191,7 +191,7 @@ const ResultDisplay: React.FC<ResultDisplayProps> = (props) => {
            <h3 className="text-lg font-bold text-gray-800 mb-4 text-center">Vistas Internas do Ambiente</h3>
           {isInternalViewsLoading && (
             <div className="text-center text-gray-600 p-6">
-              <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
+              <div className="w-8 h-8 border-4 border-indigo-200 border-t-cs-blue rounded-full animate-spin mx-auto mb-4"></div> {/* Usando a nova cor */}
               <p className="font-semibold">Gerando vistas internas...</p>
               <p className="text-sm text-gray-500 mt-2">Isso pode levar um momento.</p>
             </div>

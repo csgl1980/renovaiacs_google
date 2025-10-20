@@ -41,7 +41,7 @@ const BuyCreditsModal: React.FC<BuyCreditsModalProps> = ({ onClose, onSelectPlan
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl shadow-2xl p-8 w-full max-w-2xl relative"
+        className="bg-white rounded-xl shadow-2xl p-6 sm:p-8 w-full max-w-sm sm:max-w-lg md:max-w-2xl relative" {/* Ajustado max-w e p */}
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -53,7 +53,7 @@ const BuyCreditsModal: React.FC<BuyCreditsModalProps> = ({ onClose, onSelectPlan
         </button>
 
         <div className="text-center mb-8">
-          <CoinIcon className="w-10 h-10 text-amber-500 mx-auto mb-2" />
+          <CoinIcon className="w-10 h-10 text-cs-orange mx-auto mb-2" /> {/* Usando a nova cor */}
           <h2 className="text-2xl font-bold text-gray-800">Comprar Créditos</h2>
           <p className="text-gray-500 text-sm">Escolha um pacote para continuar criando.</p>
         </div>
@@ -63,11 +63,11 @@ const BuyCreditsModal: React.FC<BuyCreditsModalProps> = ({ onClose, onSelectPlan
             <div
               key={plan.name}
               className={`border rounded-lg p-6 flex flex-col text-center transition-all relative ${
-                plan.popular ? 'border-indigo-500 border-2 shadow-lg -translate-y-2' : 'border-gray-300'
-              }`}
+                plan.popular ? 'border-cs-blue border-2 shadow-lg -translate-y-2' : 'border-gray-300'
+              }`} {/* Usando a nova cor */}
             >
               {plan.popular && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-cs-blue text-white text-xs font-bold px-3 py-1 rounded-full"> {/* Usando a nova cor */}
                   POPULAR
                 </span>
               )}
@@ -82,7 +82,7 @@ const BuyCreditsModal: React.FC<BuyCreditsModalProps> = ({ onClose, onSelectPlan
                 onClick={() => onSelectPlan(plan.hotmartUrl)}
                 className={`w-full font-bold py-2 px-4 rounded-lg transition-colors ${
                   plan.popular
-                    ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                    ? 'bg-cs-blue text-white hover:bg-blue-800' {/* Usando a nova cor */}
                     : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
                 }`}
               >

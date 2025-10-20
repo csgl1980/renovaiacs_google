@@ -12,7 +12,7 @@ import ProjectsView from './components/ProjectsView';
 import BuyCreditsModal from './components/BuyCreditsModal';
 import HotmartRedirectModal from './components/HotmartRedirectModal';
 import PdfUploader from './components/PdfUploader';
-import CreativitySpaceView from './components/CreativitySpaceView'; // Importar o novo componente
+import CreativitySpaceView from './components/CreativitySpaceView';
 
 // Importar os novos hooks
 import { useImageUpload } from './hooks/useImageUpload';
@@ -23,17 +23,14 @@ import { useProjectManagement } from './hooks/useProjectManagement';
 import { useModals } from './hooks/useModals';
 
 function App() {
-  type Mode = 'image' | 'floorplan' | 'dualite' | 'creativity'; // Adicionar 'creativity'
+  type Mode = 'image' | 'floorplan' | 'dualite' | 'creativity';
   const navigate = useNavigate();
   const { session, user, isLoading: isSessionLoading, refreshUser } = useSession();
 
-  // Adicionando log para depuração
   console.log('App.tsx: Render - isSessionLoading:', isSessionLoading, 'session:', session, 'user:', user);
 
-  // Estado global de erro para a aplicação principal
   const [appError, setAppError] = useState<string | null>(null);
 
-  // Hooks personalizados
   const {
     isProjectsViewOpen, setProjectsViewOpen,
     isSaveModalOpen, setSaveModalOpen,
@@ -58,19 +55,19 @@ function App() {
     handleGenerate, clearGenerationResults, generationCost,
   } = useGeneration({
     originalImageFile,
-    mode: mode === 'creativity' ? 'image' : mode, // Passar 'image' ou 'floorplan' para useGeneration
+    mode: mode === 'creativity' ? 'image' : mode,
     setBuyCreditsModalOpen,
     setError: setAppError,
   });
 
   const {
     isEstimatingCost, costEstimate, costError,
-    handleEstimateCost, clearCostEstimation, estimationCost, // Adicionado estimationCost
+    handleEstimateCost, clearCostEstimation, estimationCost,
   } = useCostEstimation({
     generatedImage,
     prompt,
     selectedStyle,
-    setBuyCreditsModalOpen, // Passado para o hook
+    setBuyCreditsModalOpen,
   });
 
   const {
@@ -94,11 +91,10 @@ function App() {
     generatedImage,
     prompt,
     selectedStyle,
-    mode: mode === 'creativity' ? 'image' : mode, // Passar 'image' ou 'floorplan' para useProjectManagement
+    mode: mode === 'creativity' ? 'image' : mode,
     setError: setAppError,
   });
 
-  // Efeito para redirecionar usuários não autenticados
   useEffect(() => {
     console.log('App.tsx: useEffect for redirection - isSessionLoading:', isSessionLoading, 'session:', session, 'user:', user);
     if (!isSessionLoading && !session) {
@@ -107,7 +103,6 @@ function App() {
     }
   }, [session, isSessionLoading, navigate]);
 
-  // Limpar resultados e uploads ao mudar de modo
   const handleModeChange = useCallback((newMode: Mode) => {
     if (mode !== newMode) {
       setMode(newMode);
@@ -115,21 +110,19 @@ function App() {
       clearGenerationResults();
       clearCostEstimation();
       clearInternalViews();
-      setAppError(null); // Clear any general app errors
+      setAppError(null);
     }
   }, [mode, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews]);
 
-  // Auth Handlers (usando Supabase)
   const handleLogout = useCallback(async () => {
     console.log('App.tsx: [handleLogout] Iniciando logout...');
-    setAppError(null); // Limpa qualquer erro anterior
+    setAppError(null);
 
     try {
       const { error } = await supabase.auth.signOut();
 
       if (error) {
         console.error('App.tsx: [handleLogout] Erro ao fazer logout:', error);
-        // Apenas define appError para erros críticos, mas ainda prossegue com a limpeza local e navegação.
         if (!error.message.includes('Auth session missing!')) {
           setAppError(`Erro ao fazer logout: ${error.message}.`);
         }
@@ -137,40 +130,35 @@ function App() {
         console.log('App.tsx: [handleLogout] Logout realizado com sucesso.');
       }
 
-      // Sempre realiza a limpeza local e redireciona após tentar o signOut
       clearUploadState();
       clearGenerationResults();
       clearCostEstimation();
       clearInternalViews();
       closeAllModals();
-      setAppError(null); // Garante que o erro seja limpo após o "logout"
-      navigate('/login', { replace: true }); // Força a navegação
+      setAppError(null);
+      navigate('/login', { replace: true });
 
     } catch (e) {
       console.error('App.tsx: [handleLogout] Erro inesperado durante o logout:', e);
       setAppError(`Ocorreu um erro inesperado durante o logout: ${(e as Error).message}.`);
-      navigate('/login', { replace: true }); // Também navega em erros inesperados
+      navigate('/login', { replace: true });
     }
   }, [navigate, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, closeAllModals, setAppError]);
 
-  // Modal Triggers
   const openLoginModal = useCallback(() => navigate('/login'), [navigate]);
   const openSignupModal = useCallback(() => navigate('/login'), [navigate]);
 
   const isImageUploaded = originalImagePreview !== null || pdfPreview !== null;
 
-  // Se a sessão estiver carregando, mostre um spinner
   if (isSessionLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+        <div className="w-10 h-10 border-4 border-indigo-200 border-t-cs-blue rounded-full animate-spin"></div> {/* Usando a nova cor */}
         <p className="text-lg font-semibold text-gray-700 ml-4">Carregando sessão...</p>
       </div>
     );
   }
 
-  // Se não houver sessão ou usuário, este componente não deve ser renderizado.
-  // O useEffect acima lidará com o redirecionamento para /login.
   if (!session || !user) {
     return null;
   }
@@ -196,25 +184,23 @@ function App() {
           </div>
         )}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-          {/* Left Column: Controls */}
           <div className="bg-white p-6 rounded-xl shadow-lg flex flex-col gap-6">
             <div className="flex bg-gray-100 rounded-lg p-1">
               <button
                 onClick={() => handleModeChange('image')}
-                className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'image' ? 'bg-white text-indigo-600 shadow' : 'text-gray-600 hover:bg-gray-200'}`}
+                className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'image' ? 'bg-white text-cs-blue shadow' : 'text-gray-600 hover:bg-gray-200'}`} {/* Usando a nova cor */}
               >
                 Renovar Ambiente
               </button>
               <button
                 onClick={() => handleModeChange('floorplan')}
-                className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'floorplan' ? 'bg-white text-indigo-600 shadow' : 'text-gray-600 hover:bg-gray-200'}`}
+                className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'floorplan' ? 'bg-white text-cs-blue shadow' : 'text-gray-600 hover:bg-gray-200'}`} {/* Usando a nova cor */}
               >
                 Renderizar Planta Baixa
               </button>
-              {/* Nova aba */}
               <button
                 onClick={() => handleModeChange('creativity')}
-                className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'creativity' ? 'bg-white text-indigo-600 shadow' : 'text-gray-600 hover:bg-gray-200'}`}
+                className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'creativity' ? 'bg-white text-cs-blue shadow' : 'text-gray-600 hover:bg-gray-200'}`} {/* Usando a nova cor */}
               >
                 Espaço Criatividade
               </button>
@@ -254,7 +240,6 @@ function App() {
             )}
           </div>
 
-          {/* Right Column: Results */}
           {(mode === 'image' || mode === 'floorplan') && (
             <div className="bg-white p-6 rounded-xl shadow-lg">
               <ResultDisplay
@@ -268,14 +253,14 @@ function App() {
                 onEstimateCost={handleEstimateCost}
                 isEstimatingCost={isEstimatingCost}
                 costEstimate={costEstimate}
-                costError={costError} // Passando costError diretamente
+                costError={costError}
                 onGenerateInternalViews={handleGenerateInternalViews}
                 isInternalViewsLoading={isInternalViewsLoading}
                 internalViews={internalViews}
                 internalViewsError={internalViewsError}
                 onSaveToProject={() => setSaveModalOpen(true)}
                 credits={user.credits}
-                variationCost={2} // Custo de variação atualizado
+                variationCost={2}
                 internalViewsCost={internalViewsCost}
               />
             </div>
@@ -283,7 +268,6 @@ function App() {
         </div>
       </main>
 
-      {/* Modals */}
       {isProjectsViewOpen && user && (
         <ProjectsView
           projects={projects}

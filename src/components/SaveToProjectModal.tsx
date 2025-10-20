@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { Project } from '../types'; // Caminho corrigido
+import type { Project } from '../types';
 import XCircleIcon from './icons/XCircleIcon';
 import FolderIcon from './icons/FolderIcon';
 
@@ -30,7 +30,7 @@ const SaveToProjectModal: React.FC<SaveToProjectModalProps> = ({ projects, onClo
           <XCircleIcon className="w-7 h-7" />
         </button>
         <div className="text-center mb-6">
-          <FolderIcon className="w-10 h-10 text-indigo-500 mx-auto mb-2" />
+          <FolderIcon className="w-10 h-10 text-cs-blue mx-auto mb-2" /> {/* Usando a nova cor */}
           <h2 className="text-2xl font-bold text-gray-800">Salvar no Projeto</h2>
           <p className="text-gray-500 text-sm">Organize suas ideias em projetos.</p>
         </div>
@@ -42,7 +42,7 @@ const SaveToProjectModal: React.FC<SaveToProjectModalProps> = ({ projects, onClo
               id="project-select"
               value={selectedProject}
               onChange={(e) => setSelectedProject(e.target.value)}
-              className="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+              className="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cs-blue" {/* Usando a nova cor */}
             >
               <option value="new">-- Criar Novo Projeto --</option>
               {projects.map(p => (
@@ -60,7 +60,7 @@ const SaveToProjectModal: React.FC<SaveToProjectModalProps> = ({ projects, onClo
                 value={newProjectName}
                 onChange={(e) => setNewProjectName(e.target.value)}
                 placeholder="Ex: Renovação da Cozinha"
-                className="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                className="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cs-blue" {/* Usando a nova cor */}
               />
             </div>
           )}
@@ -69,7 +69,7 @@ const SaveToProjectModal: React.FC<SaveToProjectModalProps> = ({ projects, onClo
 
           <button
             onClick={handleSave}
-            className="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 transition-colors"
+            className="w-full bg-cs-blue text-white font-bold py-3 rounded-lg hover:bg-blue-800 transition-colors" {/* Usando a nova cor */}
           >
             Salvar Imagem
           </button>
