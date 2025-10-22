@@ -31,19 +31,33 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
 
   const fetchUserProfile = useCallback(async (currentSession: Session) => {
     console.log('SessionContext: [fetchUserProfile] Tentando buscar perfil para user ID:', currentSession.user.id);
-    const { data: profileData, error: profileError } = await supabase
+    const { data: profileDataArray, error: profileError } = await supabase
       .from('profiles')
       .select('id, first_name, last_name, email, credits, is_admin')
       .eq('id', currentSession.user.id)
-      .single();
+      .limit(1); // Alterado de .single() para .limit(1) para uma busca mais robusta
 
-    if (profileData) {
+    if (profileError) {
+      console.error('SessionContext: [fetchUserProfile] Erro ao buscar perfil:', profileError);
+      // Em caso de erro na busca, retorna um objeto de usuário básico com is_admin: false
+      // Isso é um fallback, o ideal é que a busca seja bem-sucedida.
+      return {
+        id: currentSession.user.id,
+        first_name: currentSession.user.user_metadata?.first_name || '',
+        last_name: currentSession.user.user_metadata?.last_name || '',
+        email: currentSession.user.email || '',
+        credits: 10,
+        is_admin: false, // Mantém o fallback como false para não dar acesso indevido por padrão
+      };
+    }
+
+    if (profileDataArray && profileDataArray.length > 0) {
+      const profileData = profileDataArray[0];
       console.log('SessionContext: [fetchUserProfile] Perfil do usuário encontrado:', profileData);
       return profileData as User;
     } else {
-      console.warn('SessionContext: [fetchUserProfile] Nenhum perfil encontrado ou erro ao buscar perfil. Criando objeto de usuário básico. Erro:', profileError);
-      // Adicionado log para ver o email do usuário que está caindo no fallback
-      console.warn('SessionContext: [fetchUserProfile] Usuário caindo no fallback:', currentSession.user.email);
+      console.warn('SessionContext: [fetchUserProfile] Nenhum perfil encontrado para user ID:', currentSession.user.id, '. Criando objeto de usuário básico.');
+      // Se nenhum perfil for encontrado (array vazio), também retorna um objeto básico
       return {
         id: currentSession.user.id,
         first_name: currentSession.user.user_metadata?.first_name || '',
