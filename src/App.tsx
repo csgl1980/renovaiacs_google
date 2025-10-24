@@ -51,7 +51,8 @@ function App() {
 
   const {
     prompt, setPrompt, selectedStyle, setSelectedStyle,
-    generatedImage, isLoading, isVariationLoading, generationError,
+    generatedImage, setGeneratedImage, // EXPOSTO
+    isLoading, isVariationLoading, generationError,
     handleGenerate, clearGenerationResults, generationCost,
   } = useGeneration({
     originalImageFile,
@@ -168,6 +169,16 @@ function App() {
 
   const openLoginModal = useCallback(() => navigate('/login'), [navigate]);
   const openSignupModal = useCallback(() => navigate('/login'), [navigate]);
+
+  const handleLoadGeneration = useCallback((genImage: string, genPrompt: string) => {
+    setGeneratedImage(genImage);
+    setPrompt(genPrompt);
+    setSelectedStyle(''); // Limpa o estilo selecionado, pois o prompt já pode contê-lo
+    clearCostEstimation();
+    clearInternalViews();
+    setAppError(null);
+    setProjectsViewOpen(false); // Fecha o modal de projetos
+  }, [setGeneratedImage, setPrompt, setSelectedStyle, clearCostEstimation, clearInternalViews, setAppError, setProjectsViewOpen]);
 
   const isImageUploaded = originalImagePreview !== null || pdfPreview !== null;
 
@@ -295,6 +306,7 @@ function App() {
           onClose={() => setProjectsViewOpen(false)}
           onDeleteProject={handleDeleteProject}
           onDeleteGeneration={handleDeleteGeneration}
+          onLoadGeneration={handleLoadGeneration} // Passando a nova função
         />
       )}
       {isSaveModalOpen && user && generatedImage && (

@@ -17,6 +17,7 @@ interface UseGenerationResult {
   selectedStyle: string;
   setSelectedStyle: (style: string) => void;
   generatedImage: string | null;
+  setGeneratedImage: (image: string | null) => void; // EXPOSTO
   isLoading: boolean;
   isVariationLoading: boolean;
   generationError: string | null;
@@ -131,6 +132,7 @@ export const useGeneration = ({
     selectedStyle,
     setSelectedStyle,
     generatedImage,
+    setGeneratedImage, // EXPOSTO
     isLoading,
     isVariationLoading,
     generationError,

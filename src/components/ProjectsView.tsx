@@ -4,15 +4,17 @@ import XCircleIcon from './icons/XCircleIcon';
 import FolderIcon from './icons/FolderIcon';
 import TrashIcon from './icons/TrashIcon';
 import ArrowLeftIcon from './icons/ArrowLeftIcon';
+import EyeIcon from './icons/EyeIcon'; // Importar EyeIcon
 
 interface ProjectsViewProps {
   projects: Project[];
   onClose: () => void;
   onDeleteProject: (projectId: string) => void;
   onDeleteGeneration: (projectId: string, generationId: string) => void;
+  onLoadGeneration: (generatedImage: string, prompt: string) => void; // Nova prop
 }
 
-const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onClose, onDeleteProject, onDeleteGeneration }) => {
+const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onClose, onDeleteProject, onDeleteGeneration, onLoadGeneration }) => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   
   const ProjectCard: React.FC<{ project: Project }> = ({ project }) => (
@@ -63,6 +65,16 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onClose, onDelete
                                 <TrashIcon className="w-4 h-4"/>
                             </button>
                             <p className="line-clamp-4 overflow-hidden">{gen.prompt}</p>
+                            <button 
+                                onClick={() => {
+                                    onLoadGeneration(gen.generatedImage, gen.prompt);
+                                    onClose(); // Fecha o modal de projetos após carregar
+                                }} 
+                                className="mt-2 flex items-center justify-center gap-1 bg-cs-blue text-white px-3 py-1.5 rounded-md text-xs font-medium hover:bg-cs-blue/90 transition-colors"
+                            >
+                                <EyeIcon className="w-4 h-4" />
+                                Ver no App
+                            </button>
                         </div>
                     </div>
                 ))}

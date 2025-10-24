@@ -35,19 +35,18 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
       .from('profiles')
       .select('id, first_name, last_name, email, credits, is_admin')
       .eq('id', currentSession.user.id)
-      .limit(1); // Alterado de .single() para .limit(1) para uma busca mais robusta
+      .limit(1);
 
     if (profileError) {
       console.error('SessionContext: [fetchUserProfile] Erro ao buscar perfil:', profileError);
       // Em caso de erro na busca, retorna um objeto de usuário básico com is_admin: false
-      // Isso é um fallback, o ideal é que a busca seja bem-sucedida.
       return {
         id: currentSession.user.id,
         first_name: currentSession.user.user_metadata?.first_name || '',
         last_name: currentSession.user.user_metadata?.last_name || '',
         email: currentSession.user.email || '',
         credits: 10,
-        is_admin: false, // Mantém o fallback como false para não dar acesso indevido por padrão
+        is_admin: false,
       };
     }
 
@@ -57,7 +56,6 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
       return profileData as User;
     } else {
       console.warn('SessionContext: [fetchUserProfile] Nenhum perfil encontrado para user ID:', currentSession.user.id, '. Criando objeto de usuário básico.');
-      // Se nenhum perfil for encontrado (array vazio), também retorna um objeto básico
       return {
         id: currentSession.user.id,
         first_name: currentSession.user.user_metadata?.first_name || '',
@@ -77,13 +75,15 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
       setSession(currentSession);
       const fetchedUser = await fetchUserProfile(currentSession);
       setUser(fetchedUser);
+      console.log('SessionContext: [handleAuthChange] Usuário definido no estado:', fetchedUser); // Log adicional
     } else {
       setSession(null);
       setUser(null);
+      console.log('SessionContext: [handleAuthChange] Usuário definido como null.'); // Log adicional
     }
     setIsLoading(false);
     console.log('SessionContext: [handleAuthChange] Finalizado. isLoading:', false, 'Current user state:', user);
-  }, [fetchUserProfile]);
+  }, [fetchUserProfile, user]); // Adicionado 'user' para o log final
 
   useEffect(() => {
     let isMounted = true;
@@ -122,10 +122,12 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
           setSession(initialSession);
           const fetchedUser = await fetchUserProfile(initialSession);
           setUser(fetchedUser);
+          console.log('SessionContext: [setupAuth] Usuário inicial definido no estado:', fetchedUser); // Log adicional
         } else {
           console.log('SessionContext: [setupAuth] Nenhuma sessão inicial encontrada.');
           setSession(null);
           setUser(null);
+          console.log('SessionContext: [setupAuth] Usuário inicial definido como null.'); // Log adicional
         }
         setIsLoading(false);
         console.log('SessionContext: [setupAuth] Finalizado. isLoading:', false, 'Current user state:', user);
@@ -144,7 +146,7 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
       isMounted = false;
       authListener.subscription.unsubscribe();
     };
-  }, [handleAuthChange, fetchUserProfile]);
+  }, [handleAuthChange, fetchUserProfile, user]); // Adicionado 'user' para o log final
 
   const refreshUser = useCallback(async () => {
     console.log('SessionContext: [refreshUser] chamado.');
@@ -158,13 +160,15 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
       setSession(currentSession);
       const fetchedUser = await fetchUserProfile(currentSession);
       setUser(fetchedUser);
+      console.log('SessionContext: [refreshUser] Usuário atualizado no estado:', fetchedUser); // Log adicional
     } else {
       setSession(null);
       setUser(null);
+      console.log('SessionContext: [refreshUser] Usuário definido como null após refresh.'); // Log adicional
     }
     setIsLoading(false);
     console.log('SessionContext: [refreshUser] Finalizado. isLoading:', false, 'Current user state:', user);
-  }, [fetchUserProfile]);
+  }, [fetchUserProfile, user]); // Adicionado 'user' para o log final
 
   return (
     <SessionContext.Provider value={{ session, user, isLoading, refreshUser }}>
