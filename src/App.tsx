@@ -119,6 +119,9 @@ function App() {
     setAppError(null);
 
     try {
+      const currentSession = await supabase.auth.getSession();
+      console.log('App.tsx: [handleLogout] Session before signOut:', currentSession); // Adicionado log aqui
+
       const { error } = await supabase.auth.signOut();
 
       if (error) {

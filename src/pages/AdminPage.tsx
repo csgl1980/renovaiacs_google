@@ -30,7 +30,7 @@ const AdminPage: React.FC = () => {
       const { data, error } = await supabase
         .from('profiles')
         .select('id, first_name, last_name, email, credits, is_admin')
-        .order('updated_at', { ascending: false });
+        .order('updated_at', { ascending: false }); // CORRIGIDO: de 'created_at' para 'updated_at'
 
       if (error) {
         console.error('Erro ao buscar todos os usuários:', error);
@@ -54,10 +54,13 @@ const AdminPage: React.FC = () => {
 
   const handleSaveCredits = async (userId: string) => {
     setError(null);
-    const { error } = await supabase
+    const { data, error } = await supabase // Adicionado 'data' para logar o resultado
       .from('profiles')
       .update({ credits: newCredits })
-      .eq('id', userId);
+      .eq('id', userId)
+      .select(); // Adicionado .select() para obter os dados atualizados de volta
+
+    console.log('Supabase update result:', { data, error }); // Log detalhado
 
     if (error) {
       console.error('Erro ao atualizar créditos:', error);
@@ -69,7 +72,7 @@ const AdminPage: React.FC = () => {
       );
       setEditingUserId(null);
       showSuccess('Créditos atualizados com sucesso!'); // Notificação de sucesso
-      if (user?.id === userId) { // If admin is editing their own credits
+      if (user?.id === userId) { // Se o admin estiver editando os próprios créditos
         refreshUser();
       }
     }
