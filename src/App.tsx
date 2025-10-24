@@ -119,33 +119,52 @@ function App() {
     setAppError(null);
 
     try {
-      const currentSession = await supabase.auth.getSession();
-      console.log('App.tsx: [handleLogout] Session before signOut:', currentSession); // Adicionado log aqui
+      // Log the session from the hook state
+      console.log('App.tsx: [handleLogout] Session from useSession hook:', session);
+
+      // Attempt to refresh the session first to ensure a valid token
+      const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
+      if (refreshError) {
+        console.warn('App.tsx: [handleLogout] Erro ao tentar refrescar a sessão antes do logout:', refreshError.message);
+        // If refresh fails, the session might already be invalid, proceed with signOut anyway
+      } else if (refreshedSession) {
+        console.log('App.tsx: [handleLogout] Sessão refrescada com sucesso antes do logout.');
+      } else {
+        console.warn('App.tsx: [handleLogout] Nenhuma sessão para refrescar antes do logout.');
+      }
 
       const { error } = await supabase.auth.signOut();
 
       if (error) {
         console.error('App.tsx: [handleLogout] Erro ao fazer logout:', error);
-        if (!error.message.includes('Auth session missing!')) {
+        if (error.message.includes('Auth session missing!')) {
+          // If session is missing, it means the client state is broken.
+          // We can try to manually clear it from local storage as a fallback.
+          console.warn('App.tsx: [handleLogout] Auth session missing error. Attempting to clear local storage manually.');
+          await supabase.auth.setSession({ access_token: '', refresh_token: '' }); // This effectively clears the session
+          // The onAuthStateChange listener should pick this up and update context
+        } else {
           setAppError(`Erro ao fazer logout: ${error.message}.`);
         }
       } else {
         console.log('App.tsx: [handleLogout] Logout realizado com sucesso.');
       }
 
+      // These clear operations will be handled by the onAuthStateChange listener
+      // when it detects a SIGNED_OUT event and sets session/user to null.
+      // However, keeping them here as a fallback for immediate UI feedback.
       clearUploadState();
       clearGenerationResults();
       clearCostEstimation();
       clearInternalViews();
       closeAllModals();
       setAppError(null);
-      // REMOVIDO: navigate('/login', { replace: true }); // Deixe o useEffect lidar com isso
+
     } catch (e) {
       console.error('App.tsx: [handleLogout] Erro inesperado durante o logout:', e);
       setAppError(`Ocorreu um erro inesperado durante o logout: ${(e as Error).message}.`);
-      // REMOVIDO: navigate('/login', { replace: true }); // Deixe o useEffect lidar com isso
     }
-  }, [clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, closeAllModals, setAppError]);
+  }, [session, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, closeAllModals, setAppError]);
 
   const openLoginModal = useCallback(() => navigate('/login'), [navigate]);
   const openSignupModal = useCallback(() => navigate('/login'), [navigate]);
