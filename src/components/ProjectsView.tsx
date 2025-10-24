@@ -23,7 +23,12 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onClose, onDelete
         onClick={() => setSelectedProject(project)}
     >
       <div className="aspect-video overflow-hidden rounded-t-lg">
-        <img src={project.originalImage} alt={project.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+        {/* Alterado para mostrar a primeira imagem gerada como miniatura */}
+        <img 
+          src={project.generations.length > 0 ? project.generations[0].generatedImage : project.originalImage} 
+          alt={project.name} 
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+        />
       </div>
       <div className="p-4 flex justify-between items-center">
         <h3 className="font-bold text-gray-800 truncate">{project.name}</h3>
