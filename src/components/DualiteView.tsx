@@ -3,6 +3,7 @@ import { explainCode, generateCode } from '../services/dualiteService';
 import SparklesIcon from './icons/SparklesIcon';
 import ClipboardIcon from './icons/ClipboardIcon';
 import CodeIcon from './icons/CodeIcon';
+import VoiceInputButton from './VoiceInputButton'; // Importar o novo componente
 
 type DualiteViewMode = 'explain' | 'generate';
 
@@ -61,6 +62,14 @@ const DualiteView: React.FC = () => {
         setCopySuccess(true);
         setTimeout(() => setCopySuccess(false), 2000);
     });
+  };
+
+  const handleGenerateVoiceResult = (text: string) => {
+    setGenerationPrompt(prevPrompt => (prevPrompt ? `${prevPrompt} ${text}` : text));
+  };
+
+  const handleExplainVoiceResult = (text: string) => {
+    setCodeToExplain(prevCode => (prevCode ? `${prevCode} ${text}` : text));
   };
 
   const ResultDisplay: React.FC<{
@@ -136,14 +145,19 @@ const DualiteView: React.FC = () => {
           <div className="flex flex-col gap-4">
             <div>
               <label htmlFor="generate-prompt" className="text-lg font-semibold text-gray-700 mb-2 block">1. Descreva o que você precisa</label>
-              <textarea
-                id="generate-prompt"
-                value={generationPrompt}
-                onChange={(e) => setGenerationPrompt(e.target.value)}
-                placeholder="Ex: Crie um componente React com um botão que busca e exibe uma piada de uma API pública."
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue transition-shadow duration-200 font-mono text-sm"
-                rows={6}
-              />
+              <div className="relative">
+                <textarea
+                  id="generate-prompt"
+                  value={generationPrompt}
+                  onChange={(e) => setGenerationPrompt(e.target.value)}
+                  placeholder="Ex: Crie um componente React com um botão que busca e exibe uma piada de uma API pública."
+                  className="w-full p-3 pr-12 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue transition-shadow duration-200 font-mono text-sm"
+                  rows={6}
+                />
+                <div className="absolute top-2 right-2">
+                  <VoiceInputButton onResult={handleGenerateVoiceResult} disabled={isGenerating} />
+                </div>
+              </div>
             </div>
             <button
               onClick={handleGenerate}
@@ -169,14 +183,19 @@ const DualiteView: React.FC = () => {
           <div className="flex flex-col gap-4">
             <div>
               <label htmlFor="explain-code" className="block text-lg font-semibold text-gray-700 mb-2 block">1. Cole seu código aqui</label>
-              <textarea
-                id="explain-code"
-                value={codeToExplain}
-                onChange={(e) => setCodeToExplain(e.target.value)}
-                placeholder="function helloWorld() { console.log('Hello, World!'); }"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue transition-shadow duration-200 font-mono text-sm"
-                rows={6}
-              />
+              <div className="relative">
+                <textarea
+                  id="explain-code"
+                  value={codeToExplain}
+                  onChange={(e) => setCodeToExplain(e.target.value)}
+                  placeholder="function helloWorld() { console.log('Hello, World!'); }"
+                  className="w-full p-3 pr-12 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue transition-shadow duration-200 font-mono text-sm"
+                  rows={6}
+                />
+                <div className="absolute top-2 right-2">
+                  <VoiceInputButton onResult={handleExplainVoiceResult} disabled={isExplaining} />
+                </div>
+              </div>
             </div>
             <button
               onClick={handleExplain}

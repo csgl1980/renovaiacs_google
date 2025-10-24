@@ -71,7 +71,7 @@ export const useCreativitySpace = ({
     try {
       const resultImage = await generateImageFromText(prompt);
       setGeneratedImage(resultImage);
-      console.log('useCreativitySpace: Imagem gerada e setada. generatedImage agora é:', resultImage ? 'data:...' : 'null');
+      console.log('useCreativitySpace: Imagem gerada e setada. generatedImage agora é:', resultImage ? 'present' : 'null');
 
       // Deduct credits from Supabase ONLY if not admin
       if (!user.is_admin) {
@@ -106,7 +106,7 @@ export const useCreativitySpace = ({
 
   // Adiciona um useEffect para logar mudanças no estado generatedImage
   useEffect(() => {
-    console.log('useCreativitySpace (useEffect): generatedImage state changed to:', generatedImage ? 'data:...' : 'null');
+    console.log('useCreativitySpace (useEffect): generatedImage state changed to:', generatedImage ? 'present' : 'null');
   }, [generatedImage]);
 
   return {

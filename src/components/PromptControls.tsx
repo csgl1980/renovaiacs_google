@@ -5,6 +5,7 @@ import SparklesIcon from './icons/SparklesIcon';
 import ArrowLeftIcon from './icons/ArrowLeftIcon';
 import ArrowRightIcon from './icons/ArrowRightIcon';
 import CoinIcon from './icons/CoinIcon';
+import VoiceInputButton from './VoiceInputButton'; // Importar o novo componente
 
 interface PromptControlsProps {
   prompt: string;
@@ -64,20 +65,29 @@ const PromptControls: React.FC<PromptControlsProps> = ({
     }
   };
 
+  const handleVoiceResult = (text: string) => {
+    setPrompt(prevPrompt => (prevPrompt ? `${prevPrompt} ${text}` : text));
+  };
+
   const selectedStyleDetails = STYLE_OPTIONS.find(s => s.prompt === selectedStyle);
 
   return (
     <div className="w-full flex flex-col gap-4">
       <div>
         <h2 className="text-lg font-semibold text-gray-700 mb-2">2. Descreva a Mudança</h2>
-        <textarea
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Ex: Mude a cor da parede para azul, adicione um sofá de couro..."
-          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue transition-shadow duration-200"
-          rows={3}
-          disabled={!isImageUploaded}
-        />
+        <div className="relative">
+          <textarea
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder="Ex: Mude a cor da parede para azul, adicione um sofá de couro..."
+            className="w-full p-3 pr-12 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue transition-shadow duration-200"
+            rows={3}
+            disabled={!isImageUploaded}
+          />
+          <div className="absolute top-2 right-2">
+            <VoiceInputButton onResult={handleVoiceResult} disabled={!isImageUploaded} />
+          </div>
+        </div>
       </div>
       <div>
         <h3 className="text-md font-semibold text-gray-600 mb-2">Ou escolha um estilo:</h3>
