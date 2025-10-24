@@ -50,19 +50,27 @@ const CreativitySpaceView: React.FC<CreativitySpaceViewProps> = ({
 
   const hasEnoughCredits = user ? user.credits >= cost : false;
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (!generatedImage) {
       console.error("Generated image is null, cannot download.");
       return;
     }
-    const link = document.createElement('a');
-    link.href = generatedImage;
-    link.download = `renova-ia-ces-criatividade.png`;
-    document.body.appendChild(link);
-    setTimeout(() => {
+    try {
+      const response = await fetch(generatedImage);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `renova-ia-ces-criatividade.png`;
+      document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    }, 0);
+      URL.revokeObjectURL(url); // Clean up the object URL
+    } catch (error) {
+      console.error("Failed to download image:", error);
+      alert("Não foi possível baixar a imagem. Tente novamente.");
+    }
   };
   
   const handleShare = async () => {

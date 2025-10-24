@@ -55,19 +55,27 @@ const ResultDisplay: React.FC<ResultDisplayProps> = (props) => {
     onSaveToProject, credits, variationCost, internalViewsCost
   } = props;
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (!generatedImage) {
       console.error("Generated image is null, cannot download.");
       return;
     }
-    const link = document.createElement('a');
-    link.href = generatedImage;
-    link.download = `renova-ia-ces-${mode}.png`;
-    document.body.appendChild(link);
-    setTimeout(() => {
+    try {
+      const response = await fetch(generatedImage);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `renova-ia-ces-${mode}.png`;
+      document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    }, 0);
+      URL.revokeObjectURL(url); // Clean up the object URL
+    } catch (error) {
+      console.error("Failed to download image:", error);
+      alert("Não foi possível baixar a imagem. Tente novamente.");
+    }
   };
   
   const handleShare = async () => {
@@ -95,15 +103,23 @@ const ResultDisplay: React.FC<ResultDisplayProps> = (props) => {
     }
   };
 
-  const handleDownloadInternalView = (imageUrl: string, index: number) => {
-    const link = document.createElement('a');
-    link.href = imageUrl;
-    link.download = `renova-ia-ces-vista-interna-${index + 1}.png`;
-    document.body.appendChild(link);
-    setTimeout(() => {
+  const handleDownloadInternalView = async (imageUrl: string, index: number) => {
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `renova-ia-ces-vista-interna-${index + 1}.png`;
+      document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    }, 0);
+      URL.revokeObjectURL(url); // Clean up the object URL
+    } catch (error) {
+      console.error("Failed to download internal view image:", error);
+      alert("Não foi possível baixar a imagem da vista interna. Tente novamente.");
+    }
   };
 
   const handleShareInternalView = async (imageUrl: string, index: number) => {
