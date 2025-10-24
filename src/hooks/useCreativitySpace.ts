@@ -1,7 +1,8 @@
-import { useState, useCallback, useEffect } from 'react'; // Adicionado useEffect
+import { useState, useCallback, useEffect } from 'react';
 import { generateImageFromText } from '../services/geminiService';
 import { supabase } from '../integrations/supabase/client';
 import { useSession } from '../components/SessionContextProvider';
+import { showError } from '../utils/toast'; // Importar showError
 
 interface UseCreativitySpaceProps {
   setBuyCreditsModalOpen: (isOpen: boolean) => void;
@@ -83,10 +84,11 @@ export const useCreativitySpace = ({
 
         if (updateError) {
           console.error('useCreativitySpace: Erro ao deduzir créditos no Supabase:', updateError);
-          setGenerationError('Erro ao deduzir créditos. Tente novamente.');
+          // Usa toast para notificar sobre o erro de crédito, mas mantém a imagem gerada
+          showError('Erro ao deduzir créditos. A imagem foi gerada, mas houve um problema ao atualizar seus créditos. Por favor, entre em contato com o suporte.');
         } else {
           console.log('useCreativitySpace: Créditos deduzidos com sucesso no Supabase. Atualizando sessão do usuário...');
-          await refreshUser(); // Chamada direta, sem setTimeout
+          await refreshUser();
           console.log('useCreativitySpace: Sessão do usuário atualizada.');
         }
       } else {

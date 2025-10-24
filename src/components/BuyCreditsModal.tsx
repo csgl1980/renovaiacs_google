@@ -41,7 +41,7 @@ const BuyCreditsModal: React.FC<BuyCreditsModalProps> = ({ onClose, onSelectPlan
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl shadow-2xl p-4 sm:p-6 w-full max-w-full sm:max-w-md lg:max-w-xl relative"
+        className="bg-white rounded-xl shadow-2xl p-4 sm:p-6 w-full max-w-full sm:max-w-lg relative overflow-y-auto max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -58,7 +58,7 @@ const BuyCreditsModal: React.FC<BuyCreditsModalProps> = ({ onClose, onSelectPlan
           <p className="text-gray-500 text-sm">Escolha um pacote para continuar criando.</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {creditPlans.map((plan) => (
             <div
               key={plan.name}

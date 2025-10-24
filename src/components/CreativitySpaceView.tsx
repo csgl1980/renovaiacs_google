@@ -19,7 +19,6 @@ const CreativitySpaceView: React.FC<CreativitySpaceViewProps> = ({ setBuyCredits
     isLoading,
     generationError,
     handleGenerateImage,
-    clearResults, // Mantido para uso futuro se necessário, mas não chamado aqui
     cost,
   } = useCreativitySpace({ setBuyCreditsModalOpen, setError });
 
@@ -28,17 +27,25 @@ const CreativitySpaceView: React.FC<CreativitySpaceViewProps> = ({ setBuyCredits
   const hasEnoughCredits = user ? user.credits >= cost : false;
 
   const handleDownload = () => {
-    if (!generatedImage) return;
+    if (!generatedImage) {
+      console.error("Generated image is null, cannot download.");
+      return;
+    }
     const link = document.createElement('a');
     link.href = generatedImage;
     link.download = `renova-ia-ces-criatividade.png`;
     document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    setTimeout(() => {
+      link.click();
+      document.body.removeChild(link);
+    }, 0);
   };
   
   const handleShare = async () => {
-    if (!generatedImage) return;
+    if (!generatedImage) {
+      console.error("Generated image is null, cannot share.");
+      return;
+    }
     try {
         const response = await fetch(generatedImage);
         const blob = await response.blob();

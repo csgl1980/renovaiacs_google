@@ -56,17 +56,25 @@ const ResultDisplay: React.FC<ResultDisplayProps> = (props) => {
   } = props;
 
   const handleDownload = () => {
-    if (!generatedImage) return;
+    if (!generatedImage) {
+      console.error("Generated image is null, cannot download.");
+      return;
+    }
     const link = document.createElement('a');
     link.href = generatedImage;
     link.download = `renova-ia-ces-${mode}.png`;
     document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    setTimeout(() => {
+      link.click();
+      document.body.removeChild(link);
+    }, 0);
   };
   
   const handleShare = async () => {
-    if (!generatedImage) return;
+    if (!generatedImage) {
+      console.error("Generated image is null, cannot share.");
+      return;
+    }
     try {
         const response = await fetch(generatedImage);
         const blob = await response.blob();
@@ -92,8 +100,10 @@ const ResultDisplay: React.FC<ResultDisplayProps> = (props) => {
     link.href = imageUrl;
     link.download = `renova-ia-ces-vista-interna-${index + 1}.png`;
     document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    setTimeout(() => {
+      link.click();
+      document.body.removeChild(link);
+    }, 0);
   };
 
   const handleShareInternalView = async (imageUrl: string, index: number) => {
