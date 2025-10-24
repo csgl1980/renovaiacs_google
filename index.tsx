@@ -12,20 +12,20 @@ import './index.css'; // Importar o CSS aqui
 // Um componente simples para lidar com o redirecionamento inicial da raiz
 const RootRedirector: React.FC = () => {
   const navigate = useNavigate();
-  const { session, user, isLoading } = useSession();
+  const { session, isLoading } = useSession(); // Removido 'user'
 
   useEffect(() => {
-    console.log('RootRedirector: isLoading:', isLoading, 'session:', session, 'user:', user);
+    console.log('RootRedirector: isLoading:', isLoading, 'session:', session); // Removido user do log
     if (!isLoading) {
-      if (session && user) {
-        console.log('RootRedirector: Sessão e usuário encontrados, redirecionando para /app');
+      if (session) { // Apenas verifica a sessão, não o user
+        console.log('RootRedirector: Sessão encontrada, redirecionando para /app');
         navigate('/app', { replace: true });
       } else {
-        console.log('RootRedirector: Nenhuma sessão ou perfil de usuário, redirecionando para /login');
+        console.log('RootRedirector: Nenhuma sessão, redirecionando para /login');
         navigate('/login', { replace: true });
       }
     }
-  }, [session, user, isLoading, navigate]);
+  }, [session, isLoading, navigate]); // Removido user da lista de dependências
 
   if (isLoading) {
     return (

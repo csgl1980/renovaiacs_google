@@ -83,7 +83,7 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
     }
     setIsLoading(false);
     console.log('SessionContext: [handleAuthChange] Finalizado. isLoading:', false, 'Current user state:', user);
-  }, [fetchUserProfile, user]); // Adicionado 'user' para o log final
+  }, [fetchUserProfile]); // Removido 'user'
 
   useEffect(() => {
     let isMounted = true;
@@ -146,7 +146,7 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
       isMounted = false;
       authListener.subscription.unsubscribe();
     };
-  }, [handleAuthChange, fetchUserProfile, user]); // Adicionado 'user' para o log final
+  }, [handleAuthChange, fetchUserProfile]); // Removido 'user'
 
   const refreshUser = useCallback(async () => {
     console.log('SessionContext: [refreshUser] chamado.');
@@ -168,7 +168,7 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
     }
     setIsLoading(false);
     console.log('SessionContext: [refreshUser] Finalizado. isLoading:', false, 'Current user state:', user);
-  }, [fetchUserProfile, user]); // Adicionado 'user' para o log final
+  }, [fetchUserProfile]); // Removido 'user'
 
   return (
     <SessionContext.Provider value={{ session, user, isLoading, refreshUser }}>
