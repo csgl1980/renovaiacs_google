@@ -9,19 +9,36 @@ import VoiceInputButton from './VoiceInputButton'; // Importar o novo componente
 interface CreativitySpaceViewProps {
   setBuyCreditsModalOpen: (isOpen: boolean) => void;
   setError: (error: string | null) => void;
+  prompt: string; // Recebido como prop
+  setPrompt: (prompt: string) => void; // Recebido como prop
+  generatedImage: string | null; // Recebido como prop
+  setGeneratedImage: (image: string | null) => void; // Recebido como prop
 }
 
-const CreativitySpaceView: React.FC<CreativitySpaceViewProps> = ({ setBuyCreditsModalOpen, setError }) => {
+const CreativitySpaceView: React.FC<CreativitySpaceViewProps> = ({ 
+  setBuyCreditsModalOpen, 
+  setError,
+  prompt,
+  setPrompt,
+  generatedImage,
+  setGeneratedImage,
+}) => {
   const { user } = useSession();
   const {
-    prompt,
-    setPrompt,
-    generatedImage,
+    // prompt e setPrompt não são mais retornados do hook
+    // generatedImage não é mais retornado do hook
     isLoading,
     generationError,
     handleGenerateImage,
     cost,
-  } = useCreativitySpace({ setBuyCreditsModalOpen, setError });
+  } = useCreativitySpace({ 
+    setBuyCreditsModalOpen, 
+    setError,
+    prompt,
+    setPrompt,
+    generatedImage,
+    setGeneratedImage,
+  });
 
   console.log('CreativitySpaceView render: generatedImage from hook =', generatedImage ? 'data:...' : 'null', 'isLoading:', isLoading);
 

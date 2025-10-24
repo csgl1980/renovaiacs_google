@@ -5,14 +5,17 @@ import { useSession } from '../components/SessionContextProvider';
 import { showError } from '../utils/toast'; // Importar showError
 
 interface UseCreativitySpaceProps {
+  prompt: string; // Agora recebido como prop
+  setPrompt: (prompt: string) => void; // Agora recebido como prop
+  generatedImage: string | null; // Agora recebido como prop
+  setGeneratedImage: (image: string | null) => void; // Agora recebido como prop
   setBuyCreditsModalOpen: (isOpen: boolean) => void;
   setError: (error: string | null) => void;
 }
 
 interface UseCreativitySpaceResult {
-  prompt: string;
-  setPrompt: (prompt: string) => void;
-  generatedImage: string | null;
+  // prompt e setPrompt não são mais retornados, pois são passados como props
+  // generatedImage não é mais retornado, pois é passado como prop
   isLoading: boolean;
   generationError: string | null;
   handleGenerateImage: () => Promise<void>;
@@ -21,22 +24,26 @@ interface UseCreativitySpaceResult {
 }
 
 export const useCreativitySpace = ({
+  prompt,
+  setPrompt,
+  generatedImage,
+  setGeneratedImage,
   setBuyCreditsModalOpen,
   setError,
 }: UseCreativitySpaceProps): UseCreativitySpaceResult => {
   const { user, refreshUser } = useSession();
-  const [prompt, setPrompt] = useState('');
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  // prompt e generatedImage não são mais estados internos aqui
   const [isLoading, setIsLoading] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
 
   const cost = 5;
 
   const clearResults = useCallback(() => {
-    // Limpa apenas o erro, a imagem deve permanecer até uma nova geração ou ação do usuário
     setGenerationError(null);
     setError(null);
-  }, [setError]);
+    setGeneratedImage(null); // Limpa a imagem gerada também
+    setPrompt(''); // Limpa o prompt
+  }, [setError, setGeneratedImage, setPrompt]);
 
   const handleGenerateImage = useCallback(async () => {
     if (!user) {
@@ -102,7 +109,7 @@ export const useCreativitySpace = ({
       setIsLoading(false);
       console.log('useCreativitySpace: Geração de imagem no Espaço Criatividade finalizada. isLoading set to false.');
     }
-  }, [user, prompt, cost, setBuyCreditsModalOpen, refreshUser, setError]);
+  }, [user, prompt, cost, setBuyCreditsModalOpen, refreshUser, setError, setGeneratedImage]);
 
   // Adiciona um useEffect para logar mudanças no estado generatedImage
   useEffect(() => {
@@ -110,9 +117,8 @@ export const useCreativitySpace = ({
   }, [generatedImage]);
 
   return {
-    prompt,
-    setPrompt,
-    generatedImage,
+    // prompt e setPrompt não são mais retornados
+    // generatedImage não é mais retornado
     isLoading,
     generationError,
     handleGenerateImage,

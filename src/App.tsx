@@ -49,6 +49,10 @@ function App() {
 
   const [mode, setMode] = useState<Mode>('image');
 
+  // Estados para o Espaço Criatividade, elevados para App.tsx
+  const [creativityPrompt, setCreativityPrompt] = useState('');
+  const [creativityGeneratedImage, setCreativityGeneratedImage] = useState<string | null>(null);
+
   const {
     prompt, setPrompt, selectedStyle, setSelectedStyle,
     generatedImage, setGeneratedImage, // EXPOSTO
@@ -107,10 +111,13 @@ function App() {
   const handleModeChange = useCallback((newMode: Mode) => {
     if (mode !== newMode) {
       setMode(newMode);
-      clearUploadState();
-      clearGenerationResults();
-      clearCostEstimation();
-      clearInternalViews();
+      // Limpa os estados da aba principal ao mudar de modo, mas não os do Espaço Criatividade
+      if (newMode !== 'creativity') {
+        clearUploadState();
+        clearGenerationResults();
+        clearCostEstimation();
+        clearInternalViews();
+      }
       setAppError(null);
     }
   }, [mode, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews]);
@@ -158,6 +165,9 @@ function App() {
       clearGenerationResults();
       clearCostEstimation();
       clearInternalViews();
+      // Limpa também o estado do Espaço Criatividade no logout
+      setCreativityPrompt('');
+      setCreativityGeneratedImage(null);
       closeAllModals();
       setAppError(null);
 
@@ -165,7 +175,7 @@ function App() {
       console.error('App.tsx: [handleLogout] Erro inesperado durante o logout:', e);
       setAppError(`Ocorreu um erro inesperado durante o logout: ${(e as Error).message}.`);
     }
-  }, [session, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, closeAllModals, setAppError]);
+  }, [session, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, closeAllModals, setAppError, setCreativityPrompt, setCreativityGeneratedImage]);
 
   const openLoginModal = useCallback(() => navigate('/login'), [navigate]);
   const openSignupModal = useCallback(() => navigate('/login'), [navigate]);
@@ -254,7 +264,14 @@ function App() {
               />
             )}
             {mode === 'creativity' && (
-              <CreativitySpaceView setBuyCreditsModalOpen={setBuyCreditsModalOpen} setError={setAppError} />
+              <CreativitySpaceView 
+                setBuyCreditsModalOpen={setBuyCreditsModalOpen} 
+                setError={setAppError} 
+                prompt={creativityPrompt}
+                setPrompt={setCreativityPrompt}
+                generatedImage={creativityGeneratedImage}
+                setGeneratedImage={setCreativityGeneratedImage}
+              />
             )}
 
             {(mode === 'image' || mode === 'floorplan') && (
