@@ -11,7 +11,7 @@ const creditPlans = [
   {
     name: 'Pacote Básico',
     credits: 20,
-    price: 'R$ 19,90',
+    price: 'R$ 39,90', // Preço atualizado
     description: 'Ideal para experimentar.',
     hotmartUrl: 'https://pay.hotmart.com/K101885102O',
     popular: false,
@@ -19,7 +19,7 @@ const creditPlans = [
   {
     name: 'Pacote Padrão',
     credits: 50,
-    price: 'R$ 39,90',
+    price: 'R$ 59,90', // Preço atualizado
     description: 'O mais popular para projetos.',
     hotmartUrl: 'https://pay.hotmart.com/F101885804K',
     popular: true,
@@ -27,7 +27,7 @@ const creditPlans = [
   {
     name: 'Pacote Profissional',
     credits: 150,
-    price: 'R$ 99,90',
+    price: 'R$ 159,90', // Preço atualizado
     description: 'Melhor custo-benefício.',
     hotmartUrl: 'https://pay.hotmart.com/D101885891B',
     popular: false,
