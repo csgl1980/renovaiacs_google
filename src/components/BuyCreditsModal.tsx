@@ -10,7 +10,7 @@ interface BuyCreditsModalProps {
 const creditPlans = [
   {
     name: 'Pacote Básico',
-    credits: 50, // Atualizado de 20 para 50 créditos
+    credits: 50, // Atualizado para 50 créditos
     price: 'R$ 39,90', 
     description: 'Ideal para experimentar.',
     hotmartUrl: 'https://pay.hotmart.com/K101885102O',
@@ -18,7 +18,7 @@ const creditPlans = [
   },
   {
     name: 'Pacote Padrão',
-    credits: 100, // Atualizado de 50 para 100 créditos
+    credits: 100, // Atualizado para 100 créditos
     price: 'R$ 59,90', 
     description: 'O mais popular para projetos.',
     hotmartUrl: 'https://pay.hotmart.com/F101885804K',
@@ -26,7 +26,7 @@ const creditPlans = [
   },
   {
     name: 'Pacote Profissional',
-    credits: 300, // Atualizado de 150 para 300 créditos
+    credits: 300, // Atualizado para 300 créditos
     price: 'R$ 159,90', 
     description: 'Melhor custo-benefício.',
     hotmartUrl: 'https://pay.hotmart.com/D101885891B',
