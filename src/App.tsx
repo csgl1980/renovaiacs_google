@@ -13,10 +13,9 @@ import BuyCreditsModal from './components/BuyCreditsModal';
 import HotmartRedirectModal from './components/HotmartRedirectModal';
 import PdfUploader from './components/PdfUploader';
 import CreativitySpaceView from './components/CreativitySpaceView';
-import ObjectManipulationView from './pages/ObjectManipulationView'; // Nova importação
-import ExteriorDesignView from './pages/ExteriorDesignView'; // Nova importação
+import ObjectManipulationView from './pages/ObjectManipulationView';
+import ExteriorDesignView from './pages/ExteriorDesignView';
 
-// Importar os novos hooks
 import { useImageUpload } from './hooks/useImageUpload';
 import { useGeneration } from './hooks/useGeneration';
 import { useCostEstimation } from './hooks/useCostEstimation';
@@ -25,7 +24,7 @@ import { useProjectManagement } from './hooks/useProjectManagement';
 import { useModals } from './hooks/useModals';
 
 function App() {
-  type Mode = 'image' | 'floorplan' | 'dualite' | 'creativity' | 'objectManipulation' | 'exteriorDesign'; // Novos modos
+  type Mode = 'image' | 'floorplan' | 'dualite' | 'creativity' | 'objectManipulation' | 'exteriorDesign';
   const navigate = useNavigate();
   const { session, user, isLoading: isSessionLoading, refreshUser } = useSession();
 
@@ -51,30 +50,21 @@ function App() {
 
   const [mode, setMode] = useState<Mode>('image');
 
-  // Estados para o Espaço Criatividade, elevados para App.tsx
   const [creativityPrompt, setCreativityPrompt] = useState('');
   const [creativityGeneratedImage, setCreativityGeneratedImage] = useState<string | null>(null);
 
-  // Condicionalmente inicializa useGeneration
-  const isGenerationMode = ['image', 'floorplan', 'exteriorDesign'].includes(mode);
-  const generationHooks = isGenerationMode ? useGeneration({
-    originalImageFile,
-    mode: mode, // Passa o modo atual diretamente
-    setBuyCreditsModalOpen,
-    setError: setAppError,
-  }) : {
-    prompt: '', setPrompt: () => {}, selectedStyle: '', setSelectedStyle: () => {},
-    generatedImage: null, setGeneratedImage: () => {},
-    isLoading: false, isVariationLoading: false, generationError: null,
-    handleGenerate: async () => {}, clearGenerationResults: () => {}, generationCost: 0,
-  };
-
+  // useGeneration é chamado incondicionalmente, mas sua lógica interna é protegida por 'mode'
   const {
     prompt, setPrompt, selectedStyle, setSelectedStyle,
     generatedImage, setGeneratedImage,
     isLoading, isVariationLoading, generationError,
     handleGenerate, clearGenerationResults, generationCost,
-  } = generationHooks;
+  } = useGeneration({
+    originalImageFile,
+    mode: mode,
+    setBuyCreditsModalOpen,
+    setError: setAppError,
+  });
 
   const {
     isEstimatingCost, costEstimate, costError,
@@ -102,12 +92,12 @@ function App() {
     handleDeleteProject,
     handleDeleteGeneration,
   } = useProjectManagement({
-    originalImagePreview: mode === 'creativity' ? creativityGeneratedImage : originalImagePreview, // Ajusta para criatividade
+    originalImagePreview: mode === 'creativity' ? creativityGeneratedImage : originalImagePreview,
     pdfPreview,
-    generatedImage: mode === 'creativity' ? creativityGeneratedImage : generatedImage, // Ajusta para criatividade
-    prompt: mode === 'creativity' ? creativityPrompt : prompt, // Ajusta para criatividade
+    generatedImage: mode === 'creativity' ? creativityGeneratedImage : generatedImage,
+    prompt: mode === 'creativity' ? creativityPrompt : prompt,
     selectedStyle,
-    mode: mode === 'creativity' ? 'image' : mode, // Passa 'image' para criatividade
+    mode: mode === 'creativity' ? 'image' : mode,
     setError: setAppError,
   });
 
@@ -122,7 +112,6 @@ function App() {
   const handleModeChange = useCallback((newMode: Mode) => {
     if (mode !== newMode) {
       setMode(newMode);
-      // Limpa os estados da aba principal ao mudar de modo, mas não os do Espaço Criatividade
       if (newMode !== 'creativity') {
         clearUploadState();
         clearGenerationResults();
@@ -138,14 +127,11 @@ function App() {
     setAppError(null);
 
     try {
-      // Log the session from the hook state
       console.log('App.tsx: [handleLogout] Session from useSession hook:', session);
 
-      // Attempt to refresh the session first to ensure a valid token
       const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
       if (refreshError) {
         console.warn('App.tsx: [handleLogout] Erro ao tentar refrescar a sessão antes do logout:', refreshError.message);
-        // If refresh fails, the session might already be invalid, proceed with signOut anyway
       } else if (refreshedSession) {
         console.log('App.tsx: [handleLogout] Sessão refrescada com sucesso antes do logout.');
       } else {
@@ -157,11 +143,8 @@ function App() {
       if (error) {
         console.error('App.tsx: [handleLogout] Erro ao fazer logout:', error);
         if (error.message.includes('Auth session missing!')) {
-          // If session is missing, it means the client state is broken.
-          // We can try to manually clear it from local storage as a fallback.
           console.warn('App.tsx: [handleLogout] Auth session missing error. Attempting to clear local storage manually.');
-          await supabase.auth.setSession({ access_token: '', refresh_token: '' }); // This effectively clears the session
-          // The onAuthStateChange listener should pick this up and update context
+          await supabase.auth.setSession({ access_token: '', refresh_token: '' });
         } else {
           setAppError(`Erro ao fazer logout: ${error.message}.`);
         }
@@ -169,14 +152,10 @@ function App() {
         console.log('App.tsx: [handleLogout] Logout realizado com sucesso.');
       }
 
-      // These clear operations will be handled by the onAuthStateChange listener
-      // when it detects a SIGNED_OUT event and sets session/user to null.
-      // However, keeping them here as a fallback for immediate UI feedback.
       clearUploadState();
       clearGenerationResults();
       clearCostEstimation();
       clearInternalViews();
-      // Limpa também o estado do Espaço Criatividade no logout
       setCreativityPrompt('');
       setCreativityGeneratedImage(null);
       closeAllModals();
@@ -194,11 +173,11 @@ function App() {
   const handleLoadGeneration = useCallback((genImage: string, genPrompt: string) => {
     setGeneratedImage(genImage);
     setPrompt(genPrompt);
-    setSelectedStyle(''); // Limpa o estilo selecionado, pois o prompt já pode contê-lo
+    setSelectedStyle('');
     clearCostEstimation();
     clearInternalViews();
     setAppError(null);
-    setProjectsViewOpen(false); // Fecha o modal de projetos
+    setProjectsViewOpen(false);
   }, [setGeneratedImage, setPrompt, setSelectedStyle, clearCostEstimation, clearInternalViews, setAppError, setProjectsViewOpen]);
 
   const isImageUploaded = originalImagePreview !== null || pdfPreview !== null;
@@ -212,9 +191,11 @@ function App() {
     );
   }
 
-  if (!session || !user) {
-    return null;
-  }
+  // REMOVIDO: Este bloco causava a tela em branco ao retornar null.
+  // O useEffect acima já lida com o redirecionamento para /login.
+  // if (!session || !user) {
+  //   return null;
+  // }
 
   return (
     <div className="bg-gray-50 min-h-screen font-sans">
@@ -225,8 +206,8 @@ function App() {
         onLogout={handleLogout}
         onOpenProjects={() => setProjectsViewOpen(true)}
         onBuyCredits={() => setBuyCreditsModalOpen(true)}
-        onModeChange={handleModeChange} // Passando a função de mudança de modo
-        currentMode={mode} // Passando o modo atual
+        onModeChange={handleModeChange}
+        currentMode={mode}
       />
       <main className="max-w-7xl mx-auto p-4 md:p-6 mt-4">
         {appError && (
@@ -238,7 +219,6 @@ function App() {
             </button>
           </div>
         )}
-        {/* Renderiza o conteúdo principal com base no modo */}
         {mode === 'image' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
             <div className="bg-white p-6 rounded-xl shadow-lg flex flex-col gap-6">
@@ -372,7 +352,7 @@ function App() {
           onClose={() => setProjectsViewOpen(false)}
           onDeleteProject={handleDeleteProject}
           onDeleteGeneration={handleDeleteGeneration}
-          onLoadGeneration={handleLoadGeneration} // Passando a nova função
+          onLoadGeneration={handleLoadGeneration}
         />
       )}
       {isSaveModalOpen && user && generatedImage && (
@@ -387,10 +367,10 @@ function App() {
       )}
       {isBuyCreditsModalOpen && user && (
         <BuyCreditsModal
-          onClose={() => setBuyCreditsModalOpen(false)}
+          onClose={() => setBuyCreditsModal(false)}
           onSelectPlan={(url: string) => {
             setRedirectUrl(url);
-            setBuyCreditsModalOpen(false);
+            setBuyCreditsModal(false);
             setHotmartRedirectModalOpen(true);
           }}
         />
