@@ -50,14 +50,13 @@ export const useGeneration = ({
     case 'floorplan':
       baseGenerationCost = 3;
       break;
-    case 'creativity': // Creativity usa seu próprio hook, mas para consistência, se fosse chamado aqui
+    case 'creativity':
     case 'objectManipulation':
     case 'dualite':
-      // Estes modos não devem usar este hook para geração principal.
-      // Se este hook for chamado para eles, é um erro de lógica na aplicação.
-      throw new Error(`useGeneration: Modo de geração '${mode}' não suportado por este hook.`);
+      baseGenerationCost = 0; // Estes modos não usam este hook para geração principal
+      break;
     default:
-      baseGenerationCost = 0; // Fallback, embora os casos acima devam cobrir
+      baseGenerationCost = 0;
   }
   
   const variationCost = 2;
@@ -69,6 +68,15 @@ export const useGeneration = ({
   }, [setError]);
 
   const handleGenerate = useCallback(async (isVariation = false) => {
+    // --- NOVA VERIFICAÇÃO EXPLÍCITA DE MODO ---
+    if (!['image', 'floorplan', 'exteriorDesign'].includes(mode)) {
+      setGenerationError(`A geração de imagem não é suportada no modo '${mode}' por este componente.`);
+      setIsLoading(false);
+      setIsVariationLoading(false);
+      return; // Sai imediatamente para modos não suportados
+    }
+    // --- FIM DA NOVA VERIFICAÇÃO ---
+
     if (!originalImageFile || !user) {
       setError('Dados insuficientes para gerar a imagem ou usuário não autenticado.');
       console.error('useGeneration: Dados insuficientes para gerar a imagem ou usuário não autenticado.');
@@ -111,8 +119,7 @@ export const useGeneration = ({
       } else if (mode === 'floorplan') {
         resultImage = await generateConceptFromPlan(originalImageFile, fullPrompt);
       } else {
-        // Este caso já deveria ter sido tratado pelo switch no início do hook
-        // Mas como fallback, lança um erro.
+        // Este 'else' não deve ser alcançado devido à verificação inicial, mas é um fallback seguro.
         throw new Error(`Modo de geração '${mode}' não suportado por este hook.`);
       }
       setGeneratedImage(resultImage);
