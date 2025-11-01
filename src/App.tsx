@@ -13,6 +13,8 @@ import BuyCreditsModal from './components/BuyCreditsModal';
 import HotmartRedirectModal from './components/HotmartRedirectModal';
 import PdfUploader from './components/PdfUploader';
 import CreativitySpaceView from './components/CreativitySpaceView';
+import ObjectManipulationView from './pages/ObjectManipulationView'; // Nova importação
+import ExteriorDesignView from './pages/ExteriorDesignView'; // Nova importação
 
 // Importar os novos hooks
 import { useImageUpload } from './hooks/useImageUpload';
@@ -23,7 +25,7 @@ import { useProjectManagement } from './hooks/useProjectManagement';
 import { useModals } from './hooks/useModals';
 
 function App() {
-  type Mode = 'image' | 'floorplan' | 'dualite' | 'creativity';
+  type Mode = 'image' | 'floorplan' | 'dualite' | 'creativity' | 'objectManipulation' | 'exteriorDesign'; // Novos modos
   const navigate = useNavigate();
   const { session, user, isLoading: isSessionLoading, refreshUser } = useSession();
 
@@ -214,6 +216,8 @@ function App() {
         onLogout={handleLogout}
         onOpenProjects={() => setProjectsViewOpen(true)}
         onBuyCredits={() => setBuyCreditsModalOpen(true)}
+        onModeChange={handleModeChange} // Passando a função de mudança de modo
+        currentMode={mode} // Passando o modo atual
       />
       <main className="max-w-7xl mx-auto p-4 md:p-6 mt-4">
         {appError && (
@@ -225,56 +229,16 @@ function App() {
             </button>
           </div>
         )}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-          <div className="bg-white p-6 rounded-xl shadow-lg flex flex-col gap-6">
-            <div className="flex bg-gray-100 rounded-lg p-1">
-              <button
-                onClick={() => handleModeChange('image')}
-                className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'image' ? 'bg-white text-cs-blue shadow' : 'text-gray-600 hover:bg-gray-200'}`}
-              >
-                Renovar Ambiente
-              </button>
-              <button
-                onClick={() => handleModeChange('floorplan')}
-                className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'floorplan' ? 'bg-white text-cs-blue shadow' : 'text-gray-600 hover:bg-gray-200'}`}
-              >
-                Renderizar Planta Baixa
-              </button>
-              <button
-                onClick={() => handleModeChange('creativity')}
-                className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${mode === 'creativity' ? 'bg-white text-cs-blue shadow' : 'text-gray-600 hover:bg-gray-200'}`}
-              >
-                Espaço Criatividade
-              </button>
-            </div>
-
-            {mode === 'image' && (
+        {/* Renderiza o conteúdo principal com base no modo */}
+        {mode === 'image' && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            <div className="bg-white p-6 rounded-xl shadow-lg flex flex-col gap-6">
               <ImageUploader
                 originalImagePreview={originalImagePreview}
                 onImageChange={handleImageChange}
                 onClearImage={handleClearImage}
                 fileInputKey={fileInputKey}
               />
-            )}
-            {mode === 'floorplan' && (
-              <PdfUploader
-                onPdfChange={handlePdfChange}
-                pdfPreview={pdfPreview}
-                isProcessingPdf={isProcessingPdf}
-              />
-            )}
-            {mode === 'creativity' && (
-              <CreativitySpaceView 
-                setBuyCreditsModalOpen={setBuyCreditsModalOpen} 
-                setError={setAppError} 
-                prompt={creativityPrompt}
-                setPrompt={setCreativityPrompt}
-                generatedImage={creativityGeneratedImage}
-                setGeneratedImage={setCreativityGeneratedImage}
-              />
-            )}
-
-            {(mode === 'image' || mode === 'floorplan') && (
               <PromptControls
                 prompt={prompt}
                 setPrompt={setPrompt}
@@ -286,10 +250,7 @@ function App() {
                 cost={generationCost}
                 credits={user.credits}
               />
-            )}
-          </div>
-
-          {(mode === 'image' || mode === 'floorplan') && (
+            </div>
             <div className="bg-white p-6 rounded-xl shadow-lg">
               <ResultDisplay
                 mode={mode}
@@ -313,8 +274,87 @@ function App() {
                 internalViewsCost={internalViewsCost}
               />
             </div>
-          )}
-        </div>
+          </div>
+        )}
+
+        {mode === 'floorplan' && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            <div className="bg-white p-6 rounded-xl shadow-lg flex flex-col gap-6">
+              <PdfUploader
+                onPdfChange={handlePdfChange}
+                pdfPreview={pdfPreview}
+                isProcessingPdf={isProcessingPdf}
+              />
+              <PromptControls
+                prompt={prompt}
+                setPrompt={setPrompt}
+                selectedStyle={selectedStyle}
+                setSelectedStyle={setSelectedStyle}
+                handleGenerate={() => handleGenerate(false)}
+                isLoading={isLoading}
+                isImageUploaded={isImageUploaded}
+                cost={generationCost}
+                credits={user.credits}
+              />
+            </div>
+            <div className="bg-white p-6 rounded-xl shadow-lg">
+              <ResultDisplay
+                mode={mode}
+                originalPreview={originalImagePreview || pdfPreview}
+                generatedImage={generatedImage}
+                isLoading={isLoading}
+                isVariationLoading={isVariationLoading}
+                error={generationError || appError}
+                onGenerateVariation={() => handleGenerate(true)}
+                onEstimateCost={handleEstimateCost}
+                isEstimatingCost={isEstimatingCost}
+                costEstimate={costEstimate}
+                costError={costError}
+                onGenerateInternalViews={handleGenerateInternalViews}
+                isInternalViewsLoading={isInternalViewsLoading}
+                internalViews={internalViews}
+                internalViewsError={internalViewsError}
+                onSaveToProject={() => setSaveModalOpen(true)}
+                credits={user.credits}
+                variationCost={2}
+                internalViewsCost={internalViewsCost}
+              />
+            </div>
+          </div>
+        )}
+
+        {mode === 'creativity' && (
+          <CreativitySpaceView 
+            setBuyCreditsModalOpen={setBuyCreditsModalOpen} 
+            setError={setAppError} 
+            prompt={creativityPrompt}
+            setPrompt={setCreativityPrompt}
+            generatedImage={creativityGeneratedImage}
+            setGeneratedImage={setCreativityGeneratedImage}
+          />
+        )}
+
+        {mode === 'objectManipulation' && (
+          <ObjectManipulationView
+            user={user}
+            setBuyCreditsModalOpen={setBuyCreditsModalOpen}
+            setError={setAppError}
+            onSaveToProject={() => setSaveModalOpen(true)}
+            projects={projects}
+            saveProject={saveProject}
+          />
+        )}
+
+        {mode === 'exteriorDesign' && (
+          <ExteriorDesignView
+            user={user}
+            setBuyCreditsModalOpen={setBuyCreditsModalOpen}
+            setError={setAppError}
+            onSaveToProject={() => setSaveModalOpen(true)}
+            projects={projects}
+            saveProject={saveProject}
+          />
+        )}
       </main>
 
       {isProjectsViewOpen && user && (

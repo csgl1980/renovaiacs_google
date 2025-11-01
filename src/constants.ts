@@ -77,3 +77,56 @@ export const STYLE_OPTIONS: StyleOption[] = [
     prompt: 'Aplique um estilo orgânico moderno, que suaviza as linhas limpas do modernismo com formas naturais e texturas orgânicas. Use uma paleta de cores neutra e quente. Incorpore mobiliário com silhuetas curvas e suaves, feitas de materiais naturais como madeira clara, vime, lã e pedra. O foco é criar um espaço sereno, minimalista mas acolhedor, com uma sensação de simplicidade e conexão com a natureza.'
   }
 ];
+
+export const EXTERIOR_STYLE_OPTIONS: StyleOption[] = [
+  {
+    id: 'tropical',
+    name: 'Tropical',
+    prompt: 'Transforme a área externa em um exuberante jardim tropical. Utilize plantas de folhagem grande e vibrante, como palmeiras, bananeiras ornamentais e helicônias. Incorpore elementos de água, como pequenas fontes ou espelhos d\'água. Use materiais naturais como madeira rústica, bambu e pedras. Crie caminhos sinuosos e áreas de estar sombreadas para uma sensação de paraíso.'
+  },
+  {
+    id: 'zen',
+    name: 'Zen (Japonês)',
+    prompt: 'Crie um paisagismo zen japonês, focado na tranquilidade e meditação. Utilize pedras, areia ou cascalho rastelado para simular água, e plantas cuidadosamente podadas como bonsais, bambus e azaleias. Incorpore lanternas de pedra e pontes de madeira. A paleta de cores deve ser neutra e natural, com foco em texturas e formas orgânicas. Mantenha o design minimalista e harmonioso.'
+  },
+  {
+    id: 'contemporary',
+    name: 'Contemporâneo',
+    prompt: 'Desenvolva um design exterior contemporâneo com linhas limpas e formas geométricas. Utilize uma paleta de cores neutras com toques de cor em plantas ou mobiliário. Incorpore materiais modernos como concreto aparente, metal, vidro e decks de madeira. A iluminação deve ser estratégica para realçar a arquitetura e o paisagismo. Crie áreas de estar e jantar ao ar livre com mobiliário de design.'
+  },
+  {
+    id: 'mediterranean',
+    name: 'Mediterrâneo',
+    prompt: 'Crie um paisagismo mediterrâneo, inspirado nas costas da Grécia e Itália. Utilize plantas resistentes à seca, como oliveiras, lavandas, alecrim e buganvílias. Incorpore elementos de pedra natural, terracota e azulejos. Crie pátios sombreados com pérgolas e trepadeiras. A paleta de cores deve ser quente, com tons de terra, azul e branco.'
+  },
+  {
+    id: 'rustic',
+    name: 'Rústico/Campestre',
+    prompt: 'Transforme a área externa em um paisagismo rústico e campestre. Utilize plantas nativas e de baixa manutenção, como gramíneas ornamentais, flores silvestres e arbustos floridos. Incorpore elementos de madeira de demolição, pedras brutas e cercas de madeira. Crie caminhos de cascalho e áreas de estar com mobiliário de ferro forjado ou vime. O objetivo é uma sensação natural e acolhedora.'
+  },
+  {
+    id: 'vertical-garden',
+    name: 'Jardim Vertical',
+    prompt: 'Projete um jardim vertical exuberante em uma das paredes externas, maximizando o espaço verde. Utilize uma variedade de plantas de diferentes texturas e tons de verde, como samambaias, heras e suculentas. Incorpore um sistema de irrigação discreto. O restante do paisagismo deve complementar o jardim vertical, com poucas plantas no chão para não competir com o destaque da parede verde.'
+  },
+  {
+    id: 'xeriscape',
+    name: 'Desértico/Xeriscape',
+    prompt: 'Crie um paisagismo desértico ou xeriscape, focado na economia de água e beleza natural. Utilize plantas suculentas, cactos, agaves e gramíneas resistentes à seca. Incorpore pedras, cascalho e areia para criar texturas e padrões. A paleta de cores deve ser terrosa, com tons de verde, cinza e marrom. O design deve ser de baixa manutenção e sustentável.'
+  },
+  {
+    id: 'formal',
+    name: 'Formal',
+    prompt: 'Desenvolva um paisagismo formal com simetria, linhas retas e plantas bem definidas. Utilize sebes aparadas, canteiros geométricos e árvores em vasos. Incorpore elementos clássicos como estátuas, fontes e bancos de pedra. A paleta de cores deve ser sóbria, com predominância de verdes e flores em tons específicos. O design deve transmitir elegância e ordem.'
+  },
+  {
+    id: 'eclectic',
+    name: 'Eclético',
+    prompt: 'Crie um paisagismo eclético, misturando diferentes estilos e elementos de forma harmoniosa. Combine plantas de diversas origens, mobiliário de diferentes épocas e objetos decorativos variados. O objetivo é criar um espaço único e personalizado, que reflita a personalidade do usuário. A liberdade criativa é a chave, mas com um senso de equilíbrio visual.'
+  },
+  {
+    id: 'minimalist-exterior',
+    name: 'Minimalista Exterior',
+    prompt: 'Aplique um design minimalista ao exterior, focando em poucos elementos, mas de alto impacto. Utilize uma paleta de cores neutras e materiais como concreto, metal e madeira clara. As plantas devem ser poucas, mas estrategicamente posicionadas, com formas esculturais. O espaço deve ser limpo, organizado e funcional, com ênfase na arquitetura e na simplicidade.'
+  }
+];

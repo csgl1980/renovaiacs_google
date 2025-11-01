@@ -17,6 +17,7 @@ interface PromptControlsProps {
   isImageUploaded: boolean;
   cost: number;
   credits: number;
+  styleOptions?: StyleOption[]; // Adicionado para permitir estilos diferentes
 }
 
 const PromptControls: React.FC<PromptControlsProps> = ({
@@ -28,7 +29,8 @@ const PromptControls: React.FC<PromptControlsProps> = ({
   isLoading,
   isImageUploaded,
   cost,
-  credits
+  credits,
+  styleOptions = STYLE_OPTIONS // Usa STYLE_OPTIONS padrão se não for fornecido
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -69,7 +71,7 @@ const PromptControls: React.FC<PromptControlsProps> = ({
     setPrompt(prevPrompt => (prevPrompt ? `${prevPrompt} ${text}` : text));
   };
 
-  const selectedStyleDetails = STYLE_OPTIONS.find(s => s.prompt === selectedStyle);
+  const selectedStyleDetails = styleOptions.find(s => s.prompt === selectedStyle);
 
   return (
     <div className="w-full flex flex-col gap-4">
@@ -102,7 +104,7 @@ const PromptControls: React.FC<PromptControlsProps> = ({
               <ArrowLeftIcon className="w-5 h-5 text-gray-600"/>
             </button>
             <div ref={scrollContainerRef} className="flex overflow-x-auto pb-2 -mx-1 px-1 gap-2 custom-scrollbar flex-grow">
-              {STYLE_OPTIONS.map((style: StyleOption) => (
+              {styleOptions.map((style: StyleOption) => (
                 <button
                   key={style.id}
                   onClick={() => setSelectedStyle(selectedStyle === style.prompt ? '' : style.prompt)}

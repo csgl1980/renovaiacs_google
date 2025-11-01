@@ -16,10 +16,21 @@ interface HeaderProps {
   onLogout: () => void;
   onOpenProjects: () => void;
   onBuyCredits: () => void;
+  onModeChange: (mode: 'image' | 'floorplan' | 'dualite' | 'creativity' | 'objectManipulation' | 'exteriorDesign') => void; // Novo
+  currentMode: 'image' | 'floorplan' | 'dualite' | 'creativity' | 'objectManipulation' | 'exteriorDesign'; // Novo
 }
 
-const Header: React.FC<HeaderProps> = ({ user, onLogin, onSignup, onLogout, onOpenProjects, onBuyCredits }) => {
+const Header: React.FC<HeaderProps> = ({ user, onLogin, onSignup, onLogout, onOpenProjects, onBuyCredits, onModeChange, currentMode }) => {
   const displayName = user ? (user.first_name || user.email) : '';
+
+  const ModeButton: React.FC<{ mode: 'image' | 'floorplan' | 'creativity' | 'objectManipulation' | 'exteriorDesign'; label: string }> = ({ mode, label }) => (
+    <button
+      onClick={() => onModeChange(mode)}
+      className={`w-1/3 p-2 rounded-md font-semibold text-sm transition-colors ${currentMode === mode ? 'bg-white text-cs-blue shadow' : 'text-gray-600 hover:bg-gray-200'}`}
+    >
+      {label}
+    </button>
+  );
 
   return (
     <header className="bg-white shadow-sm p-4"> {/* Reduzido padding para mobile */}
@@ -117,6 +128,14 @@ const Header: React.FC<HeaderProps> = ({ user, onLogin, onSignup, onLogout, onOp
       <p className="mt-2 text-md md:text-lg text-gray-600 text-center">
         Visualize a transformação do seu espaço com Inteligência Artificial.
       </p>
+      {/* Novos botões de modo */}
+      <div className="max-w-7xl mx-auto p-2 mt-4 bg-gray-100 rounded-lg flex justify-center flex-wrap gap-2">
+        <ModeButton mode="image" label="Renovar Ambiente" />
+        <ModeButton mode="floorplan" label="Renderizar Planta" />
+        <ModeButton mode="exteriorDesign" label="Design Exterior" /> {/* Novo botão */}
+        <ModeButton mode="objectManipulation" label="Substituir/Limpar" /> {/* Novo botão */}
+        <ModeButton mode="creativity" label="Espaço Criatividade" />
+      </div>
     </header>
   );
 };
