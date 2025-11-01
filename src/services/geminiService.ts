@@ -179,21 +179,44 @@ export const estimateCost = async (prompt: string): Promise<CostEstimate> => {
     }
 };
 
-// Placeholder para a função de limpeza de objetos
 export const cleanObject = async (imageFile: File, maskFile: File): Promise<string> => {
-  console.log("geminiService: [cleanObject] Chamada para limpar objeto. (Placeholder)");
-  // Implementação real da IA virá aqui
-  // Por enquanto, retorna a imagem original como um placeholder
+  console.log("geminiService: [cleanObject] Chamada para limpar objeto.");
   const imagePart = await fileToGenerativePart(imageFile);
-  return `data:${imagePart.inlineData.mimeType};base64,${imagePart.inlineData.data}`;
+  const maskPart = await fileToGenerativePart(maskFile);
+
+  const prompt = "Remova o objeto mascarado da imagem. Gere apenas a imagem resultante, sem nenhum texto, comentário ou explicação.";
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash-image',
+    contents: { parts: [imagePart, maskPart, { text: prompt }] },
+    config: { responseModalities: [Modality.IMAGE, Modality.TEXT] },
+  });
+
+  for (const part of response.candidates[0].content.parts) {
+    if (part.inlineData) {
+      return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+    }
+  }
+  throw new Error(response.text || "A IA não retornou uma imagem após a limpeza.");
 };
 
-// Placeholder para a função de substituição de objetos
 export const replaceObject = async (imageFile: File, maskFile: File, prompt: string): Promise<string> => {
-  console.log("geminiService: [replaceObject] Chamada para substituir objeto. (Placeholder)");
-  console.log("geminiService: [replaceObject] Prompt:", prompt);
-  // Implementação real da IA virá aqui
-  // Por enquanto, retorna a imagem original como um placeholder
+  console.log("geminiService: [replaceObject] Chamada para substituir objeto. Prompt:", prompt);
   const imagePart = await fileToGenerativePart(imageFile);
-  return `data:${imagePart.inlineData.mimeType};base64,${imagePart.inlineData.data}`;
+  const maskPart = await fileToGenerativePart(maskFile);
+
+  const fullPrompt = `Substitua o objeto mascarado na imagem pela seguinte descrição: "${prompt}". Gere apenas a imagem resultante, sem nenhum texto, comentário ou explicação.`;
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash-image',
+    contents: { parts: [imagePart, maskPart, { text: fullPrompt }] },
+    config: { responseModalities: [Modality.IMAGE, Modality.TEXT] },
+  });
+
+  for (const part of response.candidates[0].content.parts) {
+    if (part.inlineData) {
+      return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+    }
+  }
+  throw new Error(response.text || "A IA não retornou uma imagem após a substituição.");
 };

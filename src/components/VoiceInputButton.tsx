@@ -14,6 +14,7 @@ const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({ onResult, disabled 
   const startListening = () => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       showError('Seu navegador não suporta reconhecimento de voz.');
+      console.error('VoiceInputButton: Navegador não suporta SpeechRecognition.');
       return;
     }
 
@@ -35,8 +36,16 @@ const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({ onResult, disabled 
     };
 
     recognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => {
-      console.error('VoiceInputButton: Erro no reconhecimento de voz:', event.error);
-      showError(`Erro no reconhecimento de voz: ${event.error}`);
+      console.error('VoiceInputButton: Erro no reconhecimento de voz:', event.error, event.message);
+      let errorMessage = `Erro no reconhecimento de voz: ${event.error}`;
+      if (event.error === 'not-allowed') {
+        errorMessage = 'Permissão de microfone negada. Por favor, permita o acesso ao microfone nas configurações do seu navegador.';
+      } else if (event.error === 'network') {
+        errorMessage = 'Erro de rede no reconhecimento de voz. Verifique sua conexão ou tente novamente.';
+      } else if (event.error === 'no-speech') {
+        errorMessage = 'Nenhuma fala detectada. Tente novamente.';
+      }
+      showError(errorMessage);
       setIsListening(false);
     };
 

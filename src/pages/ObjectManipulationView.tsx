@@ -7,7 +7,7 @@ import DownloadIcon from '../components/icons/DownloadIcon';
 import ShareIcon from '../components/icons/ShareIcon';
 import CameraIcon from '../components/icons/CameraIcon';
 import SaveIcon from '../components/icons/SaveIcon';
-import SparklesIcon from '../components/icons/SparklesIcon'; // Importação adicionada
+import SparklesIcon from '../components/icons/SparklesIcon';
 import { useImageUpload } from '../hooks/useImageUpload';
 import { useObjectManipulation } from '../hooks/useObjectManipulation';
 import { showError } from '../utils/toast';
@@ -21,6 +21,24 @@ interface ObjectManipulationViewProps {
   onSaveToProject: () => void;
   projects: Project[];
   saveProject: (projectId: string | null, newProjectName: string) => Promise<void>;
+  // Props passadas do App.tsx para gerenciar o estado global
+  originalImageFile: File | null;
+  originalImagePreview: string | null;
+  onImageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onClearImage: () => void;
+  fileInputKey: number;
+  maskDataUrl: string | null;
+  setMaskDataUrl: (mask: string | null) => void;
+  prompt: string;
+  setPrompt: (prompt: string) => void;
+  generatedImage: string | null;
+  isLoading: boolean;
+  generationError: string | null;
+  handleCleanObject: () => Promise<void>;
+  handleReplaceObject: () => Promise<void>;
+  clearResults: () => void;
+  cleanCost: number;
+  replaceCost: number;
 }
 
 const ObjectManipulationView: React.FC<ObjectManipulationViewProps> = ({
@@ -30,34 +48,19 @@ const ObjectManipulationView: React.FC<ObjectManipulationViewProps> = ({
   onSaveToProject,
   projects,
   saveProject,
+  // Props do App.tsx
+  originalImageFile, originalImagePreview, onImageChange, onClearImage, fileInputKey,
+  maskDataUrl, setMaskDataUrl,
+  prompt, setPrompt,
+  generatedImage, isLoading, generationError,
+  handleCleanObject, handleReplaceObject, clearResults,
+  cleanCost, replaceCost,
 }) => {
   const [selectedFunction, setSelectedFunction] = useState<ObjectManipulationFunction>('none');
-  const [maskDataUrl, setMaskDataUrl] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const photoCanvasRef = useRef<HTMLCanvasElement>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
-
-  const {
-    originalImageFile, originalImagePreview,
-    fileInputKey,
-    handleImageChange, handleClearImage,
-    clearUploadState, setUploadError,
-  } = useImageUpload(setError);
-
-  const {
-    prompt, setPrompt,
-    generatedImage,
-    isLoading, generationError,
-    handleCleanObject, handleReplaceObject,
-    clearResults,
-    cleanCost, replaceCost,
-  } = useObjectManipulation({
-    originalImageFile,
-    maskDataUrl,
-    setBuyCreditsModalOpen,
-    setError,
-  });
 
   const isImageUploaded = originalImagePreview !== null;
   const hasMask = maskDataUrl !== null;
@@ -66,10 +69,10 @@ const ObjectManipulationView: React.FC<ObjectManipulationViewProps> = ({
 
   const handleFunctionSelect = (func: ObjectManipulationFunction) => {
     setSelectedFunction(func);
-    clearUploadState();
-    clearResults();
+    onClearImage(); // Limpa a imagem e a máscara ao mudar de função
     setMaskDataUrl(null);
     setPrompt('');
+    clearResults(); // Limpa resultados de geração
     setError(null);
     stopCamera();
   };
@@ -83,7 +86,7 @@ const ObjectManipulationView: React.FC<ObjectManipulationViewProps> = ({
       const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }); // Prefer back camera
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
-        videoRef.current.play();
+        videoRef.current.play(); // Garante que o vídeo comece a tocar
       }
       setStream(mediaStream);
       setIsCameraActive(true);
@@ -115,7 +118,7 @@ const ObjectManipulationView: React.FC<ObjectManipulationViewProps> = ({
         canvas.toBlob((blob) => {
           if (blob) {
             const file = new File([blob], "camera_photo.png", { type: "image/png" });
-            handleImageChange({ target: { files: [file] } } as React.ChangeEvent<HTMLInputElement>);
+            onImageChange({ target: { files: [file] } } as React.ChangeEvent<HTMLInputElement>);
             stopCamera();
           } else {
             showError("Falha ao capturar a foto.");
@@ -206,8 +209,8 @@ const ObjectManipulationView: React.FC<ObjectManipulationViewProps> = ({
               <div className="flex-grow">
                 <ImageUploader
                   originalImagePreview={originalImagePreview}
-                  onImageChange={handleImageChange}
-                  onClearImage={handleClearImage}
+                  onImageChange={onImageChange}
+                  onClearImage={onClearImage}
                   fileInputKey={fileInputKey}
                 />
               </div>
