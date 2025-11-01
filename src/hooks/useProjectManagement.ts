@@ -10,7 +10,7 @@ interface UseProjectManagementProps {
   generatedImage: string | null;
   prompt: string;
   selectedStyle: string;
-  mode: 'image' | 'floorplan' | 'dualite';
+  mode: 'image' | 'floorplan' | 'dualite' | 'creativity' | 'objectManipulation' | 'exteriorDesign';
   setError: (error: string | null) => void;
 }
 
@@ -70,7 +70,11 @@ export const useProjectManagement = ({
   }, [user, setError]);
 
   const handleSaveToProject = useCallback(async (projectId: string | null, newProjectName: string) => {
-    const originalPreviewForProject = mode === 'image' ? originalImagePreview : pdfPreview;
+    // Ajuste aqui para incluir 'exteriorDesign'
+    const originalPreviewForProject = 
+      (mode === 'image' || mode === 'exteriorDesign') 
+        ? originalImagePreview 
+        : pdfPreview;
     
     if (!originalPreviewForProject || !generatedImage || !user) {
       setError('Dados insuficientes para salvar o projeto.');

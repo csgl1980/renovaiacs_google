@@ -178,3 +178,22 @@ export const estimateCost = async (prompt: string): Promise<CostEstimate> => {
         throw new Error("Não foi possível processar a estimativa de custo retornada pela IA.");
     }
 };
+
+// Placeholder para a função de limpeza de objetos
+export const cleanObject = async (imageFile: File, maskFile: File): Promise<string> => {
+  console.log("geminiService: [cleanObject] Chamada para limpar objeto. (Placeholder)");
+  // Implementação real da IA virá aqui
+  // Por enquanto, retorna a imagem original como um placeholder
+  const imagePart = await fileToGenerativePart(imageFile);
+  return `data:${imagePart.inlineData.mimeType};base64,${imagePart.inlineData.data}`;
+};
+
+// Placeholder para a função de substituição de objetos
+export const replaceObject = async (imageFile: File, maskFile: File, prompt: string): Promise<string> => {
+  console.log("geminiService: [replaceObject] Chamada para substituir objeto. (Placeholder)");
+  console.log("geminiService: [replaceObject] Prompt:", prompt);
+  // Implementação real da IA virá aqui
+  // Por enquanto, retorna a imagem original como um placeholder
+  const imagePart = await fileToGenerativePart(imageFile);
+  return `data:${imagePart.inlineData.mimeType};base64,${imagePart.inlineData.data}`;
+};

@@ -22,6 +22,7 @@ import { useCostEstimation } from './hooks/useCostEstimation';
 import { useInternalViews } from './hooks/useInternalViews';
 import { useProjectManagement } from './hooks/useProjectManagement';
 import { useModals } from './hooks/useModals';
+import { useObjectManipulation } from './hooks/useObjectManipulation'; // Importar o novo hook
 
 function App() {
   type Mode = 'image' | 'floorplan' | 'dualite' | 'creativity' | 'objectManipulation' | 'exteriorDesign';
@@ -53,6 +54,9 @@ function App() {
   const [creativityPrompt, setCreativityPrompt] = useState('');
   const [creativityGeneratedImage, setCreativityGeneratedImage] = useState<string | null>(null);
 
+  // Estados e funções para ObjectManipulationView
+  const [objectManipulationMaskDataUrl, setObjectManipulationMaskDataUrl] = useState<string | null>(null);
+
   // useGeneration é chamado incondicionalmente, mas sua lógica interna é protegida por 'mode'
   const {
     prompt, setPrompt, selectedStyle, setSelectedStyle,
@@ -60,7 +64,7 @@ function App() {
     isLoading, isVariationLoading, generationError,
     handleGenerate, clearGenerationResults, generationCost,
   } = useGeneration({
-    originalImageFile,
+    originalImageFile: originalImageFile, // Passa o originalImageFile do useImageUpload
     mode: mode,
     setBuyCreditsModalOpen,
     setError: setAppError,
@@ -70,7 +74,7 @@ function App() {
     isEstimatingCost, costEstimate, costError,
     handleEstimateCost, clearCostEstimation, estimationCost,
   } = useCostEstimation({
-    generatedImage,
+    generatedImage: mode === 'objectManipulation' ? null : generatedImage, // Não usa generatedImage do useGeneration para objectManipulation
     prompt,
     selectedStyle,
     setBuyCreditsModalOpen,
@@ -80,10 +84,28 @@ function App() {
     isInternalViewsLoading, internalViews, internalViewsError,
     handleGenerateInternalViews, clearInternalViews, internalViewsCost,
   } = useInternalViews({
-    generatedImage,
+    generatedImage: mode === 'objectManipulation' ? null : generatedImage, // Não usa generatedImage do useGeneration para objectManipulation
     prompt,
     selectedStyle,
     setBuyCreditsModalOpen,
+  });
+
+  const {
+    prompt: objectManipulationPrompt,
+    setPrompt: setObjectManipulationPrompt,
+    generatedImage: objectManipulationGeneratedImage,
+    isLoading: isObjectManipulationLoading,
+    generationError: objectManipulationGenerationError,
+    handleCleanObject,
+    handleReplaceObject,
+    clearResults: clearObjectManipulationResults,
+    cleanCost,
+    replaceCost,
+  } = useObjectManipulation({
+    originalImageFile: originalImageFile, // Usa o originalImageFile do useImageUpload
+    maskDataUrl: objectManipulationMaskDataUrl,
+    setBuyCreditsModalOpen,
+    setError: setAppError,
   });
 
   const {
@@ -92,12 +114,21 @@ function App() {
     handleDeleteProject,
     handleDeleteGeneration,
   } = useProjectManagement({
-    originalImagePreview: mode === 'creativity' ? creativityGeneratedImage : originalImagePreview,
+    originalImagePreview: 
+      mode === 'creativity' ? creativityGeneratedImage : 
+      mode === 'objectManipulation' ? originalImagePreview : // Usa originalImagePreview para objectManipulation
+      originalImagePreview,
     pdfPreview,
-    generatedImage: mode === 'creativity' ? creativityGeneratedImage : generatedImage,
-    prompt: mode === 'creativity' ? creativityPrompt : prompt,
+    generatedImage: 
+      mode === 'creativity' ? creativityGeneratedImage : 
+      mode === 'objectManipulation' ? objectManipulationGeneratedImage : // Usa generatedImage do useObjectManipulation
+      generatedImage,
+    prompt: 
+      mode === 'creativity' ? creativityPrompt : 
+      mode === 'objectManipulation' ? objectManipulationPrompt : // Usa prompt do useObjectManipulation
+      prompt,
     selectedStyle,
-    mode: mode === 'creativity' ? 'image' : mode,
+    mode: mode === 'creativity' ? 'image' : mode, // Passa o modo real para useProjectManagement
     setError: setAppError,
   });
 
@@ -112,15 +143,19 @@ function App() {
   const handleModeChange = useCallback((newMode: Mode) => {
     if (mode !== newMode) {
       setMode(newMode);
-      if (newMode !== 'creativity') {
-        clearUploadState();
-        clearGenerationResults();
-        clearCostEstimation();
-        clearInternalViews();
-      }
+      // Limpa estados de todos os modos ao mudar, exceto se for para o próprio modo
+      clearUploadState();
+      clearGenerationResults();
+      clearCostEstimation();
+      clearInternalViews();
+      clearObjectManipulationResults(); // Limpa resultados de object manipulation
+      setCreativityPrompt('');
+      setCreativityGeneratedImage(null);
+      setObjectManipulationMaskDataUrl(null); // Limpa a máscara
+      setObjectManipulationPrompt(''); // Limpa o prompt de object manipulation
       setAppError(null);
     }
-  }, [mode, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews]);
+  }, [mode, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, clearObjectManipulationResults, setCreativityPrompt, setCreativityGeneratedImage, setObjectManipulationMaskDataUrl, setObjectManipulationPrompt]);
 
   const handleLogout = useCallback(async () => {
     console.log('App.tsx: [handleLogout] Iniciando logout...');
@@ -156,8 +191,11 @@ function App() {
       clearGenerationResults();
       clearCostEstimation();
       clearInternalViews();
+      clearObjectManipulationResults(); // Limpa resultados de object manipulation
       setCreativityPrompt('');
       setCreativityGeneratedImage(null);
+      setObjectManipulationMaskDataUrl(null); // Limpa a máscara
+      setObjectManipulationPrompt(''); // Limpa o prompt de object manipulation
       closeAllModals();
       setAppError(null);
 
@@ -165,7 +203,7 @@ function App() {
       console.error('App.tsx: [handleLogout] Erro inesperado durante o logout:', e);
       setAppError(`Ocorreu um erro inesperado durante o logout: ${(e as Error).message}.`);
     }
-  }, [session, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, closeAllModals, setAppError, setCreativityPrompt, setCreativityGeneratedImage]);
+  }, [session, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, clearObjectManipulationResults, closeAllModals, setAppError, setCreativityPrompt, setCreativityGeneratedImage, setObjectManipulationMaskDataUrl, setObjectManipulationPrompt]);
 
   const openLoginModal = useCallback(() => navigate('/login'), [navigate]);
   const openSignupModal = useCallback(() => navigate('/login'), [navigate]);
@@ -190,12 +228,6 @@ function App() {
       </div>
     );
   }
-
-  // REMOVIDO: Este bloco causava a tela em branco ao retornar null.
-  // O useEffect acima já lida com o redirecionamento para /login.
-  // if (!session || !user) {
-  //   return null;
-  // }
 
   return (
     <div className="bg-gray-50 min-h-screen font-sans">
@@ -331,6 +363,23 @@ function App() {
             onSaveToProject={() => setSaveModalOpen(true)}
             projects={projects}
             saveProject={saveProject}
+            originalImageFile={originalImageFile} // Passa o originalImageFile
+            originalImagePreview={originalImagePreview} // Passa o originalImagePreview
+            onImageChange={handleImageChange} // Passa o handler de imagem
+            onClearImage={handleClearImage} // Passa o handler de limpar imagem
+            fileInputKey={fileInputKey} // Passa a key do input de arquivo
+            maskDataUrl={objectManipulationMaskDataUrl} // Passa a URL da máscara
+            setMaskDataUrl={setObjectManipulationMaskDataUrl} // Passa o setter da máscara
+            prompt={objectManipulationPrompt} // Passa o prompt do hook
+            setPrompt={setObjectManipulationPrompt} // Passa o setter do prompt do hook
+            generatedImage={objectManipulationGeneratedImage} // Passa a imagem gerada do hook
+            isLoading={isObjectManipulationLoading} // Passa o estado de loading do hook
+            generationError={objectManipulationGenerationError} // Passa o erro do hook
+            handleCleanObject={handleCleanObject} // Passa a função de limpeza
+            handleReplaceObject={handleReplaceObject} // Passa a função de substituição
+            clearResults={clearObjectManipulationResults} // Passa a função de limpar resultados
+            cleanCost={cleanCost} // Passa o custo de limpeza
+            replaceCost={replaceCost} // Passa o custo de substituição
           />
         )}
 
@@ -355,7 +404,7 @@ function App() {
           onLoadGeneration={handleLoadGeneration}
         />
       )}
-      {isSaveModalOpen && user && generatedImage && (
+      {isSaveModalOpen && user && (generatedImage || creativityGeneratedImage || objectManipulationGeneratedImage) && (
         <SaveToProjectModal
           projects={projects}
           onClose={() => setSaveModalOpen(false)}
