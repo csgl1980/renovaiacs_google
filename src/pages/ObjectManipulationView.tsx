@@ -7,7 +7,6 @@ import DownloadIcon from '../components/icons/DownloadIcon';
 import ShareIcon from '../components/icons/ShareIcon';
 import CameraIcon from '../components/icons/CameraIcon';
 import SaveIcon from '../components/icons/SaveIcon';
-import SparklesIcon from '../components/icons/SparklesIcon'; // Importação adicionada
 import { useImageUpload } from '../hooks/useImageUpload';
 import { useObjectManipulation } from '../hooks/useObjectManipulation';
 import { showError } from '../utils/toast';
