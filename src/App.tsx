@@ -62,7 +62,7 @@ function App() {
     handleGenerate, clearGenerationResults, generationCost,
   } = useGeneration({
     originalImageFile,
-    mode: mode === 'creativity' ? 'image' : mode, // Passa 'image' para criatividade, pois não usa imagem original
+    mode: mode, // Passa o modo atual diretamente
     setBuyCreditsModalOpen,
     setError: setAppError,
   });

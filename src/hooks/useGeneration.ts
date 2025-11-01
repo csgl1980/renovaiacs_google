@@ -6,7 +6,7 @@ import type { User } from '../types';
 
 interface UseGenerationProps {
   originalImageFile: File | null;
-  mode: 'image' | 'floorplan' | 'dualite';
+  mode: 'image' | 'floorplan' | 'dualite' | 'creativity' | 'objectManipulation' | 'exteriorDesign'; // Tipo de modo expandido
   setBuyCreditsModalOpen: (isOpen: boolean) => void;
   setError: (error: string | null) => void;
 }
@@ -40,7 +40,7 @@ export const useGeneration = ({
   const [isVariationLoading, setIsVariationLoading] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
 
-  const baseGenerationCost = mode === 'image' ? 2 : 3;
+  const baseGenerationCost = mode === 'image' || mode === 'exteriorDesign' ? 2 : (mode === 'floorplan' ? 3 : 0); // Custo para exteriorDesign é 2
   const variationCost = 2;
 
   const clearGenerationResults = useCallback(() => {
@@ -87,10 +87,14 @@ export const useGeneration = ({
 
     try {
       let resultImage: string;
-      if (mode === 'image') {
+      if (mode === 'image' || mode === 'exteriorDesign') { // Agora suporta exteriorDesign
         resultImage = await redesignImage(originalImageFile, fullPrompt);
-      } else { // floorplan
+      } else if (mode === 'floorplan') {
         resultImage = await generateConceptFromPlan(originalImageFile, fullPrompt);
+      } else {
+        // Para modos como 'objectManipulation' ou 'dualite', use seus próprios hooks de geração
+        // Este hook não deve ser chamado para esses modos.
+        throw new Error(`Modo de geração '${mode}' não suportado por este hook.`);
       }
       setGeneratedImage(resultImage);
       console.log('useGeneration: Imagem gerada com sucesso.');
