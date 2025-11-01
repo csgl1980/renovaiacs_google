@@ -40,7 +40,26 @@ export const useGeneration = ({
   const [isVariationLoading, setIsVariationLoading] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
 
-  const baseGenerationCost = mode === 'image' || mode === 'exteriorDesign' ? 2 : (mode === 'floorplan' ? 3 : 0); // Custo para exteriorDesign é 2
+  // Define o custo base de geração com base no modo
+  let baseGenerationCost: number;
+  switch (mode) {
+    case 'image':
+    case 'exteriorDesign':
+      baseGenerationCost = 2;
+      break;
+    case 'floorplan':
+      baseGenerationCost = 3;
+      break;
+    case 'creativity': // Creativity usa seu próprio hook, mas para consistência, se fosse chamado aqui
+    case 'objectManipulation':
+    case 'dualite':
+      // Estes modos não devem usar este hook para geração principal.
+      // Se este hook for chamado para eles, é um erro de lógica na aplicação.
+      throw new Error(`useGeneration: Modo de geração '${mode}' não suportado por este hook.`);
+    default:
+      baseGenerationCost = 0; // Fallback, embora os casos acima devam cobrir
+  }
+  
   const variationCost = 2;
 
   const clearGenerationResults = useCallback(() => {
@@ -87,13 +106,13 @@ export const useGeneration = ({
 
     try {
       let resultImage: string;
-      if (mode === 'image' || mode === 'exteriorDesign') { // Agora suporta exteriorDesign
+      if (mode === 'image' || mode === 'exteriorDesign') {
         resultImage = await redesignImage(originalImageFile, fullPrompt);
       } else if (mode === 'floorplan') {
         resultImage = await generateConceptFromPlan(originalImageFile, fullPrompt);
       } else {
-        // Para modos como 'objectManipulation' ou 'dualite', use seus próprios hooks de geração
-        // Este hook não deve ser chamado para esses modos.
+        // Este caso já deveria ter sido tratado pelo switch no início do hook
+        // Mas como fallback, lança um erro.
         throw new Error(`Modo de geração '${mode}' não suportado por este hook.`);
       }
       setGeneratedImage(resultImage);

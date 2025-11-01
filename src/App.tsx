@@ -55,17 +55,26 @@ function App() {
   const [creativityPrompt, setCreativityPrompt] = useState('');
   const [creativityGeneratedImage, setCreativityGeneratedImage] = useState<string | null>(null);
 
-  const {
-    prompt, setPrompt, selectedStyle, setSelectedStyle,
-    generatedImage, setGeneratedImage, // EXPOSTO
-    isLoading, isVariationLoading, generationError,
-    handleGenerate, clearGenerationResults, generationCost,
-  } = useGeneration({
+  // Condicionalmente inicializa useGeneration
+  const isGenerationMode = ['image', 'floorplan', 'exteriorDesign'].includes(mode);
+  const generationHooks = isGenerationMode ? useGeneration({
     originalImageFile,
     mode: mode, // Passa o modo atual diretamente
     setBuyCreditsModalOpen,
     setError: setAppError,
-  });
+  }) : {
+    prompt: '', setPrompt: () => {}, selectedStyle: '', setSelectedStyle: () => {},
+    generatedImage: null, setGeneratedImage: () => {},
+    isLoading: false, isVariationLoading: false, generationError: null,
+    handleGenerate: async () => {}, clearGenerationResults: () => {}, generationCost: 0,
+  };
+
+  const {
+    prompt, setPrompt, selectedStyle, setSelectedStyle,
+    generatedImage, setGeneratedImage,
+    isLoading, isVariationLoading, generationError,
+    handleGenerate, clearGenerationResults, generationCost,
+  } = generationHooks;
 
   const {
     isEstimatingCost, costEstimate, costError,
@@ -93,10 +102,10 @@ function App() {
     handleDeleteProject,
     handleDeleteGeneration,
   } = useProjectManagement({
-    originalImagePreview,
+    originalImagePreview: mode === 'creativity' ? creativityGeneratedImage : originalImagePreview, // Ajusta para criatividade
     pdfPreview,
-    generatedImage,
-    prompt,
+    generatedImage: mode === 'creativity' ? creativityGeneratedImage : generatedImage, // Ajusta para criatividade
+    prompt: mode === 'creativity' ? creativityPrompt : prompt, // Ajusta para criatividade
     selectedStyle,
     mode: mode === 'creativity' ? 'image' : mode, // Passa 'image' para criatividade
     setError: setAppError,
