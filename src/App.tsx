@@ -388,10 +388,10 @@ function App() {
       )}
       {isBuyCreditsModalOpen && user && (
         <BuyCreditsModal
-          onClose={() => setBuyCreditsModal(false)}
+          onClose={() => setBuyCreditsModalOpen(false)} {/* CORRIGIDO AQUI */}
           onSelectPlan={(url: string) => {
             setRedirectUrl(url);
-            setBuyCreditsModal(false);
+            setBuyCreditsModalOpen(false); {/* CORRIGIDO AQUI */}
             setHotmartRedirectModalOpen(true);
           }}
         />
