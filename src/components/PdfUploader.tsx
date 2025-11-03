@@ -35,9 +35,9 @@ const PdfUploader: React.FC<PdfUploaderProps> = ({ onPdfChange, pdfPreview, isPr
   const handleAreaClick = () => {
     if (!isProcessingPdf && !isCameraActive) {
       if (isMobile) {
-        fileInputRef.current?.click(); // No mobile, o input nativo já oferece opções de câmera
+        setShowOptions(true); // No mobile, mostra o menu de opções customizado
       } else {
-        setShowOptions(true); // No desktop, mostra o menu de opções customizado
+        fileInputRef.current?.click(); // No desktop, abre diretamente o seletor de arquivos
       }
     }
   };
@@ -51,12 +51,11 @@ const PdfUploader: React.FC<PdfUploaderProps> = ({ onPdfChange, pdfPreview, isPr
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }); // Prefer back camera
       if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-        videoRef.current.play();
+        video.current.srcObject = mediaStream;
+        video.current.play();
       }
       setStream(mediaStream);
       setIsCameraActive(true);
-      // handleClear(); // REMOVIDO: Não limpar o PDF/imagem original ao iniciar a câmera
       setShowOptions(false); // Fecha as opções após iniciar a câmera
     } catch (err) {
       console.error("Erro ao acessar a câmera:", err);
@@ -153,7 +152,6 @@ const PdfUploader: React.FC<PdfUploaderProps> = ({ onPdfChange, pdfPreview, isPr
             <FileTextIcon className="w-10 h-10 mb-2 mx-auto" />
             <p className="font-semibold">Clique para enviar um PDF</p>
             <p className="text-sm">A primeira página será usada como base</p>
-            {/* O botão "Tirar Foto" foi removido daqui, pois a lógica agora está no menu de opções ou no input nativo */}
           </div>
         )}
         <input
@@ -165,7 +163,7 @@ const PdfUploader: React.FC<PdfUploaderProps> = ({ onPdfChange, pdfPreview, isPr
           disabled={isProcessingPdf || isCameraActive}
         />
 
-        {showOptions && (
+        {isMobile && showOptions && (
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-10" onClick={() => setShowOptions(false)}>
             <div className="bg-white p-6 rounded-lg shadow-xl flex flex-col gap-4 w-64" onClick={(e) => e.stopPropagation()}>
               <button
