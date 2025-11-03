@@ -35,7 +35,8 @@ export const redesignImage = async (imageFile: File, prompt: string): Promise<st
             return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
         }
     }
-    throw new Error(response.text || "A IA não retornou uma imagem.");
+    console.error("geminiService: AI did not return an image for redesignImage. Full response:", JSON.stringify(response, null, 2));
+    throw new Error(response.text || "A IA não retornou uma imagem para a transformação. Tente novamente com um prompt diferente ou verifique a imagem original.");
 };
 
 export const generateConceptFromPlan = async (imageFile: File, prompt: string): Promise<string> => {
@@ -54,7 +55,8 @@ export const generateConceptFromPlan = async (imageFile: File, prompt: string): 
             return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
         }
     }
-    throw new Error(response.text || "A IA não retornou uma imagem de conceito.");
+    console.error("geminiService: AI did not return an image for generateConceptFromPlan. Full response:", JSON.stringify(response, null, 2));
+    throw new Error(response.text || "A IA não retornou uma imagem de conceito. Tente novamente com um prompt diferente ou verifique a planta baixa.");
 };
 
 export const generateImageFromText = async (prompt: string): Promise<string> => {
@@ -71,7 +73,8 @@ export const generateImageFromText = async (prompt: string): Promise<string> => 
             return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
         }
     }
-    throw new Error(response.text || "A IA não retornou uma imagem.");
+    console.error("geminiService: AI did not return an image for generateImageFromText. Full response:", JSON.stringify(response, null, 2));
+    throw new Error(response.text || "A IA não retornou uma imagem. Tente novamente com um prompt diferente.");
 };
 
 
@@ -110,6 +113,7 @@ export const generateInternalViews = async (imageFile: File, designPrompt: strin
 
             if (!imageFound) {
                  console.warn(`geminiService: A IA não retornou uma imagem para a vista: ${view}. Resposta: ${response.text}`);
+                 console.error(`geminiService: Full AI response for failed internal view generation (${view}):`, JSON.stringify(response, null, 2));
             }
 
         } catch (error) {
