@@ -84,10 +84,10 @@ const PromptControls: React.FC<PromptControlsProps> = ({
             placeholder="Ex: Mude a cor da parede para azul, adicione um sofá de couro..."
             className="w-full p-3 pr-12 border border-gray-300 rounded-lg focus:ring-cs-blue focus:border-cs-blue transition-shadow duration-200"
             rows={3}
-            disabled={!isImageUploaded}
+            disabled={isLoading} {/* Desabilita apenas durante o carregamento */}
           />
           <div className="absolute top-2 right-2">
-            <VoiceInputButton onResult={handleVoiceResult} disabled={!isImageUploaded} />
+            <VoiceInputButton onResult={handleVoiceResult} disabled={isLoading} />
           </div>
         </div>
       </div>

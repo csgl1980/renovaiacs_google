@@ -16,6 +16,9 @@ const PdfUploader: React.FC<PdfUploaderProps> = ({ onPdfChange, pdfPreview, isPr
   const photoCanvasRef = useRef<HTMLCanvasElement>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
+  const [showOptions, setShowOptions] = useState(false); // Novo estado para controlar o menu de opções
+
+  const isMobile = window.matchMedia('(pointer: coarse)').matches; // Detecta dispositivos de toque (geralmente mobile)
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -31,8 +34,17 @@ const PdfUploader: React.FC<PdfUploaderProps> = ({ onPdfChange, pdfPreview, isPr
 
   const handleAreaClick = () => {
     if (!isProcessingPdf && !isCameraActive) {
-      fileInputRef.current?.click();
+      if (isMobile) {
+        fileInputRef.current?.click(); // No mobile, o input nativo já oferece opções de câmera
+      } else {
+        setShowOptions(true); // No desktop, mostra o menu de opções customizado
+      }
     }
+  };
+
+  const handleUploadFromFile = () => {
+    fileInputRef.current?.click();
+    setShowOptions(false);
   };
 
   const startCamera = async () => {
@@ -45,10 +57,12 @@ const PdfUploader: React.FC<PdfUploaderProps> = ({ onPdfChange, pdfPreview, isPr
       setStream(mediaStream);
       setIsCameraActive(true);
       handleClear(); // Clear any existing PDF when camera starts
+      setShowOptions(false); // Fecha as opções após iniciar a câmera
     } catch (err) {
       console.error("Erro ao acessar a câmera:", err);
       showError("Não foi possível acessar a câmera. Verifique as permissões.");
       setIsCameraActive(false);
+      setShowOptions(false); // Fecha as opções em caso de erro
     }
   };
 
@@ -139,14 +153,7 @@ const PdfUploader: React.FC<PdfUploaderProps> = ({ onPdfChange, pdfPreview, isPr
             <FileTextIcon className="w-10 h-10 mb-2 mx-auto" />
             <p className="font-semibold">Clique para enviar um PDF</p>
             <p className="text-sm">A primeira página será usada como base</p>
-            <button
-              onClick={(e) => { e.stopPropagation(); startCamera(); }}
-              className="mt-4 flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
-              aria-label="Tirar foto com a câmera"
-            >
-              <CameraIcon className="w-5 h-5" />
-              Tirar Foto
-            </button>
+            {/* O botão "Tirar Foto" foi removido daqui, pois a lógica agora está no menu de opções ou no input nativo */}
           </div>
         )}
         <input
@@ -157,6 +164,31 @@ const PdfUploader: React.FC<PdfUploaderProps> = ({ onPdfChange, pdfPreview, isPr
           className="hidden"
           disabled={isProcessingPdf || isCameraActive}
         />
+
+        {showOptions && (
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-10" onClick={() => setShowOptions(false)}>
+            <div className="bg-white p-6 rounded-lg shadow-xl flex flex-col gap-4 w-64" onClick={(e) => e.stopPropagation()}>
+              <button
+                onClick={handleUploadFromFile}
+                className="bg-cs-blue text-white font-bold py-2 rounded-lg hover:bg-cs-blue/90 transition-colors"
+              >
+                Enviar do Arquivo
+              </button>
+              <button
+                onClick={startCamera}
+                className="bg-gray-200 text-gray-800 font-bold py-2 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                Tirar Foto
+              </button>
+              <button
+                onClick={() => setShowOptions(false)}
+                className="text-gray-600 hover:text-gray-800 mt-2"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

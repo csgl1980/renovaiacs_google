@@ -196,12 +196,13 @@ function App() {
       // setObjectManipulationPrompt(''); // Removido
       closeAllModals();
       setAppError(null);
+      navigate('/login', { replace: true }); // Redireciona para a tela de login após o logout
 
     } catch (e) {
       console.error('App.tsx: [handleLogout] Erro inesperado durante o logout:', e);
       setAppError(`Ocorreu um erro inesperado durante o logout: ${(e as Error).message}.`);
     }
-  }, [session, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, closeAllModals, setAppError, setCreativityPrompt, setCreativityGeneratedImage]); // Dependências atualizadas
+  }, [session, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, closeAllModals, setAppError, setCreativityPrompt, setCreativityGeneratedImage, navigate]); // Dependências atualizadas
 
   const openLoginModal = useCallback(() => navigate('/login'), [navigate]);
   const openSignupModal = useCallback(() => navigate('/login'), [navigate]);
