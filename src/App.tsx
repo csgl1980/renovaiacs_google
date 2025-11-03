@@ -13,7 +13,7 @@ import BuyCreditsModal from './components/BuyCreditsModal';
 import HotmartRedirectModal from './components/HotmartRedirectModal';
 import PdfUploader from './components/PdfUploader';
 import CreativitySpaceView from './components/CreativitySpaceView';
-import ObjectManipulationView from './pages/ObjectManipulationView';
+// import ObjectManipulationView from './pages/ObjectManipulationView'; // Removido
 import ExteriorDesignView from './pages/ExteriorDesignView';
 
 import { useImageUpload } from './hooks/useImageUpload';
@@ -22,10 +22,10 @@ import { useCostEstimation } from './hooks/useCostEstimation';
 import { useInternalViews } from './hooks/useInternalViews';
 import { useProjectManagement } from './hooks/useProjectManagement';
 import { useModals } from './hooks/useModals';
-import { useObjectManipulation } from './hooks/useObjectManipulation'; // Importar o novo hook
+// import { useObjectManipulation } from './hooks/useObjectManipulation'; // Removido
 
 function App() {
-  type Mode = 'image' | 'floorplan' | 'dualite' | 'creativity' | 'objectManipulation' | 'exteriorDesign';
+  type Mode = 'image' | 'floorplan' | 'dualite' | 'creativity' | 'exteriorDesign'; // Tipo de modo atualizado
   const navigate = useNavigate();
   const { session, user, isLoading: isSessionLoading, refreshUser } = useSession();
 
@@ -54,8 +54,8 @@ function App() {
   const [creativityPrompt, setCreativityPrompt] = useState('');
   const [creativityGeneratedImage, setCreativityGeneratedImage] = useState<string | null>(null);
 
-  // Estados e funções para ObjectManipulationView
-  const [objectManipulationMaskDataUrl, setObjectManipulationMaskDataUrl] = useState<string | null>(null);
+  // Estados e funções para ObjectManipulationView - REMOVIDOS
+  // const [objectManipulationMaskDataUrl, setObjectManipulationMaskDataUrl] = useState<string | null>(null);
 
   // useGeneration é chamado incondicionalmente, mas sua lógica interna é protegida por 'mode'
   const {
@@ -74,7 +74,7 @@ function App() {
     isEstimatingCost, costEstimate, costError,
     handleEstimateCost, clearCostEstimation, estimationCost,
   } = useCostEstimation({
-    generatedImage: mode === 'objectManipulation' ? null : generatedImage, // Não usa generatedImage do useGeneration para objectManipulation
+    generatedImage: generatedImage, // Não há mais objectManipulationGeneratedImage
     prompt,
     selectedStyle,
     setBuyCreditsModalOpen,
@@ -84,29 +84,30 @@ function App() {
     isInternalViewsLoading, internalViews, internalViewsError,
     handleGenerateInternalViews, clearInternalViews, internalViewsCost,
   } = useInternalViews({
-    generatedImage: mode === 'objectManipulation' ? null : generatedImage, // Não usa generatedImage do useGeneration para objectManipulation
+    generatedImage: generatedImage, // Não há mais objectManipulationGeneratedImage
     prompt,
     selectedStyle,
     setBuyCreditsModalOpen,
   });
 
-  const {
-    prompt: objectManipulationPrompt,
-    setPrompt: setObjectManipulationPrompt,
-    generatedImage: objectManipulationGeneratedImage,
-    isLoading: isObjectManipulationLoading,
-    generationError: objectManipulationGenerationError,
-    handleCleanObject,
-    handleReplaceObject,
-    clearResults: clearObjectManipulationResults,
-    cleanCost,
-    replaceCost,
-  } = useObjectManipulation({
-    originalImageFile: originalImageFile, // Usa o originalImageFile do useImageUpload
-    maskDataUrl: objectManipulationMaskDataUrl,
-    setBuyCreditsModalOpen,
-    setError: setAppError,
-  });
+  // useObjectManipulation hook e estados relacionados - REMOVIDOS
+  // const {
+  //   prompt: objectManipulationPrompt,
+  //   setPrompt: setObjectManipulationPrompt,
+  //   generatedImage: objectManipulationGeneratedImage,
+  //   isLoading: isObjectManipulationLoading,
+  //   generationError: objectManipulationGenerationError,
+  //   handleCleanObject,
+  //   handleReplaceObject,
+  //   clearResults: clearObjectManipulationResults,
+  //   cleanCost,
+  //   replaceCost,
+  // } = useObjectManipulation({
+  //   originalImageFile: originalImageFile,
+  //   maskDataUrl: objectManipulationMaskDataUrl,
+  //   setBuyCreditsModalOpen,
+  //   setError: setAppError,
+  // });
 
   const {
     projects,
@@ -116,17 +117,14 @@ function App() {
   } = useProjectManagement({
     originalImagePreview: 
       mode === 'creativity' ? creativityGeneratedImage : 
-      mode === 'objectManipulation' ? originalImagePreview : // Usa originalImagePreview para objectManipulation
-      originalImagePreview,
+      originalImagePreview, // Simplificado
     pdfPreview,
     generatedImage: 
       mode === 'creativity' ? creativityGeneratedImage : 
-      mode === 'objectManipulation' ? objectManipulationGeneratedImage : // Usa generatedImage do useObjectManipulation
-      generatedImage,
+      generatedImage, // Simplificado
     prompt: 
       mode === 'creativity' ? creativityPrompt : 
-      mode === 'objectManipulation' ? objectManipulationPrompt : // Usa prompt do useObjectManipulation
-      prompt,
+      prompt, // Simplificado
     selectedStyle,
     mode: mode === 'creativity' ? 'image' : mode, // Passa o modo real para useProjectManagement
     setError: setAppError,
@@ -148,14 +146,14 @@ function App() {
       clearGenerationResults();
       clearCostEstimation();
       clearInternalViews();
-      clearObjectManipulationResults(); // Limpa resultados de object manipulation
+      // clearObjectManipulationResults(); // Removido
       setCreativityPrompt('');
       setCreativityGeneratedImage(null);
-      setObjectManipulationMaskDataUrl(null); // Limpa a máscara
-      setObjectManipulationPrompt(''); // Limpa o prompt de object manipulation
+      // setObjectManipulationMaskDataUrl(null); // Removido
+      // setObjectManipulationPrompt(''); // Removido
       setAppError(null);
     }
-  }, [mode, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, clearObjectManipulationResults, setCreativityPrompt, setCreativityGeneratedImage, setObjectManipulationMaskDataUrl, setObjectManipulationPrompt]);
+  }, [mode, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, setCreativityPrompt, setCreativityGeneratedImage]); // Dependências atualizadas
 
   const handleLogout = useCallback(async () => {
     console.log('App.tsx: [handleLogout] Iniciando logout...');
@@ -191,11 +189,11 @@ function App() {
       clearGenerationResults();
       clearCostEstimation();
       clearInternalViews();
-      clearObjectManipulationResults(); // Limpa resultados de object manipulation
+      // clearObjectManipulationResults(); // Removido
       setCreativityPrompt('');
       setCreativityGeneratedImage(null);
-      setObjectManipulationMaskDataUrl(null); // Limpa a máscara
-      setObjectManipulationPrompt(''); // Limpa o prompt de object manipulation
+      // setObjectManipulationMaskDataUrl(null); // Removido
+      // setObjectManipulationPrompt(''); // Removido
       closeAllModals();
       setAppError(null);
 
@@ -203,7 +201,7 @@ function App() {
       console.error('App.tsx: [handleLogout] Erro inesperado durante o logout:', e);
       setAppError(`Ocorreu um erro inesperado durante o logout: ${(e as Error).message}.`);
     }
-  }, [session, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, clearObjectManipulationResults, closeAllModals, setAppError, setCreativityPrompt, setCreativityGeneratedImage, setObjectManipulationMaskDataUrl, setObjectManipulationPrompt]);
+  }, [session, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, closeAllModals, setAppError, setCreativityPrompt, setCreativityGeneratedImage]); // Dependências atualizadas
 
   const openLoginModal = useCallback(() => navigate('/login'), [navigate]);
   const openSignupModal = useCallback(() => navigate('/login'), [navigate]);
@@ -355,33 +353,7 @@ function App() {
           />
         )}
 
-        {mode === 'objectManipulation' && (
-          <ObjectManipulationView
-            user={user}
-            setBuyCreditsModalOpen={setBuyCreditsModalOpen}
-            setError={setAppError}
-            onSaveToProject={() => setSaveModalOpen(true)}
-            projects={projects}
-            saveProject={saveProject}
-            originalImageFile={originalImageFile} // Passa o originalImageFile
-            originalImagePreview={originalImagePreview} // Passa o originalImagePreview
-            onImageChange={handleImageChange} // Passa o handler de imagem
-            onClearImage={handleClearImage} // Passa o handler de limpar imagem
-            fileInputKey={fileInputKey} // Passa a key do input de arquivo
-            maskDataUrl={objectManipulationMaskDataUrl} // Passa a URL da máscara
-            setMaskDataUrl={setObjectManipulationMaskDataUrl} // Passa o setter da máscara
-            prompt={objectManipulationPrompt} // Passa o prompt do hook
-            setPrompt={setObjectManipulationPrompt} // Passa o setter do prompt do hook
-            generatedImage={objectManipulationGeneratedImage} // Passa a imagem gerada do hook
-            isLoading={isObjectManipulationLoading} // Passa o estado de loading do hook
-            generationError={objectManipulationGenerationError} // Passa o erro do hook
-            handleCleanObject={handleCleanObject} // Passa a função de limpeza
-            handleReplaceObject={handleReplaceObject} // Passa a função de substituição
-            clearResults={clearObjectManipulationResults} // Passa a função de limpar resultados
-            cleanCost={cleanCost} // Passa o custo de limpeza
-            replaceCost={replaceCost} // Passa o custo de substituição
-          />
-        )}
+        {/* ObjectManipulationView foi removido */}
 
         {mode === 'exteriorDesign' && (
           <ExteriorDesignView
@@ -404,7 +376,7 @@ function App() {
           onLoadGeneration={handleLoadGeneration}
         />
       )}
-      {isSaveModalOpen && user && (generatedImage || creativityGeneratedImage || objectManipulationGeneratedImage) && (
+      {isSaveModalOpen && user && (generatedImage || creativityGeneratedImage) && ( // Condição atualizada
         <SaveToProjectModal
           projects={projects}
           onClose={() => setSaveModalOpen(false)}

@@ -9,7 +9,8 @@ import { useCostEstimation } from '../hooks/useCostEstimation';
 import { useInternalViews } from '../hooks/useInternalViews';
 import { showSuccess, showError } from '../utils/toast';
 import { EXTERIOR_STYLE_OPTIONS } from '../constants';
-import CameraIcon from '../components/icons/CameraIcon'; // Importar CameraIcon
+// CameraIcon não é mais necessário aqui, pois está no ImageUploader
+// import CameraIcon from '../components/icons/CameraIcon'; 
 
 interface ExteriorDesignViewProps {
   user: User;
@@ -28,10 +29,11 @@ const ExteriorDesignView: React.FC<ExteriorDesignViewProps> = ({
   projects,
   saveProject,
 }) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const photoCanvasRef = useRef<HTMLCanvasElement>(null);
-  const [isCameraActive, setIsCameraActive] = useState(false);
-  const [stream, setStream] = useState<MediaStream | null>(null);
+  // videoRef, photoCanvasRef, isCameraActive, stream não são mais necessários aqui
+  // const videoRef = useRef<HTMLVideoElement>(null);
+  // const photoCanvasRef = useRef<HTMLCanvasElement>(null);
+  // const [isCameraActive, setIsCameraActive] = useState(false);
+  // const [stream, setStream] = useState<MediaStream | null>(null);
 
   const {
     originalImageFile, originalImagePreview,
@@ -74,52 +76,10 @@ const ExteriorDesignView: React.FC<ExteriorDesignViewProps> = ({
 
   const isImageUploaded = originalImagePreview !== null;
 
-  const startCamera = async () => {
-    try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }); // Prefer back camera
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-        videoRef.current.play();
-      }
-      setStream(mediaStream);
-      setIsCameraActive(true);
-    } catch (err) {
-      console.error("Erro ao acessar a câmera:", err);
-      showError("Não foi possível acessar a câmera. Verifique as permissões.");
-      setIsCameraActive(false);
-    }
-  };
-
-  const stopCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      setStream(null);
-    }
-    setIsCameraActive(false);
-  };
-
-  const takePhoto = () => {
-    if (videoRef.current && photoCanvasRef.current) {
-      const video = videoRef.current;
-      const canvas = photoCanvasRef.current;
-      const context = canvas.getContext('2d');
-
-      if (context) {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        canvas.toBlob((blob) => {
-          if (blob) {
-            const file = new File([blob], "camera_photo.png", { type: "image/png" });
-            handleImageChange({ target: { files: [file] } } as React.ChangeEvent<HTMLInputElement>);
-            stopCamera();
-          } else {
-            showError("Falha ao capturar a foto.");
-          }
-        }, 'image/png');
-      }
-    }
-  };
+  // startCamera, stopCamera, takePhoto não são mais necessários aqui
+  // const startCamera = async () => { /* ... */ };
+  // const stopCamera = () => { /* ... */ };
+  // const takePhoto = () => { /* ... */ };
 
   useEffect(() => {
     // Limpar estados ao montar/desmontar ou mudar de modo
@@ -129,7 +89,7 @@ const ExteriorDesignView: React.FC<ExteriorDesignViewProps> = ({
       clearCostEstimation();
       clearInternalViews();
       setError(null);
-      stopCamera(); // Garante que a câmera seja desligada
+      // stopCamera(); // Garante que a câmera seja desligada - removido pois a câmera está no ImageUploader
     };
   }, [clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, setError]);
 
@@ -140,47 +100,13 @@ const ExteriorDesignView: React.FC<ExteriorDesignViewProps> = ({
         <p className="text-gray-600 text-sm">
           Transforme a fachada e o paisagismo do seu imóvel.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-grow">
-            <ImageUploader
-              originalImagePreview={originalImagePreview}
-              onImageChange={handleImageChange}
-              onClearImage={handleClearImage}
-              fileInputKey={fileInputKey}
-            />
-          </div>
-          <div className="flex-shrink-0">
-            {!isCameraActive ? (
-              <button
-                onClick={startCamera}
-                className="w-full sm:w-auto h-full flex flex-col items-center justify-center p-4 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 text-gray-500 hover:border-cs-blue transition-colors duration-300"
-                aria-label="Tirar foto com a câmera"
-              >
-                <CameraIcon className="w-10 h-10 mb-2" />
-                <p className="font-semibold">Tirar Foto</p>
-              </button>
-            ) : (
-              <div className="relative w-full sm:w-auto aspect-video bg-black rounded-lg flex flex-col items-center justify-center">
-                <video ref={videoRef} className="w-full h-full object-cover rounded-lg"></video>
-                <button
-                  onClick={takePhoto}
-                  className="absolute bottom-4 bg-cs-blue text-white p-3 rounded-full shadow-lg hover:bg-cs-blue/90 transition-colors"
-                  aria-label="Capturar foto"
-                >
-                  <CameraIcon className="w-6 h-6" />
-                </button>
-                <button
-                  onClick={stopCamera}
-                  className="absolute top-4 right-4 bg-white/30 text-white p-2 rounded-full hover:bg-white/50 transition-colors"
-                  aria-label="Fechar câmera"
-                >
-                  X
-                </button>
-                <canvas ref={photoCanvasRef} style={{ display: 'none' }}></canvas>
-              </div>
-            )}
-          </div>
-        </div>
+        {/* O ImageUploader agora contém a funcionalidade de câmera */}
+        <ImageUploader
+          originalImagePreview={originalImagePreview}
+          onImageChange={handleImageChange}
+          onClearImage={handleClearImage}
+          fileInputKey={fileInputKey}
+        />
         <PromptControls
           prompt={prompt}
           setPrompt={setPrompt}

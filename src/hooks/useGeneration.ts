@@ -6,7 +6,7 @@ import type { User } from '../types';
 
 interface UseGenerationProps {
   originalImageFile: File | null;
-  mode: 'image' | 'floorplan' | 'dualite' | 'creativity' | 'objectManipulation' | 'exteriorDesign'; // Tipo de modo expandido
+  mode: 'image' | 'floorplan' | 'dualite' | 'creativity' | 'exteriorDesign'; // Tipo de modo atualizado
   setBuyCreditsModalOpen: (isOpen: boolean) => void;
   setError: (error: string | null) => void;
 }
@@ -51,7 +51,6 @@ export const useGeneration = ({
       baseGenerationCost = 3;
       break;
     case 'creativity':
-    case 'objectManipulation':
     case 'dualite':
       baseGenerationCost = 0; // Estes modos não usam este hook para geração principal
       break;

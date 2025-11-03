@@ -10,7 +10,7 @@ interface UseProjectManagementProps {
   generatedImage: string | null;
   prompt: string;
   selectedStyle: string;
-  mode: 'image' | 'floorplan' | 'dualite' | 'creativity' | 'objectManipulation' | 'exteriorDesign';
+  mode: 'image' | 'floorplan' | 'dualite' | 'creativity' | 'exteriorDesign'; // Tipo de modo atualizado
   setError: (error: string | null) => void;
 }
 

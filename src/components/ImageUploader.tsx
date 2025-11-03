@@ -1,6 +1,8 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import UploadIcon from './icons/UploadIcon';
 import XCircleIcon from './icons/XCircleIcon';
+import CameraIcon from './icons/CameraIcon';
+import { showError } from '../utils/toast';
 
 interface ImageUploaderProps {
   originalImagePreview: string | null;
@@ -11,16 +13,95 @@ interface ImageUploaderProps {
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({ originalImagePreview, onImageChange, onClearImage, fileInputKey }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const photoCanvasRef = useRef<HTMLCanvasElement>(null);
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [stream, setStream] = useState<MediaStream | null>(null);
 
   const handleAreaClick = () => {
-    fileInputRef.current?.click();
+    if (!isCameraActive) {
+      fileInputRef.current?.click();
+    }
   };
+
+  const startCamera = async () => {
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }); // Prefer back camera
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+        videoRef.current.play(); // Garante que o vídeo comece a tocar
+      }
+      setStream(mediaStream);
+      setIsCameraActive(true);
+      onClearImage(); // Clear any existing image when camera starts
+    } catch (err) {
+      console.error("Erro ao acessar a câmera:", err);
+      showError("Não foi possível acessar a câmera. Verifique as permissões.");
+      setIsCameraActive(false);
+    }
+  };
+
+  const stopCamera = () => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+    }
+    setIsCameraActive(false);
+  };
+
+  const takePhoto = () => {
+    if (videoRef.current && photoCanvasRef.current) {
+      const video = videoRef.current;
+      const canvas = photoCanvasRef.current;
+      const context = canvas.getContext('2d');
+
+      if (context) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const file = new File([blob], "camera_photo.png", { type: "image/png" });
+            onImageChange({ target: { files: [file] } } as React.ChangeEvent<HTMLInputElement>);
+            stopCamera();
+          } else {
+            showError("Falha ao capturar a foto.");
+          }
+        }, 'image/png');
+      }
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      stopCamera(); // Stop camera when component unmounts
+    };
+  }, []);
 
   return (
     <div className="w-full">
       <h2 className="text-lg font-semibold text-gray-700 mb-2">1. Envie uma Imagem</h2>
       <div className="relative w-full aspect-video bg-white rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center hover:border-cs-blue transition-colors duration-300 p-2">
-        {originalImagePreview ? (
+        {isCameraActive ? (
+          <div className="relative w-full h-full bg-black rounded-lg flex flex-col items-center justify-center">
+            <video ref={videoRef} className="w-full h-full object-cover rounded-lg"></video>
+            <button
+              onClick={takePhoto}
+              className="absolute bottom-4 bg-cs-blue text-white p-3 rounded-full shadow-lg hover:bg-cs-blue/90 transition-colors"
+              aria-label="Capturar foto"
+            >
+              <CameraIcon className="w-6 h-6" />
+            </button>
+            <button
+              onClick={stopCamera}
+              className="absolute top-4 right-4 bg-white/30 text-white p-2 rounded-full hover:bg-white/50 transition-colors"
+              aria-label="Fechar câmera"
+            >
+              X
+            </button>
+            <canvas ref={photoCanvasRef} style={{ display: 'none' }}></canvas>
+          </div>
+        ) : originalImagePreview ? (
           <>
             <img src={originalImagePreview} alt="Preview" className="max-h-full max-w-full object-contain rounded-md" />
             <button
@@ -40,6 +121,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ originalImagePreview, onI
             <p className="font-semibold">Clique para enviar</p>
             <p className="text-sm">ou arraste e solte uma imagem</p>
             <span className="text-xs text-gray-400 mt-2">PNG, JPG, WEBP</span>
+            <button
+              onClick={(e) => { e.stopPropagation(); startCamera(); }}
+              className="mt-4 flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
+              aria-label="Tirar foto com a câmera"
+            >
+              <CameraIcon className="w-5 h-5" />
+              Tirar Foto
+            </button>
           </div>
         )}
         <input
