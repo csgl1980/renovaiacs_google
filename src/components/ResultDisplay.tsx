@@ -143,43 +143,44 @@ const ResultDisplay: React.FC<ResultDisplayProps> = (props) => {
     }
   };
   
-  const hasResult = !isLoading && generatedImage;
+  const hasAnyImage = generatedImage || originalPreview;
 
   return (
     <div className="w-full flex flex-col gap-4">
       <div className="relative w-full aspect-video bg-white rounded-lg border border-gray-200 flex items-center justify-center overflow-hidden shadow-sm">
-        {isLoading && (
-          <div className="text-center text-gray-600">
-            <div className="w-10 h-10 border-4 border-gray-200 border-t-cs-blue rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="font-semibold text-lg">Gerando sua transformação...</p>
-            <p className="text-sm text-gray-500">Isso pode levar alguns segundos.</p>
-          </div>
-        )}
-        {error && !isLoading && (
-          <div className="text-center text-red-600 p-4">
-            <h3 className="font-bold text-lg mb-2">Ocorreu um Erro</h3>
-            <p className="text-sm bg-red-50 p-3 rounded-md">{error}</p>
-          </div>
-        )}
-        {!isLoading && !error && !generatedImage && (
+        {/* Exibe a imagem gerada ou a original como base */}
+        {generatedImage ? (
+          <img src={generatedImage} alt="Generated result" className="max-h-full max-w-full object-contain" />
+        ) : originalPreview ? (
+          <img src={originalPreview} alt="Original" className="max-h-full max-w-full object-contain" />
+        ) : (
           <div className="text-center text-gray-500 p-4">
              <h3 className="text-lg font-semibold text-gray-700">O resultado aparecerá aqui</h3>
              <p className="text-sm">Envie um arquivo e descreva sua ideia para começar.</p>
           </div>
         )}
-        {hasResult && (
-          <>
-            <img src={generatedImage} alt="Generated result" className="max-h-full max-w-full object-contain" />
-            {(isVariationLoading) && (
-              <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center">
-                  <div className="w-8 h-8 border-4 border-gray-200 border-t-cs-blue rounded-full animate-spin"></div>
-              </div>
-            )}
-          </>
+
+        {/* Overlays de carregamento e erro */}
+        {(isLoading || isVariationLoading) && (
+          <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center z-10">
+            <div className="text-center text-gray-600">
+              <div className="w-10 h-10 border-4 border-gray-200 border-t-cs-blue rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="font-semibold text-lg">Gerando sua transformação...</p>
+              <p className="text-sm text-gray-500">Isso pode levar alguns segundos.</p>
+            </div>
+          </div>
+        )}
+        {error && !isLoading && !isVariationLoading && (
+          <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center z-10">
+            <div className="text-center text-red-600 p-4">
+              <h3 className="font-bold text-lg mb-2">Ocorreu um Erro</h3>
+              <p className="text-sm bg-red-50 p-3 rounded-md">{error}</p>
+            </div>
+          </div>
         )}
       </div>
 
-      {hasResult && (
+      {hasAnyImage && (
         <div className="flex items-center justify-center gap-4 bg-gray-50 p-2 rounded-full">
           <ActionButton onClick={handleDownload} label="Baixar Imagem">
             <DownloadIcon className="w-5 h-5" />

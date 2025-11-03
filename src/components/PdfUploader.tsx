@@ -56,7 +56,7 @@ const PdfUploader: React.FC<PdfUploaderProps> = ({ onPdfChange, pdfPreview, isPr
       }
       setStream(mediaStream);
       setIsCameraActive(true);
-      handleClear(); // Clear any existing PDF when camera starts
+      // handleClear(); // REMOVIDO: Não limpar o PDF/imagem original ao iniciar a câmera
       setShowOptions(false); // Fecha as opções após iniciar a câmera
     } catch (err) {
       console.error("Erro ao acessar a câmera:", err);

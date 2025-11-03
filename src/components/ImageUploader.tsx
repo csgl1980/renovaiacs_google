@@ -45,7 +45,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ originalImagePreview, onI
       }
       setStream(mediaStream);
       setIsCameraActive(true);
-      onClearImage(); // Clear any existing image when camera starts
+      // onClearImage(); // REMOVIDO: Não limpar a imagem original ao iniciar a câmera
       setShowOptions(false); // Fecha as opções após iniciar a câmera
     } catch (err) {
       console.error("Erro ao acessar a câmera:", err);
