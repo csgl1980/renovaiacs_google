@@ -27,7 +27,7 @@ function App() {
   const navigate = useNavigate();
   const { session, user, isLoading: isSessionLoading, refreshUser } = useSession();
 
-  console.log('App.tsx: Render - isSessionLoading:', isSessionLoading, 'session:', session, 'user:', user);
+  console.log('App.tsx: Render - isSessionLoading:', isSessionLoading, 'session:', session ? 'present' : 'null', 'user:', user ? 'present' : 'null');
 
   const [appError, setAppError] = useState<string | null>(null);
 
@@ -107,7 +107,7 @@ function App() {
   });
 
   useEffect(() => {
-    console.log('App.tsx: useEffect for redirection - isSessionLoading:', isSessionLoading, 'session:', session, 'user:', user);
+    console.log('App.tsx: useEffect for redirection - isSessionLoading:', isSessionLoading, 'session:', session ? 'present' : 'null', 'user:', user ? 'present' : 'null');
     if (!isSessionLoading && !session) {
       console.log('App.tsx: Redirecting to /login due to no session.');
       navigate('/login', { replace: true });
@@ -195,6 +195,25 @@ function App() {
         <p className="text-lg font-semibold text-gray-700 ml-4">Carregando sessão...</p>
       </div>
     );
+  }
+
+  // Se a sessão está presente, mas o perfil do usuário ainda não foi carregado ou falhou ao carregar
+  if (session && !user) {
+    console.warn('App.tsx: Session is present, but user profile is not yet loaded or failed to load. Displaying loading state.');
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="w-10 h-10 border-4 border-gray-200 border-t-cs-blue rounded-full animate-spin"></div>
+        <p className="text-lg font-semibold text-gray-700 ml-4">Carregando perfil do usuário...</p>
+      </div>
+    );
+  }
+
+  // Se não há sessão e não está carregando, redireciona para o login.
+  // Isso deve ser capturado pelo useEffect, mas serve como um fallback.
+  if (!session) {
+    console.warn('App.tsx: No session found after loading. Redirecting to login (fallback).');
+    navigate('/login', { replace: true });
+    return null; // Previne a renderização de qualquer outra coisa
   }
 
   // Log para depurar a condição do SaveToProjectModal

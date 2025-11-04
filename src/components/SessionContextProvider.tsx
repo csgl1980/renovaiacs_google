@@ -30,7 +30,7 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchUserProfile = useCallback(async (currentSession: Session) => {
-    console.log('SessionContext: [fetchUserProfile] Tentando buscar perfil para user ID:', currentSession.user.id);
+    console.log('SessionContext: [fetchUserProfile] Attempting to fetch profile for user ID:', currentSession.user.id);
     const { data: profileDataArray, error: profileError } = await supabase
       .from('profiles')
       .select('id, first_name, last_name, email, credits, is_admin')
@@ -38,74 +38,75 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
       .limit(1);
 
     if (profileError) {
-      console.error('SessionContext: [fetchUserProfile] Erro ao buscar perfil:', profileError);
-      // Em caso de erro na busca, retorna um objeto de usuário básico com is_admin: false
+      console.error('SessionContext: [fetchUserProfile] Error fetching profile:', profileError);
+      // Fallback to a basic user object in case of error
       return {
         id: currentSession.user.id,
         first_name: currentSession.user.user_metadata?.first_name || '',
         last_name: currentSession.user.user_metadata?.last_name || '',
         email: currentSession.user.email || '',
-        credits: 10,
+        credits: 10, // Default credits
         is_admin: false,
       };
     }
 
     if (profileDataArray && profileDataArray.length > 0) {
       const profileData = profileDataArray[0];
-      console.log('SessionContext: [fetchUserProfile] Perfil do usuário encontrado:', profileData);
+      console.log('SessionContext: [fetchUserProfile] User profile found:', profileData);
       return profileData as User;
     } else {
-      console.warn('SessionContext: [fetchUserProfile] Nenhum perfil encontrado para user ID:', currentSession.user.id, '. Criando objeto de usuário básico.');
+      console.warn('SessionContext: [fetchUserProfile] No profile found for user ID:', currentSession.user.id, '. Creating basic user object.');
+      // Fallback if no profile exists (e.g., new user before trigger runs or trigger failed)
       return {
         id: currentSession.user.id,
         first_name: currentSession.user.user_metadata?.first_name || '',
         last_name: currentSession.user.user_metadata?.last_name || '',
         email: currentSession.user.email || '',
-        credits: 10,
+        credits: 10, // Default credits
         is_admin: false,
       };
     }
   }, []);
 
   const handleAuthChange = useCallback(async (event: string, currentSession: Session | null) => {
-    console.log('SessionContext: [handleAuthChange] Evento:', event, 'Sessão:', currentSession);
+    console.log('SessionContext: [handleAuthChange] Event:', event, 'Current Session:', currentSession ? 'present' : 'null');
     setIsLoading(true);
 
     if (currentSession) {
       setSession(currentSession);
       const fetchedUser = await fetchUserProfile(currentSession);
       setUser(fetchedUser);
-      console.log('SessionContext: [handleAuthChange] Usuário definido no estado:', fetchedUser); // Log adicional
+      console.log('SessionContext: [handleAuthChange] User state set:', fetchedUser);
     } else {
       setSession(null);
       setUser(null);
-      console.log('SessionContext: [handleAuthChange] Usuário definido como null.'); // Log adicional
+      console.log('SessionContext: [handleAuthChange] Session and User set to null.');
     }
     setIsLoading(false);
-    console.log('SessionContext: [handleAuthChange] Finalizado. isLoading:', false, 'Current user state:', user);
-  }, [fetchUserProfile]); // Removido 'user'
+    console.log('SessionContext: [handleAuthChange] Finished. isLoading:', false, 'Current user state:', user ? 'present' : 'null');
+  }, [fetchUserProfile]);
 
   useEffect(() => {
     let isMounted = true;
 
     const setupAuth = async () => {
-      console.log('SessionContext: [setupAuth] Iniciando...');
+      console.log('SessionContext: [setupAuth] Initializing auth setup...');
       setIsLoading(true);
 
       const hash = window.location.hash;
       if (hash) {
-        console.log('SessionContext: [setupAuth] Hash encontrado na URL:', hash);
+        console.log('SessionContext: [setupAuth] Hash found in URL:', hash);
         const hashParams = parseHashParams(hash);
         if (hashParams.access_token && hashParams.refresh_token) {
-          console.log('SessionContext: [setupAuth] Encontrado access_token e refresh_token no hash. Tentando definir a sessão.');
+          console.log('SessionContext: [setupAuth] Found access_token and refresh_token in hash. Attempting to set session.');
           const { error } = await supabase.auth.setSession({
             access_token: hashParams.access_token,
             refresh_token: hashParams.refresh_token,
           });
           if (error) {
-            console.error('SessionContext: [setupAuth] Erro ao definir a sessão a partir do hash:', error);
+            console.error('SessionContext: [setupAuth] Error setting session from hash:', error);
           } else {
-            console.log('SessionContext: [setupAuth] Sessão definida com sucesso a partir do hash.');
+            console.log('SessionContext: [setupAuth] Session successfully set from hash. Clearing URL hash.');
             window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
           }
         }
@@ -114,23 +115,23 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
       const { data: { session: initialSession }, error: sessionError } = await supabase.auth.getSession();
       if (isMounted) {
         if (sessionError) {
-          console.error('SessionContext: [setupAuth] Erro ao obter sessão inicial:', sessionError);
+          console.error('SessionContext: [setupAuth] Error getting initial session:', sessionError);
           setSession(null);
           setUser(null);
         } else if (initialSession) {
-          console.log('SessionContext: [setupAuth] Sessão inicial encontrada:', initialSession);
+          console.log('SessionContext: [setupAuth] Initial session found:', initialSession);
           setSession(initialSession);
           const fetchedUser = await fetchUserProfile(initialSession);
           setUser(fetchedUser);
-          console.log('SessionContext: [setupAuth] Usuário inicial definido no estado:', fetchedUser); // Log adicional
+          console.log('SessionContext: [setupAuth] Initial user state set:', fetchedUser);
         } else {
-          console.log('SessionContext: [setupAuth] Nenhuma sessão inicial encontrada.');
+          console.log('SessionContext: [setupAuth] No initial session found.');
           setSession(null);
           setUser(null);
-          console.log('SessionContext: [setupAuth] Usuário inicial definido como null.'); // Log adicional
+          console.log('SessionContext: [setupAuth] Initial user state set to null.');
         }
         setIsLoading(false);
-        console.log('SessionContext: [setupAuth] Finalizado. isLoading:', false, 'Current user state:', user);
+        console.log('SessionContext: [setupAuth] Initial setup finished. isLoading:', false, 'Current user state:', user ? 'present' : 'null');
       }
     };
 
@@ -146,29 +147,29 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
       isMounted = false;
       authListener.subscription.unsubscribe();
     };
-  }, [handleAuthChange, fetchUserProfile]); // Removido 'user'
+  }, [handleAuthChange, fetchUserProfile]);
 
   const refreshUser = useCallback(async () => {
-    console.log('SessionContext: [refreshUser] chamado.');
+    console.log('SessionContext: [refreshUser] called.');
     setIsLoading(true);
     const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
     if (sessionError) {
-      console.error('SessionContext: [refreshUser] Erro ao obter sessão para refresh:', sessionError);
+      console.error('SessionContext: [refreshUser] Error getting session for refresh:', sessionError);
       setSession(null);
       setUser(null);
     } else if (currentSession) {
       setSession(currentSession);
       const fetchedUser = await fetchUserProfile(currentSession);
       setUser(fetchedUser);
-      console.log('SessionContext: [refreshUser] Usuário atualizado no estado:', fetchedUser); // Log adicional
+      console.log('SessionContext: [refreshUser] User state updated:', fetchedUser);
     } else {
       setSession(null);
       setUser(null);
-      console.log('SessionContext: [refreshUser] Usuário definido como null após refresh.'); // Log adicional
+      console.log('SessionContext: [refreshUser] User state set to null after refresh.');
     }
     setIsLoading(false);
-    console.log('SessionContext: [refreshUser] Finalizado. isLoading:', false, 'Current user state:', user);
-  }, [fetchUserProfile]); // Removido 'user'
+    console.log('SessionContext: [refreshUser] Finished. isLoading:', false, 'Current user state:', user ? 'present' : 'null');
+  }, [fetchUserProfile]);
 
   return (
     <SessionContext.Provider value={{ session, user, isLoading, refreshUser }}>
