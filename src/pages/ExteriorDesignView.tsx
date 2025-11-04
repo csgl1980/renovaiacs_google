@@ -17,6 +17,9 @@ interface ExteriorDesignViewProps {
   onSaveToProject: () => void;
   projects: Project[];
   saveProject: (projectId: string | null, newProjectName: string) => Promise<void>;
+  // Recebendo generatedImage e originalImagePreview como props do App.tsx
+  generatedImage: string | null;
+  originalImagePreview: string | null;
 }
 
 const ExteriorDesignView: React.FC<ExteriorDesignViewProps> = ({
@@ -26,9 +29,13 @@ const ExteriorDesignView: React.FC<ExteriorDesignViewProps> = ({
   onSaveToProject,
   projects,
   saveProject,
+  // Desestruturando as props
+  generatedImage,
+  originalImagePreview,
 }) => {
   const {
-    originalImageFile, originalImagePreview,
+    originalImageFile, 
+    // originalImagePreview, // REMOVIDO: Agora vem como prop
     fileInputKey,
     handleImageChange, handleClearImage,
     clearUploadState, setUploadError,
@@ -36,7 +43,8 @@ const ExteriorDesignView: React.FC<ExteriorDesignViewProps> = ({
 
   const {
     prompt, setPrompt, selectedStyle, setSelectedStyle,
-    generatedImage, setGeneratedImage,
+    // generatedImage, // REMOVIDO: Agora vem como prop
+    setGeneratedImage, // Mantido para que o hook possa atualizar o estado no App.tsx
     isLoading, isVariationLoading, generationError,
     handleGenerate, clearGenerationResults, generationCost,
   } = useGeneration({
@@ -44,6 +52,8 @@ const ExteriorDesignView: React.FC<ExteriorDesignViewProps> = ({
     mode: 'exteriorDesign',
     setBuyCreditsModalOpen,
     setError,
+    // Passando o setGeneratedImage para o hook para que ele possa atualizar o estado no App.tsx
+    setGeneratedImage: setGeneratedImage, 
   });
 
   const {
@@ -70,18 +80,13 @@ const ExteriorDesignView: React.FC<ExteriorDesignViewProps> = ({
 
   // Adicionando logs para depuração
   useEffect(() => {
-    console.log('ExteriorDesignView: Render - originalImagePreview:', originalImagePreview ? 'present' : 'null', 'generatedImage:', generatedImage ? 'present' : 'null');
+    console.log('ExteriorDesignView: Render - originalImagePreview (prop):', originalImagePreview ? 'present' : 'null', 'generatedImage (prop):', generatedImage ? 'present' : 'null');
   }, [originalImagePreview, generatedImage]);
-
-  // Removido o useEffect que limpava estados ao montar/desmontar,
-  // pois a limpeza geral deve ser gerenciada pelo App.tsx ao mudar de modo.
-  // A limpeza de resultados de geração e upload é feita pelos respectivos hooks
-  // quando uma nova operação é iniciada ou um arquivo é limpo manualmente.
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
       <div className="bg-white p-6 rounded-xl shadow-lg flex flex-col gap-6">
-        <h2 className="text-xl font-bold text-gray-800">Paisagismo</h2> {/* Alterado o título aqui também */}
+        <h2 className="text-xl font-bold text-gray-800">Paisagismo</h2>
         <p className="text-gray-600 text-sm">
           Transforme a fachada e o paisagismo do seu imóvel.
         </p>
@@ -106,7 +111,7 @@ const ExteriorDesignView: React.FC<ExteriorDesignViewProps> = ({
       </div>
       <div className="bg-white p-6 rounded-xl shadow-lg">
         <ResultDisplay
-          mode="image" // Tratamos como modo imagem para o ResultDisplay
+          mode="image"
           originalPreview={originalImagePreview}
           generatedImage={generatedImage}
           isLoading={isLoading}

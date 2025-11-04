@@ -17,42 +17,39 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ originalImagePreview, onI
   const photoCanvasRef = useRef<HTMLCanvasElement>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
-  const [showOptions, setShowOptions] = useState(false); // Novo estado para controlar o menu de opções
+  // const [showOptions, setShowOptions] = useState(false); // REMOVIDO: Não precisamos mais de um estado para o modal de opções customizado
 
-  const isMobile = window.matchMedia('(pointer: coarse)').matches; // Detecta dispositivos de toque (geralmente mobile)
+  // const isMobile = window.matchMedia('(pointer: coarse)').matches; // REMOVIDO: Não precisamos mais desta detecção para o fluxo de upload
 
   const handleAreaClick = () => {
     if (!isCameraActive) {
-      if (isMobile) {
-        setShowOptions(true); // No mobile, mostra o menu de opções customizado
-      } else {
-        fileInputRef.current?.click(); // No desktop, abre diretamente o seletor de arquivos
-      }
+      fileInputRef.current?.click(); // Sempre abre o seletor de arquivos. O navegador lida com as opções de câmera/galeria no mobile.
     }
   };
 
-  const handleUploadFromFile = () => {
-    fileInputRef.current?.click();
-    setShowOptions(false);
-  };
+  // REMOVIDO: handleUploadFromFile e startCamera não são mais necessários para o modal customizado
+  // const handleUploadFromFile = () => {
+  //   fileInputRef.current?.click();
+  //   setShowOptions(false);
+  // };
 
-  const startCamera = async () => {
-    try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }); // Prefer back camera
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-        videoRef.current.play(); // Garante que o vídeo comece a tocar
-      }
-      setStream(mediaStream);
-      setIsCameraActive(true);
-      setShowOptions(false); // Fecha as opções após iniciar a câmera
-    } catch (err) {
-      console.error("Erro ao acessar a câmera:", err);
-      showError("Não foi possível acessar a câmera. Verifique as permissões.");
-      setIsCameraActive(false);
-      setShowOptions(false); // Fecha as opções em caso de erro
-    }
-  };
+  // const startCamera = async () => {
+  //   try {
+  //     const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }); // Prefer back camera
+  //     if (videoRef.current) {
+  //       videoRef.current.srcObject = mediaStream;
+  //       videoRef.current.play(); // Garante que o vídeo comece a tocar
+  //     }
+  //     setStream(mediaStream);
+  //     setIsCameraActive(true);
+  //     setShowOptions(false); // Fecha as opções após iniciar a câmera
+  //   } catch (err) {
+  //     console.error("Erro ao acessar a câmera:", err);
+  //     showError("Não foi possível acessar a câmera. Verifique as permissões.");
+  //     setIsCameraActive(false);
+  //     setShowOptions(false); // Fecha as opções em caso de erro
+  //   }
+  // };
 
   const stopCamera = () => {
     if (stream) {
@@ -145,7 +142,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ originalImagePreview, onI
           className="hidden"
         />
 
-        {isMobile && showOptions && (
+        {/* REMOVIDO: O modal de opções customizado para mobile */}
+        {/* {isMobile && showOptions && (
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-10" onClick={() => setShowOptions(false)}>
             <div className="bg-white p-6 rounded-lg shadow-xl flex flex-col gap-4 w-64" onClick={(e) => e.stopPropagation()}>
               <button
@@ -168,7 +166,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ originalImagePreview, onI
               </button>
             </div>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );

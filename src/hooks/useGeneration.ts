@@ -6,9 +6,10 @@ import type { User } from '../types';
 
 interface UseGenerationProps {
   originalImageFile: File | null;
-  mode: 'image' | 'floorplan' | 'dualite' | 'creativity' | 'exteriorDesign'; // Tipo de modo atualizado
+  mode: 'image' | 'floorplan' | 'dualite' | 'creativity' | 'exteriorDesign';
   setBuyCreditsModalOpen: (isOpen: boolean) => void;
   setError: (error: string | null) => void;
+  setGeneratedImage: (image: string | null) => void; // Adicionado para permitir que o App.tsx controle o estado
 }
 
 interface UseGenerationResult {
@@ -16,8 +17,8 @@ interface UseGenerationResult {
   setPrompt: (prompt: string) => void;
   selectedStyle: string;
   setSelectedStyle: (style: string) => void;
-  generatedImage: string | null;
-  setGeneratedImage: (image: string | null) => void; // EXPOSTO
+  generatedImage: string | null; // Mantido para uso interno do hook, mas o App.tsx é o mestre
+  // setGeneratedImage: (image: string | null) => void; // Removido daqui, pois já é uma prop
   isLoading: boolean;
   isVariationLoading: boolean;
   generationError: string | null;
@@ -31,11 +32,13 @@ export const useGeneration = ({
   mode,
   setBuyCreditsModalOpen,
   setError,
+  setGeneratedImage, // Recebido como prop
 }: UseGenerationProps): UseGenerationResult => {
   const { user, refreshUser } = useSession();
   const [prompt, setPrompt] = useState('');
   const [selectedStyle, setSelectedStyle] = useState('');
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [internalGeneratedImage, setInternalGeneratedImage] = useState<string | null>(null); // Estado interno para o hook
+
   const [isLoading, setIsLoading] = useState(false);
   const [isVariationLoading, setIsVariationLoading] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
@@ -61,20 +64,19 @@ export const useGeneration = ({
   const variationCost = 2;
 
   const clearGenerationResults = useCallback(() => {
-    setGeneratedImage(null);
+    setInternalGeneratedImage(null); // Limpa o estado interno
+    setGeneratedImage(null); // Limpa o estado no App.tsx
     setGenerationError(null);
     setError(null);
-  }, [setError]);
+  }, [setError, setGeneratedImage]);
 
   const handleGenerate = useCallback(async (isVariation = false) => {
-    // --- NOVA VERIFICAÇÃO EXPLÍCITA DE MODO ---
     if (!['image', 'floorplan', 'exteriorDesign'].includes(mode)) {
       setGenerationError(`A geração de imagem não é suportada no modo '${mode}' por este componente.`);
       setIsLoading(false);
       setIsVariationLoading(false);
-      return; // Sai imediatamente para modos não suportados
+      return;
     }
-    // --- FIM DA NOVA VERIFICAÇÃO ---
 
     if (!originalImageFile || !user) {
       setError('Dados insuficientes para gerar a imagem ou usuário não autenticado.');
@@ -85,7 +87,6 @@ export const useGeneration = ({
     const currentGenerationCost = isVariation ? variationCost : baseGenerationCost;
     console.log(`useGeneration: Tentando gerar imagem. Custo: ${currentGenerationCost} créditos. Créditos atuais do usuário: ${user.credits}`);
 
-    // Ignorar verificação de créditos e débito para usuários administradores
     if (!user.is_admin) {
       if (user.credits < currentGenerationCost) {
         setGenerationError(`Créditos insuficientes para realizar esta operação. Você precisa de ${currentGenerationCost} créditos.`);
@@ -118,14 +119,13 @@ export const useGeneration = ({
       } else if (mode === 'floorplan') {
         resultImage = await generateConceptFromPlan(originalImageFile, fullPrompt);
       } else {
-        // Este 'else' não deve ser alcançado devido à verificação inicial, mas é um fallback seguro.
         throw new Error(`Modo de geração '${mode}' não suportado por este hook.`);
       }
       console.log('useGeneration: Imagem recebida da IA. Tamanho:', resultImage ? resultImage.length : 'null');
-      setGeneratedImage(resultImage);
+      setInternalGeneratedImage(resultImage); // Atualiza o estado interno
+      setGeneratedImage(resultImage); // Atualiza o estado no App.tsx
       console.log('useGeneration: Imagem gerada com sucesso e definida no estado.');
 
-      // Deduct credits from Supabase ONLY if not admin
       if (!user.is_admin) {
         const newCredits = user.credits - currentGenerationCost;
         console.log(`useGeneration: Deduzindo ${currentGenerationCost} créditos. Novos créditos: ${newCredits}`);
@@ -154,15 +154,15 @@ export const useGeneration = ({
       setIsVariationLoading(false);
       console.log('useGeneration: Geração finalizada.');
     }
-  }, [originalImageFile, user, baseGenerationCost, variationCost, selectedStyle, prompt, mode, setBuyCreditsModalOpen, clearGenerationResults, refreshUser, setError]);
+  }, [originalImageFile, user, baseGenerationCost, variationCost, selectedStyle, prompt, mode, setBuyCreditsModalOpen, clearGenerationResults, refreshUser, setError, setGeneratedImage]);
 
   return {
     prompt,
     setPrompt,
     selectedStyle,
     setSelectedStyle,
-    generatedImage,
-    setGeneratedImage, // EXPOSTO
+    generatedImage: internalGeneratedImage, // Retorna o estado interno
+    setGeneratedImage, // Mantido para compatibilidade, mas o App.tsx é o mestre
     isLoading,
     isVariationLoading,
     generationError,

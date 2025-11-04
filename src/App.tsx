@@ -13,7 +13,6 @@ import BuyCreditsModal from './components/BuyCreditsModal';
 import HotmartRedirectModal from './components/HotmartRedirectModal';
 import PdfUploader from './components/PdfUploader';
 import CreativitySpaceView from './components/CreativitySpaceView';
-// import ObjectManipulationView from './pages/ObjectManipulationView'; // Removido
 import ExteriorDesignView from './pages/ExteriorDesignView';
 
 import { useImageUpload } from './hooks/useImageUpload';
@@ -22,10 +21,9 @@ import { useCostEstimation } from './hooks/useCostEstimation';
 import { useInternalViews } from './hooks/useInternalViews';
 import { useProjectManagement } from './hooks/useProjectManagement';
 import { useModals } from './hooks/useModals';
-// import { useObjectManipulation } from './hooks/useObjectManipulation'; // Removido
 
 function App() {
-  type Mode = 'image' | 'floorplan' | 'dualite' | 'creativity' | 'exteriorDesign'; // Tipo de modo atualizado
+  type Mode = 'image' | 'floorplan' | 'dualite' | 'creativity' | 'exteriorDesign';
   const navigate = useNavigate();
   const { session, user, isLoading: isSessionLoading, refreshUser } = useSession();
 
@@ -54,27 +52,24 @@ function App() {
   const [creativityPrompt, setCreativityPrompt] = useState('');
   const [creativityGeneratedImage, setCreativityGeneratedImage] = useState<string | null>(null);
 
-  // Estados e funções para ObjectManipulationView - REMOVIDOS
-  // const [objectManipulationMaskDataUrl, setObjectManipulationMaskDataUrl] = useState<string | null>(null);
-
-  // useGeneration é chamado incondicionalmente, mas sua lógica interna é protegida por 'mode'
   const {
     prompt, setPrompt, selectedStyle, setSelectedStyle,
-    generatedImage, setGeneratedImage,
+    generatedImage, setGeneratedImage, // setGeneratedImage agora é passado para o hook
     isLoading, isVariationLoading, generationError,
     handleGenerate, clearGenerationResults, generationCost,
   } = useGeneration({
-    originalImageFile: originalImageFile, // Passa o originalImageFile do useImageUpload
+    originalImageFile: originalImageFile,
     mode: mode,
     setBuyCreditsModalOpen,
     setError: setAppError,
+    setGeneratedImage: setGeneratedImage, // Passando o setGeneratedImage do App para o hook
   });
 
   const {
     isEstimatingCost, costEstimate, costError,
     handleEstimateCost, clearCostEstimation, estimationCost,
   } = useCostEstimation({
-    generatedImage: generatedImage, // Não há mais objectManipulationGeneratedImage
+    generatedImage: generatedImage,
     prompt,
     selectedStyle,
     setBuyCreditsModalOpen,
@@ -84,30 +79,11 @@ function App() {
     isInternalViewsLoading, internalViews, internalViewsError,
     handleGenerateInternalViews, clearInternalViews, internalViewsCost,
   } = useInternalViews({
-    generatedImage: generatedImage, // Não há mais objectManipulationGeneratedImage
+    generatedImage: generatedImage,
     prompt,
     selectedStyle,
     setBuyCreditsModalOpen,
   });
-
-  // useObjectManipulation hook e estados relacionados - REMOVIDOS
-  // const {
-  //   prompt: objectManipulationPrompt,
-  //   setPrompt: setObjectManipulationPrompt,
-  //   generatedImage: objectManipulationGeneratedImage,
-  //   isLoading: isObjectManipulationLoading,
-  //   generationError: objectManipulationGenerationError,
-  //   handleCleanObject,
-  //   handleReplaceObject,
-  //   clearResults: clearObjectManipulationResults,
-  //   cleanCost,
-  //   replaceCost,
-  // } = useObjectManipulation({
-  //   originalImageFile: originalImageFile,
-  //   maskDataUrl: objectManipulationMaskDataUrl,
-  //   setBuyCreditsModalOpen,
-  //   setError: setAppError,
-  // });
 
   const {
     projects,
@@ -117,16 +93,16 @@ function App() {
   } = useProjectManagement({
     originalImagePreview: 
       mode === 'creativity' ? creativityGeneratedImage : 
-      originalImagePreview, // Simplificado
+      originalImagePreview,
     pdfPreview,
     generatedImage: 
       mode === 'creativity' ? creativityGeneratedImage : 
-      generatedImage, // Simplificado
+      generatedImage,
     prompt: 
       mode === 'creativity' ? creativityPrompt : 
-      prompt, // Simplificado
+      prompt,
     selectedStyle,
-    mode: mode === 'creativity' ? 'image' : mode, // Passa o modo real para useProjectManagement
+    mode: mode === 'creativity' ? 'image' : mode,
     setError: setAppError,
   });
 
@@ -141,19 +117,15 @@ function App() {
   const handleModeChange = useCallback((newMode: Mode) => {
     if (mode !== newMode) {
       setMode(newMode);
-      // Limpa estados de todos os modos ao mudar, exceto se for para o próprio modo
       clearUploadState();
       clearGenerationResults();
       clearCostEstimation();
       clearInternalViews();
-      // clearObjectManipulationResults(); // Removido
       setCreativityPrompt('');
       setCreativityGeneratedImage(null);
-      // setObjectManipulationMaskDataUrl(null); // Removido
-      // setObjectManipulationPrompt(''); // Removido
       setAppError(null);
     }
-  }, [mode, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, setCreativityPrompt, setCreativityGeneratedImage]); // Dependências atualizadas
+  }, [mode, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, setCreativityPrompt, setCreativityGeneratedImage]);
 
   const handleLogout = useCallback(async () => {
     console.log('App.tsx: [handleLogout] Iniciando logout...');
@@ -189,20 +161,17 @@ function App() {
       clearGenerationResults();
       clearCostEstimation();
       clearInternalViews();
-      // clearObjectManipulationResults(); // Removido
       setCreativityPrompt('');
       setCreativityGeneratedImage(null);
-      // setObjectManipulationMaskDataUrl(null); // Removido
-      // setObjectManipulationPrompt(''); // Removido
       closeAllModals();
       setAppError(null);
-      navigate('/login', { replace: true }); // Redireciona para a tela de login após o logout
+      navigate('/login', { replace: true });
 
     } catch (e) {
       console.error('App.tsx: [handleLogout] Erro inesperado durante o logout:', e);
       setAppError(`Ocorreu um erro inesperado durante o logout: ${(e as Error).message}.`);
     }
-  }, [session, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, closeAllModals, setAppError, setCreativityPrompt, setCreativityGeneratedImage, navigate]); // Dependências atualizadas
+  }, [session, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, closeAllModals, setAppError, setCreativityPrompt, setCreativityGeneratedImage, navigate]);
 
   const openLoginModal = useCallback(() => navigate('/login'), [navigate]);
   const openSignupModal = useCallback(() => navigate('/login'), [navigate]);
@@ -227,6 +196,15 @@ function App() {
       </div>
     );
   }
+
+  // Log para depurar a condição do SaveToProjectModal
+  console.log('App.tsx: SaveToProjectModal condition check:', {
+    isSaveModalOpen,
+    user: !!user,
+    generatedImage: !!generatedImage,
+    creativityGeneratedImage: !!creativityGeneratedImage,
+    mode,
+  });
 
   return (
     <div className="bg-gray-50 min-h-screen font-sans">
@@ -354,8 +332,6 @@ function App() {
           />
         )}
 
-        {/* ObjectManipulationView foi removido */}
-
         {mode === 'exteriorDesign' && (
           <ExteriorDesignView
             user={user}
@@ -364,6 +340,9 @@ function App() {
             onSaveToProject={() => setSaveModalOpen(true)}
             projects={projects}
             saveProject={saveProject}
+            // Passando generatedImage e originalImagePreview para o ExteriorDesignView
+            generatedImage={generatedImage}
+            originalImagePreview={originalImagePreview}
           />
         )}
       </main>
@@ -377,11 +356,29 @@ function App() {
           onLoadGeneration={handleLoadGeneration}
         />
       )}
-      {isSaveModalOpen && user && (generatedImage || creativityGeneratedImage) && ( // Condição atualizada
+      {isSaveModalOpen && user && ( // Condição simplificada
         <SaveToProjectModal
           projects={projects}
           onClose={() => setSaveModalOpen(false)}
           onSave={(projectId, newProjectName) => {
+            // Determina qual imagem e prompt usar com base no modo atual
+            let imageToSave = generatedImage;
+            let promptToSave = prompt;
+            let originalImageToSave = originalImagePreview;
+
+            if (mode === 'creativity') {
+              imageToSave = creativityGeneratedImage;
+              promptToSave = creativityPrompt;
+              originalImageToSave = creativityGeneratedImage; // Para criatividade, a "original" é a gerada
+            }
+            // Para exteriorDesign, generatedImage e originalImagePreview já vêm do useGeneration/useImageUpload
+
+            if (!imageToSave || !originalImageToSave) {
+              setAppError('Não há imagem gerada ou original para salvar no projeto.');
+              setSaveModalOpen(false);
+              return;
+            }
+
             saveProject(projectId, newProjectName);
             setSaveModalOpen(false);
           }}
