@@ -17,9 +17,9 @@ interface ExteriorDesignViewProps {
   onSaveToProject: () => void;
   projects: Project[];
   saveProject: (projectId: string | null, newProjectName: string) => Promise<void>;
-  // Recebendo generatedImage e originalImagePreview como props do App.tsx
   generatedImage: string | null;
   originalImagePreview: string | null;
+  setGeneratedImage: (image: string | null) => void; // Adicionado como prop
 }
 
 const ExteriorDesignView: React.FC<ExteriorDesignViewProps> = ({
@@ -29,13 +29,12 @@ const ExteriorDesignView: React.FC<ExteriorDesignViewProps> = ({
   onSaveToProject,
   projects,
   saveProject,
-  // Desestruturando as props
   generatedImage,
   originalImagePreview,
+  setGeneratedImage, // Desestruturado das props
 }) => {
   const {
     originalImageFile, 
-    // originalImagePreview, // REMOVIDO: Agora vem como prop
     fileInputKey,
     handleImageChange, handleClearImage,
     clearUploadState, setUploadError,
@@ -43,8 +42,6 @@ const ExteriorDesignView: React.FC<ExteriorDesignViewProps> = ({
 
   const {
     prompt, setPrompt, selectedStyle, setSelectedStyle,
-    // generatedImage, // REMOVIDO: Agora vem como prop
-    setGeneratedImage, // Mantido para que o hook possa atualizar o estado no App.tsx
     isLoading, isVariationLoading, generationError,
     handleGenerate, clearGenerationResults, generationCost,
   } = useGeneration({
@@ -52,8 +49,7 @@ const ExteriorDesignView: React.FC<ExteriorDesignViewProps> = ({
     mode: 'exteriorDesign',
     setBuyCreditsModalOpen,
     setError,
-    // Passando o setGeneratedImage para o hook para que ele possa atualizar o estado no App.tsx
-    setGeneratedImage: setGeneratedImage, 
+    setGeneratedImage: setGeneratedImage, // Passando a prop para o hook
   });
 
   const {
@@ -78,7 +74,6 @@ const ExteriorDesignView: React.FC<ExteriorDesignViewProps> = ({
 
   const isImageUploaded = originalImagePreview !== null;
 
-  // Adicionando logs para depuração
   useEffect(() => {
     console.log('ExteriorDesignView: Render - originalImagePreview (prop):', originalImagePreview ? 'present' : 'null', 'generatedImage (prop):', generatedImage ? 'present' : 'null');
   }, [originalImagePreview, generatedImage]);

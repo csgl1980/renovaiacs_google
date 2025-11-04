@@ -367,6 +367,7 @@ function App() {
             // Passando generatedImage e originalImagePreview para o ExteriorDesignView
             generatedImage={generatedImage} // Usando o estado do App.tsx
             originalImagePreview={originalImagePreview}
+            setGeneratedImage={setGeneratedImage} // Adicionado como prop
           />
         )}
       </main>
