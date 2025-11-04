@@ -9,8 +9,6 @@ import { useCostEstimation } from '../hooks/useCostEstimation';
 import { useInternalViews } from '../hooks/useInternalViews';
 import { showSuccess, showError } from '../utils/toast';
 import { EXTERIOR_STYLE_OPTIONS } from '../constants';
-// CameraIcon não é mais necessário aqui, pois está no ImageUploader
-// import CameraIcon from '../components/icons/CameraIcon'; 
 
 interface ExteriorDesignViewProps {
   user: User;
@@ -29,12 +27,6 @@ const ExteriorDesignView: React.FC<ExteriorDesignViewProps> = ({
   projects,
   saveProject,
 }) => {
-  // videoRef, photoCanvasRef, isCameraActive, stream não são mais necessários aqui
-  // const videoRef = useRef<HTMLVideoElement>(null);
-  // const photoCanvasRef = useRef<HTMLCanvasElement>(null);
-  // const [isCameraActive, setIsCameraActive] = useState(false);
-  // const [stream, setStream] = useState<MediaStream | null>(null);
-
   const {
     originalImageFile, originalImagePreview,
     fileInputKey,
@@ -49,7 +41,7 @@ const ExteriorDesignView: React.FC<ExteriorDesignViewProps> = ({
     handleGenerate, clearGenerationResults, generationCost,
   } = useGeneration({
     originalImageFile,
-    mode: 'exteriorDesign', // Modo correto para este hook
+    mode: 'exteriorDesign',
     setBuyCreditsModalOpen,
     setError,
   });
@@ -76,31 +68,23 @@ const ExteriorDesignView: React.FC<ExteriorDesignViewProps> = ({
 
   const isImageUploaded = originalImagePreview !== null;
 
-  // startCamera, stopCamera, takePhoto não são mais necessários aqui
-  // const startCamera = async () => { /* ... */ };
-  // const stopCamera = () => { /* ... */ };
-  // const takePhoto = () => { /* ... */ };
-
+  // Adicionando logs para depuração
   useEffect(() => {
-    // Limpar estados ao montar/desmontar ou mudar de modo
-    return () => {
-      clearUploadState();
-      clearGenerationResults();
-      clearCostEstimation();
-      clearInternalViews();
-      setError(null);
-      // stopCamera(); // Garante que a câmera seja desligada - removido pois a câmera está no ImageUploader
-    };
-  }, [clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, setError]);
+    console.log('ExteriorDesignView: Render - originalImagePreview:', originalImagePreview ? 'present' : 'null', 'generatedImage:', generatedImage ? 'present' : 'null');
+  }, [originalImagePreview, generatedImage]);
+
+  // Removido o useEffect que limpava estados ao montar/desmontar,
+  // pois a limpeza geral deve ser gerenciada pelo App.tsx ao mudar de modo.
+  // A limpeza de resultados de geração e upload é feita pelos respectivos hooks
+  // quando uma nova operação é iniciada ou um arquivo é limpo manualmente.
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
       <div className="bg-white p-6 rounded-xl shadow-lg flex flex-col gap-6">
-        <h2 className="text-xl font-bold text-gray-800">Design Exterior</h2>
+        <h2 className="text-xl font-bold text-gray-800">Paisagismo</h2> {/* Alterado o título aqui também */}
         <p className="text-gray-600 text-sm">
           Transforme a fachada e o paisagismo do seu imóvel.
         </p>
-        {/* O ImageUploader agora contém a funcionalidade de câmera */}
         <ImageUploader
           originalImagePreview={originalImagePreview}
           onImageChange={handleImageChange}
@@ -137,7 +121,7 @@ const ExteriorDesignView: React.FC<ExteriorDesignViewProps> = ({
           isInternalViewsLoading={isInternalViewsLoading}
           internalViews={internalViews}
           internalViewsError={internalViewsError}
-          onSaveToProject={onSaveToProject} // Passa a função onSaveToProject
+          onSaveToProject={onSaveToProject}
           credits={user.credits}
           variationCost={2}
           internalViewsCost={internalViewsCost}

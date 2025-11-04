@@ -121,8 +121,9 @@ export const useGeneration = ({
         // Este 'else' não deve ser alcançado devido à verificação inicial, mas é um fallback seguro.
         throw new Error(`Modo de geração '${mode}' não suportado por este hook.`);
       }
+      console.log('useGeneration: Imagem recebida da IA. Tamanho:', resultImage ? resultImage.length : 'null');
       setGeneratedImage(resultImage);
-      console.log('useGeneration: Imagem gerada com sucesso.');
+      console.log('useGeneration: Imagem gerada com sucesso e definida no estado.');
 
       // Deduct credits from Supabase ONLY if not admin
       if (!user.is_admin) {

@@ -132,7 +132,7 @@ const Header: React.FC<HeaderProps> = ({ user, onLogin, onSignup, onLogout, onOp
       <div className="max-w-7xl mx-auto p-2 mt-4 bg-gray-100 rounded-lg flex justify-center flex-wrap gap-2">
         <ModeButton mode="image" label="Renovar Ambiente" />
         <ModeButton mode="floorplan" label="Renderizar Planta" />
-        <ModeButton mode="exteriorDesign" label="Design Exterior" />
+        <ModeButton mode="exteriorDesign" label="Paisagismo" /> {/* Alterado de 'Design Exterior' para 'Paisagismo' */}
         <ModeButton mode="creativity" label="Espaço Criatividade" />
       </div>
     </header>
