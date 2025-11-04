@@ -52,9 +52,12 @@ function App() {
   const [creativityPrompt, setCreativityPrompt] = useState('');
   const [creativityGeneratedImage, setCreativityGeneratedImage] = useState<string | null>(null);
 
+  // Declarando generatedImage e setGeneratedImage no App.tsx
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+
   const {
     prompt, setPrompt, selectedStyle, setSelectedStyle,
-    generatedImage, setGeneratedImage, // setGeneratedImage agora é passado para o hook
+    // generatedImage não é mais desestruturado aqui, pois é um estado do App.tsx
     isLoading, isVariationLoading, generationError,
     handleGenerate, clearGenerationResults, generationCost,
   } = useGeneration({
@@ -69,7 +72,7 @@ function App() {
     isEstimatingCost, costEstimate, costError,
     handleEstimateCost, clearCostEstimation, estimationCost,
   } = useCostEstimation({
-    generatedImage: generatedImage,
+    generatedImage: generatedImage, // Usando o estado do App.tsx
     prompt,
     selectedStyle,
     setBuyCreditsModalOpen,
@@ -79,7 +82,7 @@ function App() {
     isInternalViewsLoading, internalViews, internalViewsError,
     handleGenerateInternalViews, clearInternalViews, internalViewsCost,
   } = useInternalViews({
-    generatedImage: generatedImage,
+    generatedImage: generatedImage, // Usando o estado do App.tsx
     prompt,
     selectedStyle,
     setBuyCreditsModalOpen,
@@ -97,7 +100,7 @@ function App() {
     pdfPreview,
     generatedImage: 
       mode === 'creativity' ? creativityGeneratedImage : 
-      generatedImage,
+      generatedImage, // Usando o estado do App.tsx
     prompt: 
       mode === 'creativity' ? creativityPrompt : 
       prompt,
@@ -123,9 +126,10 @@ function App() {
       clearInternalViews();
       setCreativityPrompt('');
       setCreativityGeneratedImage(null);
+      setGeneratedImage(null); // Limpa a imagem gerada ao mudar de modo
       setAppError(null);
     }
-  }, [mode, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, setCreativityPrompt, setCreativityGeneratedImage]);
+  }, [mode, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, setCreativityPrompt, setCreativityGeneratedImage, setGeneratedImage]);
 
   const handleLogout = useCallback(async () => {
     console.log('App.tsx: [handleLogout] Iniciando logout...');
@@ -163,6 +167,7 @@ function App() {
       clearInternalViews();
       setCreativityPrompt('');
       setCreativityGeneratedImage(null);
+      setGeneratedImage(null); // Limpa a imagem gerada ao fazer logout
       closeAllModals();
       setAppError(null);
       navigate('/login', { replace: true });
@@ -171,7 +176,7 @@ function App() {
       console.error('App.tsx: [handleLogout] Erro inesperado durante o logout:', e);
       setAppError(`Ocorreu um erro inesperado durante o logout: ${(e as Error).message}.`);
     }
-  }, [session, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, closeAllModals, setAppError, setCreativityPrompt, setCreativityGeneratedImage, navigate]);
+  }, [session, clearUploadState, clearGenerationResults, clearCostEstimation, clearInternalViews, closeAllModals, setAppError, setCreativityPrompt, setCreativityGeneratedImage, setGeneratedImage, navigate]);
 
   const openLoginModal = useCallback(() => navigate('/login'), [navigate]);
   const openSignupModal = useCallback(() => navigate('/login'), [navigate]);
@@ -272,7 +277,7 @@ function App() {
               <ResultDisplay
                 mode={mode}
                 originalPreview={originalImagePreview || pdfPreview}
-                generatedImage={generatedImage}
+                generatedImage={generatedImage} // Usando o estado do App.tsx
                 isLoading={isLoading}
                 isVariationLoading={isVariationLoading}
                 error={generationError || appError}
@@ -318,7 +323,7 @@ function App() {
               <ResultDisplay
                 mode={mode}
                 originalPreview={originalImagePreview || pdfPreview}
-                generatedImage={generatedImage}
+                generatedImage={generatedImage} // Usando o estado do App.tsx
                 isLoading={isLoading}
                 isVariationLoading={isVariationLoading}
                 error={generationError || appError}
@@ -360,7 +365,7 @@ function App() {
             projects={projects}
             saveProject={saveProject}
             // Passando generatedImage e originalImagePreview para o ExteriorDesignView
-            generatedImage={generatedImage}
+            generatedImage={generatedImage} // Usando o estado do App.tsx
             originalImagePreview={originalImagePreview}
           />
         )}

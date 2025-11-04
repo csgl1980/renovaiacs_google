@@ -9,7 +9,7 @@ interface UseGenerationProps {
   mode: 'image' | 'floorplan' | 'dualite' | 'creativity' | 'exteriorDesign';
   setBuyCreditsModalOpen: (isOpen: boolean) => void;
   setError: (error: string | null) => void;
-  setGeneratedImage: (image: string | null) => void; // Adicionado para permitir que o App.tsx controle o estado
+  setGeneratedImage: (image: string | null) => void; // Função para atualizar o estado do componente pai
 }
 
 interface UseGenerationResult {
@@ -17,8 +17,7 @@ interface UseGenerationResult {
   setPrompt: (prompt: string) => void;
   selectedStyle: string;
   setSelectedStyle: (style: string) => void;
-  generatedImage: string | null; // Mantido para uso interno do hook, mas o App.tsx é o mestre
-  // setGeneratedImage: (image: string | null) => void; // Removido daqui, pois já é uma prop
+  // generatedImage não é mais retornado por este hook, pois é gerenciado pelo componente pai
   isLoading: boolean;
   isVariationLoading: boolean;
   generationError: string | null;
@@ -32,12 +31,12 @@ export const useGeneration = ({
   mode,
   setBuyCreditsModalOpen,
   setError,
-  setGeneratedImage, // Recebido como prop
+  setGeneratedImage, // Recebido como prop do componente pai
 }: UseGenerationProps): UseGenerationResult => {
   const { user, refreshUser } = useSession();
   const [prompt, setPrompt] = useState('');
   const [selectedStyle, setSelectedStyle] = useState('');
-  const [internalGeneratedImage, setInternalGeneratedImage] = useState<string | null>(null); // Estado interno para o hook
+  // Removido o estado interno de generatedImage, agora ele é gerenciado pelo componente pai
 
   const [isLoading, setIsLoading] = useState(false);
   const [isVariationLoading, setIsVariationLoading] = useState(false);
@@ -64,7 +63,6 @@ export const useGeneration = ({
   const variationCost = 2;
 
   const clearGenerationResults = useCallback(() => {
-    setInternalGeneratedImage(null); // Limpa o estado interno
     setGeneratedImage(null); // Limpa o estado no App.tsx
     setGenerationError(null);
     setError(null);
@@ -122,7 +120,6 @@ export const useGeneration = ({
         throw new Error(`Modo de geração '${mode}' não suportado por este hook.`);
       }
       console.log('useGeneration: Imagem recebida da IA. Tamanho:', resultImage ? resultImage.length : 'null');
-      setInternalGeneratedImage(resultImage); // Atualiza o estado interno
       setGeneratedImage(resultImage); // Atualiza o estado no App.tsx
       console.log('useGeneration: Imagem gerada com sucesso e definida no estado.');
 
@@ -161,8 +158,7 @@ export const useGeneration = ({
     setPrompt,
     selectedStyle,
     setSelectedStyle,
-    generatedImage: internalGeneratedImage, // Retorna o estado interno
-    setGeneratedImage, // Mantido para compatibilidade, mas o App.tsx é o mestre
+    // generatedImage não é mais retornado
     isLoading,
     isVariationLoading,
     generationError,
