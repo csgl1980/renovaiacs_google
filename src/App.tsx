@@ -41,7 +41,7 @@ function App() {
   } = useModals();
 
   const {
-    originalImageFile, originalImagePreview,
+    originalImageFile, originalImagePreview, // <--- Estes são os estados e handlers do useImageUpload do App.tsx
     pdfFile, pdfPreview, isProcessingPdf, fileInputKey,
     handleImageChange, handlePdfChange, handleClearImage,
     clearUploadState, setUploadError,
@@ -368,6 +368,11 @@ function App() {
             generatedImage={generatedImage} // Usando o estado do App.tsx
             originalImagePreview={originalImagePreview}
             setGeneratedImage={setGeneratedImage} // Adicionado como prop
+            // Passando as props de upload de imagem do App.tsx
+            originalImageFile={originalImageFile}
+            handleImageChange={handleImageChange}
+            handleClearImage={handleClearImage}
+            fileInputKey={fileInputKey}
           />
         )}
       </main>

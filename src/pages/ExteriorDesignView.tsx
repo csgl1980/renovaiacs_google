@@ -3,7 +3,7 @@ import type { User, Project } from '../types';
 import ImageUploader from '../components/ImageUploader';
 import PromptControls from '../components/PromptControls';
 import ResultDisplay from '../components/ResultDisplay';
-import { useImageUpload } from '../hooks/useImageUpload';
+// Removido: import { useImageUpload } from '../hooks/useImageUpload'; // Não é mais necessário aqui
 import { useGeneration } from '../hooks/useGeneration';
 import { useCostEstimation } from '../hooks/useCostEstimation';
 import { useInternalViews } from '../hooks/useInternalViews';
@@ -19,7 +19,12 @@ interface ExteriorDesignViewProps {
   saveProject: (projectId: string | null, newProjectName: string) => Promise<void>;
   generatedImage: string | null;
   originalImagePreview: string | null;
-  setGeneratedImage: (image: string | null) => void; // Adicionado como prop
+  setGeneratedImage: (image: string | null) => void;
+  // Novas props para o upload de imagem, passadas do App.tsx
+  originalImageFile: File | null;
+  handleImageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleClearImage: () => void;
+  fileInputKey: number;
 }
 
 const ExteriorDesignView: React.FC<ExteriorDesignViewProps> = ({
@@ -31,25 +36,31 @@ const ExteriorDesignView: React.FC<ExteriorDesignViewProps> = ({
   saveProject,
   generatedImage,
   originalImagePreview,
-  setGeneratedImage, // Desestruturado das props
+  setGeneratedImage,
+  // Desestruturando as novas props de upload
+  originalImageFile,
+  handleImageChange,
+  handleClearImage,
+  fileInputKey,
 }) => {
-  const {
-    originalImageFile, 
-    fileInputKey,
-    handleImageChange, handleClearImage,
-    clearUploadState, setUploadError,
-  } = useImageUpload(setError);
+  // Removido: useImageUpload não é mais chamado aqui
+  // const {
+  //   originalImageFile, 
+  //   fileInputKey,
+  //   handleImageChange, handleClearImage,
+  //   clearUploadState, setUploadError,
+  // } = useImageUpload(setError);
 
   const {
     prompt, setPrompt, selectedStyle, setSelectedStyle,
     isLoading, isVariationLoading, generationError,
     handleGenerate, clearGenerationResults, generationCost,
   } = useGeneration({
-    originalImageFile,
+    originalImageFile, // Usando a prop originalImageFile
     mode: 'exteriorDesign',
     setBuyCreditsModalOpen,
     setError,
-    setGeneratedImage: setGeneratedImage, // Passando a prop para o hook
+    setGeneratedImage: setGeneratedImage,
   });
 
   const {
@@ -86,10 +97,10 @@ const ExteriorDesignView: React.FC<ExteriorDesignViewProps> = ({
           Transforme a fachada e o paisagismo do seu imóvel.
         </p>
         <ImageUploader
-          originalImagePreview={originalImagePreview}
-          onImageChange={handleImageChange}
-          onClearImage={handleClearImage}
-          fileInputKey={fileInputKey}
+          originalImagePreview={originalImagePreview} // Usando a prop originalImagePreview
+          onImageChange={handleImageChange} // Usando a prop handleImageChange
+          onClearImage={handleClearImage} // Usando a prop handleClearImage
+          fileInputKey={fileInputKey} // Usando a prop fileInputKey
         />
         <PromptControls
           prompt={prompt}
