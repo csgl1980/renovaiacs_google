@@ -9,20 +9,14 @@ const AuthForm: React.FC = () => {
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('AuthForm: Auth state change event:', event, 'session:', session);
       if (event === 'SIGNED_IN') {
-        // Este evento é disparado após login bem-sucedido, cadastro (se auto-confirmado) ou confirmação de e-mail
         showSuccess('Login realizado com sucesso!');
-        // O redirecionamento para /app será tratado por LoginPage/RootRedirector
       } else if (event === 'SIGNED_OUT') {
         showSuccess('Você foi desconectado.');
       } else if (event === 'PASSWORD_RECOVERY') {
         showSuccess('Verifique seu e-mail para o link de recuperação de senha.');
-        // O componente Auth irá automaticamente para a visualização 'update_password' se o usuário clicar no link
       } else if (event === 'USER_UPDATED') {
-        // Este evento é disparado após a redefinição de senha
         showSuccess('Sua senha foi atualizada com sucesso!');
-        // O componente Auth irá automaticamente voltar para a visualização 'sign_in'
       } else if (event === 'MFA_CHALLENGE') {
-        // Handle MFA challenge if implemented
         showError('Autenticação de múltiplos fatores necessária.');
       } else if (event === 'USER_DELETED') {
         showSuccess('Sua conta foi excluída com sucesso.');
@@ -34,16 +28,45 @@ const AuthForm: React.FC = () => {
     };
   }, []);
 
-  const redirectToUrl = "https://renovaiacs-google.vercel.app/app"; // URL pública do seu aplicativo
+  // A URL de redirecionamento deve apontar para a página onde o AuthForm está renderizado
+  // para que o componente Auth possa lidar com os estados de recuperação de senha e confirmação.
+  const redirectToUrl = window.location.origin + '/login'; 
 
   return (
     <div className="w-full max-w-md">
       <Auth
         supabaseClient={supabase}
-        appearance={{ theme: ThemeSupa }}
+        appearance={{
+          theme: ThemeSupa,
+          variables: {
+            default: {
+              colors: {
+                brand: '#1A4370', // Azul Veleiro Oceânico
+                brandAccent: '#1A4370', // Cor de destaque para hover, etc.
+              },
+            },
+          },
+        }}
         theme="light"
         providers={[]} // Sem provedores de terceiros solicitados
         redirectTo={redirectToUrl}
+        show_confirm_password={true} // Exibir campo de confirmação de senha no cadastro
+        extraFields={[ // Campos adicionais para o formulário de cadastro
+          {
+            name: 'first_name',
+            label: 'Nome',
+            type: 'text',
+            required: true,
+            placeholder: 'Seu primeiro nome',
+          },
+          {
+            name: 'last_name',
+            label: 'Sobrenome',
+            type: 'text',
+            required: true,
+            placeholder: 'Seu sobrenome',
+          },
+        ]}
         localization={{
           variables: {
             sign_in: {
