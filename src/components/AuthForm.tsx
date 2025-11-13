@@ -36,6 +36,7 @@ const AuthForm: React.FC = () => {
   return (
     <div className="w-full max-w-md">
       <Auth
+        key="supabase-auth-form" // Adicionado key para forçar a re-renderização e garantir que as props sejam aplicadas
         supabaseClient={supabase}
         appearance={{
           theme: ThemeSupa,
@@ -49,10 +50,10 @@ const AuthForm: React.FC = () => {
           },
         }}
         theme="light"
-        providers={[]} // Sem provedores de terceiros solicitados
+        providers={[]}
         redirectTo={redirectToUrl}
-        show_confirm_password={true} // Exibir campo de confirmação de senha no cadastro
-        extraFields={[ // Campos adicionais para o formulário de cadastro
+        show_confirm_password={true} // Garante que o campo de confirmação de senha apareça
+        extraFields={[ // Garante que os campos adicionais apareçam no formulário de cadastro
           {
             name: 'first_name',
             label: 'Nome',
