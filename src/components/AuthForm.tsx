@@ -30,6 +30,7 @@ const AuthForm: React.FC = () => {
 
   // A URL de redirecionamento deve apontar para a página onde o AuthForm está renderizado
   // para que o componente Auth possa lidar com os estados de recuperação de senha e confirmação.
+  // Esta URL deve corresponder à 'Redirect URL' configurada no Supabase para e-mails de autenticação.
   const redirectToUrl = window.location.origin + '/login'; 
 
   return (
