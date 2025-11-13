@@ -100,8 +100,8 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
         // Check if it's a password recovery flow
         const isPasswordRecovery = hashParams.type === 'recovery';
 
+        // MODIFICAÇÃO: Só tenta definir a sessão se NÃO for um fluxo de recuperação de senha
         if (hashParams.access_token && hashParams.refresh_token && !isPasswordRecovery) {
-          // Only set session from hash if NOT a password recovery
           console.log('SessionContext: [setupAuth] Found access_token and refresh_token in hash (NOT recovery). Attempting to set session.');
           const { error } = await supabase.auth.setSession({
             access_token: hashParams.access_token,
@@ -111,12 +111,12 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
             console.error('SessionContext: [setupAuth] Error setting session from hash:', error);
           } else {
             console.log('SessionContext: [setupAuth] Session successfully set from hash. Clearing URL hash.');
-            // Clear the hash ONLY if it's not a recovery flow, as Auth component needs it.
+            // Limpa o hash APENAS se não for um fluxo de recuperação, pois o AuthForm precisa dele.
             window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
           }
         } else if (isPasswordRecovery) {
           console.log('SessionContext: [setupAuth] Detected password recovery flow. Skipping automatic session set from hash.');
-          // Do NOT clear the hash here, the Auth component needs it to show update_password view.
+          // Não limpa o hash aqui, o AuthForm precisa dele para mostrar a view de update_password.
         }
       }
 
