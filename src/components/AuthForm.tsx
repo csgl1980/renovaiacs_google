@@ -358,16 +358,31 @@ const AuthForm: React.FC = () => {
 
       {!isPasswordRecoveryFlow && !showForgotPasswordInput && (
         <div className="mt-6 text-center">
-          <button
-            onClick={() => setIsSignUp(!isSignUp)}
-            className="font-medium text-cs-blue hover:text-cs-blue/90"
-          >
-            {isSignUp ? 'Já tem uma conta? Entrar' : 'Não tem uma conta? Cadastre-se'}
-          </button>
-          {!isSignUp && (
+          <div className="flex justify-center gap-4 mb-4"> {/* Container para botões lado a lado */}
             <button
-              onClick={() => setShowForgotPasswordInput(true)} // Abre o formulário de input de e-mail
-              className="block mt-2 font-medium text-gray-600 hover:text-gray-800 text-sm"
+              type="button"
+              onClick={() => setIsSignUp(false)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                !isSignUp ? 'bg-cs-blue text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              Entrar
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsSignUp(true)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                isSignUp ? 'bg-cs-blue text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              Cadastre-se
+            </button>
+          </div>
+          {!isSignUp && ( // "Esqueceu sua senha?" apenas visível no modo de login
+            <button
+              type="button"
+              onClick={() => setShowForgotPasswordInput(true)}
+              className="block w-full mt-2 text-center font-medium text-gray-600 hover:text-gray-800 text-sm"
             >
               Esqueceu sua senha?
             </button>

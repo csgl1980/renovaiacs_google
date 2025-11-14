@@ -10,8 +10,13 @@ const LoginPage: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log('LoginPage: useEffect - isLoading:', isLoading, 'session:', session, 'user:', user);
-    if (!isLoading && session && user) {
+    const hash = window.location.hash;
+    const isPasswordRecovery = hash.includes('type=recovery');
+
+    console.log('LoginPage: useEffect - isLoading:', isLoading, 'session:', session, 'user:', user, 'isPasswordRecovery:', isPasswordRecovery);
+    
+    // Only redirect if NOT in a password recovery flow AND session/user exist
+    if (!isLoading && session && user && !isPasswordRecovery) {
       console.log('LoginPage: Sessão e usuário encontrados, navegando para /app');
       navigate('/app', { replace: true });
     }

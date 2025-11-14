@@ -72,7 +72,7 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
     console.log('SessionContext: [handleAuthChange] Event:', event, 'Current Session:', currentSession ? 'present' : 'null');
     setIsLoading(true);
 
-    // Verifica se estamos em um fluxo de recuperação de senha na URL
+    // Check if it's a password recovery flow in the URL hash
     const hash = window.location.hash;
     const hashParams = parseHashParams(hash);
     const isPasswordRecovery = hashParams.type === 'recovery';
@@ -82,7 +82,7 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
       setSession(null);
       setUser(null);
       setIsLoading(false);
-      return; // Não processa a sessão se for recuperação de senha
+      return; // Do not process session if it's password recovery
     }
 
     if (currentSession) {
@@ -111,15 +111,16 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
       const isPasswordRecovery = hashParams.type === 'recovery';
 
       if (isPasswordRecovery) {
-        console.log('SessionContext: [setupAuth] Detected password recovery flow. Skipping session retrieval and setting session/user to null.');
+        console.log('SessionContext: [setupAuth] Detected password recovery flow. Explicitly signing out to prevent auto-login.');
+        await supabase.auth.signOut(); // Force sign out
         setSession(null);
         setUser(null);
         setIsLoading(false);
-        // Não limpa o hash aqui, o AuthForm precisa dele.
-        return; // Sai da função setupAuth para evitar qualquer carregamento de sessão
+        // Do NOT clear the hash here, AuthForm needs it to display the password reset UI.
+        return; // Exit early
       }
 
-      // Se não for um fluxo de recuperação de senha, procede com o tratamento normal da sessão
+      // If not a password recovery flow, proceed with normal session handling
       if (hashParams.access_token && hashParams.refresh_token) {
         console.log('SessionContext: [setupAuth] Found access_token and refresh_token in hash (NOT recovery). Attempting to set session.');
         const { error } = await supabase.auth.setSession({
