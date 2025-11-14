@@ -72,6 +72,19 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
     console.log('SessionContext: [handleAuthChange] Event:', event, 'Current Session:', currentSession ? 'present' : 'null');
     setIsLoading(true);
 
+    // Verifica se estamos em um fluxo de recuperação de senha na URL
+    const hash = window.location.hash;
+    const hashParams = parseHashParams(hash);
+    const isPasswordRecovery = hashParams.type === 'recovery';
+
+    if (isPasswordRecovery) {
+      console.log('SessionContext: [handleAuthChange] Detected password recovery flow. Forcing session/user to null.');
+      setSession(null);
+      setUser(null);
+      setIsLoading(false);
+      return; // Não processa a sessão se for recuperação de senha
+    }
+
     if (currentSession) {
       setSession(currentSession);
       const fetchedUser = await fetchUserProfile(currentSession);
@@ -94,29 +107,30 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
       setIsLoading(true);
 
       const hash = window.location.hash;
-      if (hash) {
-        console.log('SessionContext: [setupAuth] Hash found in URL:', hash);
-        const hashParams = parseHashParams(hash);
-        // Check if it's a password recovery flow
-        const isPasswordRecovery = hashParams.type === 'recovery';
+      const hashParams = parseHashParams(hash);
+      const isPasswordRecovery = hashParams.type === 'recovery';
 
-        // MODIFICAÇÃO: Só tenta definir a sessão se NÃO for um fluxo de recuperação de senha
-        if (hashParams.access_token && hashParams.refresh_token && !isPasswordRecovery) {
-          console.log('SessionContext: [setupAuth] Found access_token and refresh_token in hash (NOT recovery). Attempting to set session.');
-          const { error } = await supabase.auth.setSession({
-            access_token: hashParams.access_token,
-            refresh_token: hashParams.refresh_token,
-          });
-          if (error) {
-            console.error('SessionContext: [setupAuth] Error setting session from hash:', error);
-          } else {
-            console.log('SessionContext: [setupAuth] Session successfully set from hash. Clearing URL hash.');
-            // Limpa o hash APENAS se não for um fluxo de recuperação, pois o AuthForm precisa dele.
-            window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
-          }
-        } else if (isPasswordRecovery) {
-          console.log('SessionContext: [setupAuth] Detected password recovery flow. Skipping automatic session set from hash.');
-          // Não limpa o hash aqui, o AuthForm precisa dele para mostrar a view de update_password.
+      if (isPasswordRecovery) {
+        console.log('SessionContext: [setupAuth] Detected password recovery flow. Skipping session retrieval and setting session/user to null.');
+        setSession(null);
+        setUser(null);
+        setIsLoading(false);
+        // Não limpa o hash aqui, o AuthForm precisa dele.
+        return; // Sai da função setupAuth para evitar qualquer carregamento de sessão
+      }
+
+      // Se não for um fluxo de recuperação de senha, procede com o tratamento normal da sessão
+      if (hashParams.access_token && hashParams.refresh_token) {
+        console.log('SessionContext: [setupAuth] Found access_token and refresh_token in hash (NOT recovery). Attempting to set session.');
+        const { error } = await supabase.auth.setSession({
+          access_token: hashParams.access_token,
+          refresh_token: hashParams.refresh_token,
+        });
+        if (error) {
+          console.error('SessionContext: [setupAuth] Error setting session from hash:', error);
+        } else {
+          console.log('SessionContext: [setupAuth] Session successfully set from hash. Clearing URL hash.');
+          window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
         }
       }
 
@@ -136,7 +150,6 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
           console.log('SessionContext: [setupAuth] No initial session found.');
           setSession(null);
           setUser(null);
-          console.log('SessionContext: [setupAuth] Initial user state set to null.');
         }
         setIsLoading(false);
         console.log('SessionContext: [setupAuth] Initial setup finished. isLoading:', false, 'Current user state:', user ? 'present' : 'null');
