@@ -13,7 +13,7 @@ interface SessionContextType {
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
 // Helper function to parse URL hash parameters
-export const parseHashParams = (hash: string) => { // EXPORTADO
+export const parseHashParams = (hash: string) => {
   const params: { [key: string]: string } = {};
   hash.substring(1).split('&').forEach(pair => {
     const [key, value] = pair.split('=');
@@ -106,28 +106,38 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
       console.log('SessionContext: [setupAuth] Initializing auth setup...');
       setIsLoading(true);
 
-      const hash = window.location.hash;
-      const hashParams = parseHashParams(hash);
+      let hash = window.location.hash;
+      let hashParams = parseHashParams(hash);
       const isPasswordRecovery = hashParams.type === 'recovery';
 
       if (isPasswordRecovery) {
-        console.log('SessionContext: [setupAuth] Detected password recovery flow. Explicitly clearing session and preventing auto-login.');
-        // Tenta limpar o armazenamento local diretamente para evitar que o Supabase carregue a sessão
-        localStorage.removeItem('sb-lhoykzhkjuitpqyvbful-auth-token');
+        console.log('SessionContext: [setupAuth] Detected password recovery flow. Attempting to clear session tokens from hash and force sign out.');
+        
+        // Clear access_token and refresh_token from the hash immediately
+        const newHashParams: { [key: string]: string } = {};
+        for (const key in hashParams) {
+          if (key !== 'access_token' && key !== 'refresh_token') {
+            newHashParams[key] = hashParams[key];
+          }
+        }
+        const newHash = Object.keys(newHashParams).map(key => `${key}=${newHashParams[key]}`).join('&');
+        window.history.replaceState({}, document.title, window.location.pathname + window.location.search + (newHash ? `#${newHash}` : ''));
+        
+        // Also ensure Supabase client doesn't hold onto a session
+        await supabase.auth.signOut(); // Force sign out
+        await supabase.auth.setSession({ access_token: '', refresh_token: '' }); // Clear client's internal session
+        localStorage.removeItem('sb-lhoykzhkjuitpqyvbful-auth-token'); // Clear local storage
         localStorage.removeItem('sb-lhoykzhkjuitpqyvbful-auth-refresh-token');
         localStorage.removeItem('sb-lhoykzhkjuitpqyvbful-auth-pkce-code-verifier');
-        
-        // Também tenta limpar o estado interno do cliente Supabase
-        await supabase.auth.setSession({ access_token: '', refresh_token: '' });
-        
+
         setSession(null);
         setUser(null);
         setIsLoading(false);
-        // Não limpa o hash aqui, o AuthForm precisa dele para exibir a UI de reset.
-        return; // Sai da função setupAuth para evitar qualquer carregamento de sessão
+        return; // Exit early, do not proceed with normal session loading
       }
 
-      // Se não for um fluxo de recuperação de senha, procede com o tratamento normal da sessão
+      // If not a password recovery flow, proceed with normal session handling
+      // This part will now operate on a hash that *might* have been cleaned if it was a recovery link
       if (hashParams.access_token && hashParams.refresh_token) {
         console.log('SessionContext: [setupAuth] Found access_token and refresh_token in hash (NOT recovery). Attempting to set session.');
         const { error } = await supabase.auth.setSession({
