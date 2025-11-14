@@ -256,6 +256,28 @@ const AuthForm: React.FC = () => {
       ) : (
         // Formulário de login/cadastro padrão
         <form onSubmit={isSignUp ? handleSignUp : handleSignIn} className="space-y-4">
+          {/* Botões de Entrar/Cadastre-se como controle segmentado */}
+          <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
+            <button
+              type="button"
+              onClick={() => setIsSignUp(false)}
+              className={`w-1/2 p-2 rounded-md font-semibold text-sm transition-colors ${
+                !isSignUp ? 'bg-white text-cs-blue shadow' : 'text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              Entrar
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsSignUp(true)}
+              className={`w-1/2 p-2 rounded-md font-semibold text-sm transition-colors ${
+                isSignUp ? 'bg-white text-cs-blue shadow' : 'text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              Cadastre-se
+            </button>
+          </div>
+
           {isSignUp && (
             <>
               <div>
@@ -353,31 +375,6 @@ const AuthForm: React.FC = () => {
               isSignUp ? 'Cadastre-se' : 'Entrar'
             )}
           </button>
-        </form>
-      )}
-
-      {!isPasswordRecoveryFlow && !showForgotPasswordInput && (
-        <div className="mt-6 text-center">
-          <div className="flex justify-center gap-4 mb-4"> {/* Container para botões lado a lado */}
-            <button
-              type="button"
-              onClick={() => setIsSignUp(false)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                !isSignUp ? 'bg-cs-blue text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              Entrar
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsSignUp(true)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                isSignUp ? 'bg-cs-blue text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              Cadastre-se
-            </button>
-          </div>
           {!isSignUp && ( // "Esqueceu sua senha?" apenas visível no modo de login
             <button
               type="button"
@@ -387,7 +384,7 @@ const AuthForm: React.FC = () => {
               Esqueceu sua senha?
             </button>
           )}
-        </div>
+        </form>
       )}
     </div>
   );

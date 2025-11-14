@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { supabase } from '../integrations/supabase/client';
-import { useSession } from '../components/SessionContextProvider';
+import { useSession, parseHashParams } from '../components/SessionContextProvider'; // Importar parseHashParams
 import { useNavigate } from 'react-router-dom';
 import LogoBranco from '/LOGO BRANCO.jpg';
 import AuthForm from '../components/AuthForm';
@@ -11,7 +11,8 @@ const LoginPage: React.FC = () => {
 
   useEffect(() => {
     const hash = window.location.hash;
-    const isPasswordRecovery = hash.includes('type=recovery');
+    const hashParams = parseHashParams(hash); // Usar a função exportada
+    const isPasswordRecovery = hashParams.type === 'recovery';
 
     console.log('LoginPage: useEffect - isLoading:', isLoading, 'session:', session, 'user:', user, 'isPasswordRecovery:', isPasswordRecovery);
     
